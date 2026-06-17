@@ -1,0 +1,6 @@
+# Ignored folders
+_backup_birthday-app/
+docs/
+
+# System files
+.DS_Store

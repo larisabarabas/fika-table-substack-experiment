@@ -1,0 +1,35 @@
+/* Design tokens — Soft pastel theme (baked in, no switcher) */
+:root {
+  --paper:      #f6f0e6;
+  --panel:      #fffdf8;
+  --ink:        #34302a;
+  --sub:        #7c7468;
+  --accent:     #c9756e;
+  --accent-ink: #fffaf6;
+  --edge:       rgba(52, 48, 42, 0.10);
+  --candle:     #e8a13a;
+
+  /* Frosting pastels — 8 harmonious OKLCH values */
+  --pastel-0: oklch(0.86 0.052 18);
+  --pastel-1: oklch(0.88 0.055 55);
+  --pastel-2: oklch(0.90 0.05  96);
+  --pastel-3: oklch(0.87 0.045 150);
+  --pastel-4: oklch(0.88 0.05  178);
+  --pastel-5: oklch(0.86 0.05  232);
+  --pastel-6: oklch(0.85 0.052 300);
+  --pastel-7: oklch(0.86 0.052 342);
+
+  /* Typography */
+  --f-display: 'Newsreader', Georgia, serif;
+  --f-body:    'Hanken Grotesk', system-ui, sans-serif;
+  --f-script:  'Caveat', cursive;
+  --f-display-weight: 500;
+
+  /* Spacing & shape */
+  --radius-pill:  999px;
+  --radius-card:  14px;
+  --radius-modal: 22px;
+  --container:    1060px;
+  --container-sm: 760px;
+  --px:           28px;
+}

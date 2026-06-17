@@ -1,0 +1,267 @@
+.modal {
+  position: relative;
+  background: var(--panel);
+  border-radius: var(--radius-modal);
+  box-shadow: 0 30px 80px rgba(0,0,0,0.32);
+  width: 100%;
+  max-width: 460px;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.modalWide {
+  max-width: 540px;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .modal {
+    animation: popIn 0.26s cubic-bezier(0.2, 0.8, 0.3, 1) both;
+  }
+
+  @keyframes popIn {
+    from { opacity: 0; transform: scale(0.94) translateY(8px); }
+    to   { opacity: 1; transform: scale(1) translateY(0); }
+  }
+}
+
+/* Close button */
+.closeBtn {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: rgba(52,48,42,0.08);
+  color: var(--ink);
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 0.12s;
+  border: none;
+}
+
+.closeBtn:hover {
+  background: rgba(52,48,42,0.15);
+}
+
+/* ── Read modal ── */
+.frostBand {
+  height: 80px;
+  border-radius: var(--radius-modal) var(--radius-modal) 0 0;
+  display: flex;
+  align-items: flex-end;
+  padding: 0 24px 14px;
+}
+
+.bandNames {
+  font-family: var(--f-display);
+  font-size: 21px;
+  color: var(--ink);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.arrow {
+  font-style: normal;
+  color: var(--sub);
+  font-size: 15px;
+}
+
+.readBody {
+  padding: 20px 24px 28px;
+}
+
+.readMsg {
+  font-family: var(--f-display);
+  font-size: 19px;
+  line-height: 1.6;
+  color: var(--ink);
+  margin: 0 0 16px;
+}
+
+.readTag {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+
+/* ── Give modal ── */
+.give {
+  padding: 28px 28px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.giveHead {
+  margin-bottom: 10px;
+}
+
+.kicker {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 6px;
+}
+
+.giveTitle {
+  font-family: var(--f-display);
+  font-weight: var(--f-display-weight);
+  font-size: 27px;
+  margin: 0 0 8px;
+  color: var(--ink);
+}
+
+.giveSub {
+  font-size: 14.5px;
+  color: var(--sub);
+  line-height: 1.55;
+  margin: 0;
+}
+
+.fieldLabel {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ink);
+  margin-top: 10px;
+  display: block;
+}
+
+.opt {
+  font-weight: 400;
+  color: var(--sub);
+}
+
+.typeGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-top: 6px;
+}
+
+.typeBtn {
+  padding: 9px 12px;
+  border-radius: 10px;
+  border: 1px solid var(--edge);
+  font-size: 13.5px;
+  font-weight: 500;
+  color: var(--ink);
+  cursor: pointer;
+  transition: background 0.12s, border-color 0.12s;
+  text-align: left;
+}
+
+.typeBtn:hover {
+  background: var(--paper);
+}
+
+.typeBtnOn {
+  background: var(--accent) !important;
+  color: var(--accent-ink) !important;
+  border-color: var(--accent) !important;
+}
+
+.input {
+  width: 100%;
+  margin-top: 6px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid var(--edge);
+  background: var(--paper);
+  color: var(--ink);
+  font-size: 14px;
+  outline: none;
+  transition: border-color 0.15s;
+  box-sizing: border-box;
+}
+
+.input:focus {
+  border-color: var(--accent);
+}
+
+.textarea {
+  resize: vertical;
+  min-height: 78px;
+  font-family: inherit;
+  line-height: 1.5;
+}
+
+.hint {
+  font-size: 12.5px;
+  color: var(--sub);
+  margin-top: 4px;
+}
+
+.giveRow {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-top: 4px;
+}
+
+.giveCol {
+  display: flex;
+  flex-direction: column;
+}
+
+.frostPick {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+  margin-top: 8px;
+}
+
+.frostDot {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  border: 2px solid transparent;
+  cursor: pointer;
+  transition: transform 0.12s, border-color 0.12s;
+}
+
+.frostDot:hover {
+  transform: scale(1.15);
+}
+
+.frostDotOn {
+  border-color: var(--ink) !important;
+  transform: scale(1.15);
+}
+
+.giveActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 18px;
+}
+
+/* Spam honeypot — visually hidden, not display:none (bots detect that) */
+.honeypot {
+  position: absolute;
+  left: -9999px;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  opacity: 0;
+}
+
+/* Responsive */
+@media (max-width: 560px) {
+  .typeGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .giveRow {
+    grid-template-columns: 1fr;
+  }
+}

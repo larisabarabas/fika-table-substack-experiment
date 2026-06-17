@@ -1,0 +1,128 @@
+.page {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+
+/* Warm radial glow behind the candles */
+.page::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  background: radial-gradient(60% 48% at 50% 30%, rgba(232, 161, 58, 0.12), transparent 70%);
+}
+
+.wrap {
+  position: relative;
+  z-index: 1;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 56px var(--px) 40px;
+  max-width: var(--container-sm);
+  margin: 0 auto;
+  width: 100%;
+}
+
+/* Candles */
+.candles {
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 16px;
+  height: 110px;
+  margin: 30px 0 6px;
+}
+
+.candle {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.stick {
+  width: 9px;
+  border-radius: 4px;
+  box-shadow: inset -2px 0 0 rgba(0, 0, 0, 0.06);
+  display: block;
+}
+
+/* Headline */
+.headline {
+  font-family: var(--f-display);
+  font-weight: var(--f-display-weight);
+  font-size: clamp(46px, 9vw, 92px);
+  letter-spacing: -0.022em;
+  line-height: 1.0;
+  margin: 14px 0 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.headline em {
+  font-family: var(--f-script);
+  font-style: normal;
+  color: var(--accent);
+  font-size: 1.0em;
+  line-height: 0.98;
+  margin-top: 0.1em;
+  padding-bottom: 0.05em;
+}
+
+/* Lede */
+.lede {
+  font-size: clamp(16px, 2vw, 19px);
+  line-height: 1.62;
+  color: var(--sub);
+  max-width: 540px;
+  margin: 36px auto 0;
+  text-wrap: pretty;
+}
+
+/* Actions */
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  justify-content: center;
+  align-items: center;
+  margin-top: 38px;
+}
+
+/* Fineprint */
+.fineprint {
+  font-size: 14px;
+  color: var(--sub);
+  margin-top: 22px;
+}
+
+/* Footer */
+.footer {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 24px var(--px) 32px;
+  text-align: center;
+}
+
+.footerScript {
+  font-family: var(--f-script);
+  font-size: 30px;
+  color: var(--accent);
+  line-height: 1.1;
+}
+
+.footerSub {
+  font-size: 13.5px;
+  color: var(--sub);
+}
