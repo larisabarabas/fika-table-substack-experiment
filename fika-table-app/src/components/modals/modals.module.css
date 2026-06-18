@@ -148,6 +148,10 @@
   margin-top: 6px;
 }
 
+.typeFull {
+  grid-column: 1 / -1;
+}
+
 .typeBtn {
   padding: 9px 12px;
   border-radius: 10px;

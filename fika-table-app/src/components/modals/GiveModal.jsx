@@ -4,15 +4,16 @@ import { PASTELS, TO_NAME_FALLBACK, CONFIG } from '../../config';
 import styles from './modals.module.css';
 
 const TYPE_OPTS = [
-  { value: 'host',   label: `Leave it for ${CONFIG.hostName}`, ph: 'leave blank' },
-  { value: 'writer', label: 'Pass it to a writer',             ph: 'their name or Substack @handle' },
-  { value: 'reader', label: 'Pass it to a reader',             ph: 'a name, @handle, or "the lurkers"' },
-  { value: 'anyone', label: 'Leave it on the table',           ph: 'leave blank' },
+  { value: 'writer', label: 'For a writer',          ph: 'their name or Substack @handle' },
+  { value: 'reader', label: 'For a reader',          ph: 'a name, @handle, or "the lurkers"' },
+  { value: 'friend', label: 'For a friend',          ph: 'their name or @handle' },
+  { value: 'host',   label: 'For the host',          ph: 'whoever keeps this going' },
+  { value: 'anyone', label: 'Leave it on the table', ph: 'leave blank', full: true },
 ];
 
 export function GiveModal({ idx, onClose, onGive }) {
   const isNote = idx === null;
-  const [toType,   setToType]   = useState('host');
+  const [toType,   setToType]   = useState('anyone');
   const [toName,   setToName]   = useState('');
   const [message,  setMessage]  = useState('');
   const [fromName, setFromName] = useState('');
@@ -23,7 +24,7 @@ export function GiveModal({ idx, onClose, onGive }) {
   const valid = message.trim().length > 1;
 
   const submit = () => {
-    if (!valid || website) return; // silently block if honeypot filled
+    if (!valid || website) return;
     onGive({
       idx,
       fromName: fromName.trim(),
@@ -35,7 +36,7 @@ export function GiveModal({ idx, onClose, onGive }) {
   };
 
   return (
-    <Overlay onClose={onClose} wide label={isNote ? 'Leave a kind word' : 'Cut yourself a slice'}>
+    <Overlay onClose={onClose} wide label="Pour a coffee, take a slice">
       <div className={styles.give}>
         {/* Spam honeypot — hidden from real users, attractive to bots */}
         <div className={styles.honeypot} aria-hidden="true">
@@ -53,23 +54,23 @@ export function GiveModal({ idx, onClose, onGive }) {
         </div>
 
         <div className={styles.giveHead}>
-          <div className={styles.kicker}>{isNote ? 'Leave a note' : `Slice #${idx + 1}`}</div>
-          <h3 className={styles.giveTitle}>{isNote ? 'Leave a kind word' : 'Cut yourself a slice'}</h3>
+          <div className={styles.kicker}>
+            {isNote ? 'A kind word' : `This week · slice #${idx + 1}`}
+          </div>
+          <h3 className={styles.giveTitle}>Pour a coffee, take a slice</h3>
           <p className={styles.giveSub}>
-            {isNote
-              ? `A kind word for anyone at the table — it will appear on the appreciation wall.`
-              : `A slice costs one kind word. Leave it for ${CONFIG.hostName}, or pass it to someone else at the table.`}
+            A slice costs one kind word. Leave it on the table, or pass it to someone you appreciate.
           </p>
         </div>
 
-        <label className={styles.fieldLabel}>Who's this for?</label>
+        <label className={styles.fieldLabel}>Who's this slice for?</label>
         <div className={styles.typeGrid}>
           {TYPE_OPTS.map((o) => (
             <button
               key={o.value}
               type="button"
               aria-pressed={toType === o.value}
-              className={`${styles.typeBtn} ${toType === o.value ? styles.typeBtnOn : ''}`}
+              className={`${styles.typeBtn} ${o.full ? styles.typeFull : ''} ${toType === o.value ? styles.typeBtnOn : ''}`}
               onClick={() => setToType(o.value)}
             >
               {o.label}
@@ -115,13 +116,13 @@ export function GiveModal({ idx, onClose, onGive }) {
             />
           </div>
           <div className={styles.giveCol}>
-            <label className={styles.fieldLabel}>Frosting</label>
+            <label className={styles.fieldLabel}>Foam</label>
             <div className={styles.frostPick}>
               {PASTELS.map((c, i) => (
                 <button
                   key={i}
                   type="button"
-                  aria-label={`Frosting colour ${i + 1}`}
+                  aria-label={`Foam colour ${i + 1}`}
                   className={`${styles.frostDot} ${color === i ? styles.frostDotOn : ''}`}
                   style={{ background: c }}
                   onClick={() => setColor(i)}
@@ -134,7 +135,7 @@ export function GiveModal({ idx, onClose, onGive }) {
         <div className={styles.giveActions}>
           <button className="btn-ghost" onClick={onClose}>Maybe later</button>
           <button className="btn-solid" disabled={!valid} onClick={submit}>
-            {isNote ? 'Leave the note' : 'Cut the slice'}
+            Take the slice
           </button>
         </div>
       </div>

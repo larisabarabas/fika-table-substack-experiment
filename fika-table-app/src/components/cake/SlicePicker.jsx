@@ -1,18 +1,15 @@
 import { lazy, Suspense } from 'react';
+import CakeRound from './CakeRound';
 
-const BdcRound  = lazy(() => import('./BdcRound'));
-const BdcTiered = lazy(() => import('./BdcTiered'));
-const BdcCards  = lazy(() => import('./BdcCards'));
+const SliceCards = lazy(() => import('./SliceCards'));
 
 export function SlicePicker({ mode, ...props }) {
-  let Treatment;
-  if (mode === 'tiered') Treatment = BdcTiered;
-  else if (mode === 'cards') Treatment = BdcCards;
-  else Treatment = BdcRound;
-
-  return (
-    <Suspense fallback={<div style={{ height: 400 }} />}>
-      <Treatment {...props} />
-    </Suspense>
-  );
+  if (mode === 'cards') {
+    return (
+      <Suspense fallback={<div style={{ height: 400 }} />}>
+        <SliceCards {...props} />
+      </Suspense>
+    );
+  }
+  return <CakeRound {...props} />;
 }

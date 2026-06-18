@@ -1,5 +1,5 @@
 import { memo } from 'react';
-import { NameSpan } from '../BdcName';
+import { NameSpan } from '../NameLink';
 import { PASTELS, TYPE_LABEL } from '../../config';
 import styles from './wall.module.css';
 

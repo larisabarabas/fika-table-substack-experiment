@@ -15,24 +15,39 @@
   width: 100%;
 }
 
-.brand {
+.brandGroup {
   display: flex;
+  flex-direction: column;
   align-items: center;
-  gap: 8px;
+  gap: 0;
+  line-height: 1.2;
 }
 
-.brandDot {
-  width: 11px;
-  height: 11px;
-  border-radius: 50%;
-  background: var(--accent);
-  flex-shrink: 0;
+.brandTop {
+  font-family: var(--f-script);
+  font-size: 24px;
+  font-weight: bold;
+  color: var(--accent);
+  text-decoration: none;
 }
 
-.brandName {
-  font-family: var(--f-display);
-  font-size: 20px;
-  color: var(--ink);
+.brandTop:hover {
+  text-decoration: underline;
+}
+
+.brandBottom {
+  font-size: 13px;
+  color: var(--sub);
+}
+
+.brandSubLink {
+  color: var(--sub);
+  text-decoration: none;
+  border-bottom: 1.5px dotted var(--accent);
+}
+
+.brandSubLink:hover {
+  color: var(--accent);
 }
 
 .headRight {
@@ -130,8 +145,8 @@
 }
 
 .loadingPlate {
-  width: min(280px, 70vw);
-  height: min(280px, 70vw);
+  width: min(540px, 92vw);
+  aspect-ratio: 1;
   border-radius: 50%;
   background: var(--panel);
   border: 1px solid var(--edge);
@@ -141,13 +156,18 @@
 
 /* Full banner */
 .fullBanner {
-  text-align: center;
-  padding: 20px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 18px;
+  padding: 16px 22px;
   border-radius: 14px;
   border: 1px solid var(--edge);
   background: var(--panel);
-  color: var(--sub);
-  font-size: 15px;
+  color: var(--ink);
+  font-size: 14.5px;
+  text-align: center;
   margin-bottom: 16px;
 }
 

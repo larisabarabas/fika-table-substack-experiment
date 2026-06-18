@@ -1,9 +1,9 @@
 import { memo } from 'react';
-import { NameSpan } from '../BdcName';
+import { NameSpan } from '../NameLink';
 import { PASTELS, TYPE_LABEL } from '../../config';
-import styles from './BdcCards.module.css';
+import styles from './SliceCards.module.css';
 
-function BdcCards({ count, filled, onSlice }) {
+function SliceCards({ count, filled, onSlice }) {
   return (
     <div className={styles.grid}>
       {Array.from({ length: count }).map((_, i) => {
@@ -13,7 +13,7 @@ function BdcCards({ count, filled, onSlice }) {
           return (
             <button key={i} className={styles.cardEmpty} onClick={() => onSlice(i)}>
               <span className={styles.plus}>+</span>
-              <span className={styles.take}>Cut this slice</span>
+              <span className={styles.take}>Take this slice</span>
             </button>
           );
         }
@@ -35,4 +35,4 @@ function BdcCards({ count, filled, onSlice }) {
   );
 }
 
-export default memo(BdcCards);
+export default memo(SliceCards);

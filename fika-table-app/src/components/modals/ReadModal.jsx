@@ -1,5 +1,5 @@
 import { Overlay } from './Overlay';
-import { NameLink } from '../BdcName';
+import { NameLink } from '../NameLink';
 import { PASTELS, TYPE_LABEL } from '../../config';
 import styles from './modals.module.css';
 

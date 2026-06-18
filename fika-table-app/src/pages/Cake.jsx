@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef, useTransition } from 'react';
+import { Link } from 'react-router-dom';
 import { useSlices } from '../hooks/useSlices';
 import { CONFIG } from '../config';
 import { fireConfetti } from '../lib/confetti';
@@ -9,17 +10,16 @@ import { GiveModal } from '../components/modals/GiveModal';
 import styles from './Cake.module.css';
 
 const MODES = [
-  { k: 'round',  label: 'Round cake' },
-  { k: 'tiered', label: 'Tiered & candles' },
-  { k: 'cards',  label: 'Slice cards' },
+  { k: 'round', label: 'Round cake' },
+  { k: 'cards', label: 'Slice cards' },
 ];
 
 export default function Cake() {
-  const { slices, filled, sharedCount, isFull, loading, insertSlice, nextFreeIdx } = useSlices();
+  const { slices, filled, sharedCount, isFull, loading, insertSlice, nextFreeIdx, roundSize, freshCake } = useSlices();
   const [mode,    setMode]    = useState('round');
   const [filter,  setFilter]  = useState('all');
   const [reading, setReading] = useState(null);
-  const [giving,  setGiving]  = useState(null); // { idx: number|null } | null
+  const [giving,  setGiving]  = useState(null);
   const [, startTransition]   = useTransition();
   const giveHandled           = useRef(false);
 
@@ -30,8 +30,7 @@ export default function Cake() {
     const params = new URLSearchParams(window.location.search);
     if (!params.has('give')) return;
     window.history.replaceState({}, '', window.location.pathname);
-    if (isFull) setGiving({ idx: null });
-    else {
+    if (!isFull) {
       const free = nextFreeIdx();
       if (free !== null) setGiving({ idx: free });
     }
@@ -43,19 +42,16 @@ export default function Cake() {
   };
 
   const openGive = () => {
-    if (isFull) setGiving({ idx: null });
-    else {
-      const free = nextFreeIdx();
-      if (free !== null) setGiving({ idx: free });
-    }
+    if (isFull) return;
+    const free = nextFreeIdx();
+    if (free !== null) setGiving({ idx: free });
   };
 
   const handleGive = async (data) => {
     const result = await insertSlice(data);
     if (result?.error === 'conflict') {
-      // Slice was just taken — move to next free
       const free = nextFreeIdx();
-      setGiving(free !== null ? { idx: free } : { idx: null });
+      if (free !== null) setGiving({ idx: free });
       return;
     }
     if (!result?.error) {
@@ -64,22 +60,25 @@ export default function Cake() {
     }
   };
 
-  const count = CONFIG.sliceCapacity;
-
   return (
     <div className={styles.page}>
       {/* Header */}
       <header className={styles.header}>
-        <div className={styles.brand}>
-          <span className={styles.brandDot} />
-          <span className={styles.brandName}>{CONFIG.newsletter}</span>
+        <div className={styles.brandGroup}>
+          <Link to="/" className={styles.brandTop}>Substack FIKA</Link>
+          <span className={styles.brandBottom}>
+            for{' '}
+            <a href={CONFIG.substackUrl} target="_blank" rel="noopener noreferrer" className={styles.brandSubLink}>
+              {CONFIG.newsletter}
+            </a>
+          </span>
         </div>
         <div className={styles.headRight}>
           <span className={styles.progress}>
-            <b>{sharedCount}</b> / {count} slices cut
+            <b>{sharedCount}</b> / {roundSize} this week
           </span>
-          <button className="btn-solid btn-solid-sm" onClick={openGive}>
-            {isFull ? 'Leave a note' : 'Cut a slice'}
+          <button className="btn-solid btn-solid-sm" onClick={openGive} disabled={isFull}>
+            {CONFIG.cakeCTA}
           </button>
         </div>
       </header>
@@ -87,7 +86,7 @@ export default function Cake() {
       <main className={styles.container}>
         {/* Hero */}
         <section className={styles.hero}>
-          <div className="eyebrow">— A birthday, shared —</div>
+          <div className="eyebrow">{CONFIG.cakeEyebrow}</div>
           <h1 className={styles.headline}>
             <span>{CONFIG.cakeHeadline[0]}</span>
             <em>{CONFIG.cakeHeadline[1]}</em>
@@ -118,7 +117,7 @@ export default function Cake() {
           ) : (
             <SlicePicker
               mode={mode}
-              count={count}
+              count={roundSize}
               filled={filled}
               sharedCount={sharedCount}
               onSlice={onSlice}
@@ -129,7 +128,10 @@ export default function Cake() {
         {/* Full banner */}
         {isFull && (
           <div className={styles.fullBanner}>
-            Every slice has been cut — the whole cake is gone. 🕯️ But the table's still open.
+            <span>{CONFIG.cakeFullBannerText}</span>
+            <button className="btn-solid btn-solid-sm" onClick={freshCake}>
+              {CONFIG.cakeFullBannerCTA}
+            </button>
           </div>
         )}
 
@@ -143,7 +145,7 @@ export default function Cake() {
       </main>
 
       <footer className={styles.footer}>
-        <span className={styles.footerScript}>with love, {CONFIG.hostName}</span>
+        <span className={styles.footerScript}>{CONFIG.footerScript}</span>
         <span className={styles.footerSub}>{CONFIG.footerSub}</span>
       </footer>
 
