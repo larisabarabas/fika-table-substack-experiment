@@ -33,44 +33,44 @@
   transform: translate(-50%, -50%);
   text-align: center;
   pointer-events: none;
-  width: 39%;
-}
-
-.miniCandles {
-  display: flex;
-  align-items: flex-end;
-  justify-content: center;
-  gap: 5px;
-  height: 28px;
-}
-
-.miniCandle {
+  width: 42%;
   display: flex;
   flex-direction: column;
   align-items: center;
+  gap: 6px;
 }
 
-.miniStick {
+/* Mini cake — inline SVG, hand-drawn style */
+.medCake {
+  width: 44px;
+  height: auto;
   display: block;
-  width: 4px;
-  height: 12px;
-  border-radius: 2px;
 }
 
-.age {
-  font-family: var(--f-display);
-  font-weight: var(--f-display-weight);
-  font-size: clamp(28px, 5.5vw, 48px);
-  color: var(--ink);
-  line-height: 1;
-  margin-top: 4px;
-  letter-spacing: -0.02em;
+.medCake :global(.medStand) { fill: var(--w-stand); }
+.medCake :global(.medCake)  { fill: var(--w-cake); }
+.medCake :global(.medFrost) { fill: var(--w-frost); }
+
+.medCake :global(.medLines) ellipse,
+.medCake :global(.medLines) path {
+  fill: none;
+  stroke: var(--ink);
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
 }
 
-.ageSub {
+/* "fika" script word */
+.medFika {
+  font-family: var(--f-script);
+  font-size: clamp(40px, 9vw, 62px);
+  line-height: 0.9;
+  color: var(--accent);
+}
+
+.medSub {
   font-size: clamp(8px, 1.4vw, 11px);
   color: var(--sub);
-  margin-top: 3px;
   line-height: 1.3;
   padding: 0 4px;
 }

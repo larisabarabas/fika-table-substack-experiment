@@ -5,14 +5,14 @@
   position: relative;
 }
 
-/* Warm radial glow behind the candles */
+/* Warm radial glow behind the scene */
 .page::before {
   content: '';
   position: fixed;
   inset: 0;
   pointer-events: none;
   z-index: 0;
-  background: radial-gradient(60% 48% at 50% 30%, rgba(232, 161, 58, 0.12), transparent 70%);
+  background: radial-gradient(58% 46% at 50% 30%, rgba(232, 161, 58, 0.14), transparent 70%);
 }
 
 .wrap {
@@ -25,32 +25,71 @@
   justify-content: center;
   text-align: center;
   padding: 56px var(--px) 40px;
-  max-width: var(--container-sm);
+  max-width: 760px;
   margin: 0 auto;
   width: 100%;
+  gap: 0;
 }
 
-/* Candles */
-.candles {
-  display: flex;
-  align-items: flex-end;
-  justify-content: center;
-  gap: 16px;
-  height: 110px;
-  margin: 30px 0 6px;
+/* ── Hand-drawn fika scene ──────────────────────────────── */
+.scene {
+  width: 300px;
+  max-width: 80%;
+  margin: 22px 0 6px;
 }
 
-.candle {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
-.stick {
-  width: 9px;
-  border-radius: 4px;
-  box-shadow: inset -2px 0 0 rgba(0, 0, 0, 0.06);
+.sceneSvg {
   display: block;
+  width: 100%;
+  height: auto;
+}
+
+.scene :global(.lines) path,
+.scene :global(.lines) ellipse,
+.scene :global(.lines) circle {
+  fill: none;
+  stroke: var(--ink);
+  stroke-width: 1.9;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.scene :global(.steam) {
+  stroke: var(--accent);
+}
+
+.scene :global(.f-stand)  { fill: var(--w-stand); }
+.scene :global(.f-saucer) { fill: var(--w-saucer); }
+.scene :global(.f-cup)    { fill: var(--w-cup); }
+.scene :global(.f-cake)   { fill: var(--w-cake); }
+.scene :global(.f-frost)  { fill: var(--w-frost); }
+.scene :global(.f-slice)  { fill: var(--w-slice); }
+
+@media (prefers-reduced-motion: no-preference) {
+  .scene {
+    animation: float 6s ease-in-out infinite;
+  }
+
+  .scene :global(.steam) {
+    transform-box: fill-box;
+    transform-origin: bottom center;
+    animation: steam 3s ease-in-out infinite;
+  }
+
+  .scene :global(.s2) {
+    animation-delay: 0.9s;
+  }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(-7px); }
+}
+
+@keyframes steam {
+  0%   { opacity: 0.12; transform: translateY(3px) scaleY(0.88); }
+  50%  { opacity: 0.6;  transform: translateY(-2px) scaleY(1.04); }
+  100% { opacity: 0.12; transform: translateY(3px) scaleY(0.88); }
 }
 
 /* Headline */
@@ -60,7 +99,7 @@
   font-size: clamp(46px, 9vw, 92px);
   letter-spacing: -0.022em;
   line-height: 1.0;
-  margin: 14px 0 0;
+  margin: 8px 0 0;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -72,7 +111,7 @@
   color: var(--accent);
   font-size: 1.0em;
   line-height: 0.98;
-  margin-top: 0.1em;
+  margin-top: 0.08em;
   padding-bottom: 0.05em;
 }
 
@@ -82,7 +121,7 @@
   line-height: 1.62;
   color: var(--sub);
   max-width: 540px;
-  margin: 36px auto 0;
+  margin: 32px auto 0;
   text-wrap: pretty;
 }
 
@@ -93,14 +132,38 @@
   gap: 12px;
   justify-content: center;
   align-items: center;
-  margin-top: 38px;
+  margin-top: 36px;
+}
+
+.actions :global(.btn-solid),
+.actions :global(.btn-ghost) {
+  padding: 13px 26px;
+  gap: 8px;
+}
+
+.arrow {
+  font-size: 1.05em;
+}
+
+.actions :global(.btn-ghost):hover {
+  border-color: var(--accent);
+  color: var(--accent);
+  background: transparent;
+}
+
+/* Override global date-pill margin to match design spacing */
+.wrap :global(.date-pill) {
+  margin-top: 24px;
 }
 
 /* Fineprint */
 .fineprint {
   font-size: 14px;
+  line-height: 1.6;
   color: var(--sub);
-  margin-top: 22px;
+  margin-top: 28px;
+  max-width: 460px;
+  text-wrap: pretty;
 }
 
 /* Footer */
@@ -111,7 +174,7 @@
   flex-direction: column;
   align-items: center;
   gap: 4px;
-  padding: 24px var(--px) 32px;
+  padding: 0 var(--px) 48px;
   text-align: center;
 }
 
@@ -125,4 +188,14 @@
 .footerSub {
   font-size: 13.5px;
   color: var(--sub);
+}
+
+.footerLink {
+  color: var(--sub);
+  text-decoration: none;
+  border-bottom: 1.5px dotted var(--accent);
+}
+
+.footerLink:hover {
+  color: var(--accent);
 }

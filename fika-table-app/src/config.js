@@ -2,20 +2,29 @@ export const CONFIG = {
   newsletter:    'Stef\'s Dev Notes',
   hostName:      'Stef',
   hostHandle:    '@stefanialarisa',
-  dateRange:     'June 2026 · thirty candles',
-  age:           30,
-  sliceCapacity: 30,
+  substackUrl:   'https://substack.com/@stefanialarisa',
+  sliceCapacity: 12,
+  dateRange:     'Fresh cake every week · the pot\'s always on',
 
-  // Welcome page copy
-  welcomeEyebrow:  "Stef's Birthday Month",
-  welcomeHeadline: ['The candles', 'are lit'],
-  welcomeLede:     'Stef turned thirty on the 11th. The cake is cut into thirty slices, and one of them is for you. There is one catch: one kind word, for anyone at the table.',
-  welcomeFineprint: 'No gifts, no fuss — just one kind word, passed around a table.',
+  // Welcome page
+  welcomeEyebrow:   'Where Substack writers & readers meet',
+  welcomeHeadline:  ['Pull up', 'a chair'],
+  welcomeLede:      'Fika is the Swedish art of stopping — coffee, something sweet, and time for each other. Each week the cake\'s cut into slices and one has your name on it; the only cost is one kind word for someone whose words you\'re grateful for.',
+  welcomeFineprint:  'No agenda, no fuss — just coffee, cake, and one kind word passed around the table.',
+  welcomeCTA:        'Pour a coffee, take a slice',
+  welcomeGhostCTA:   'See who\'s at the table',
 
-  // Cake page copy
-  cakeHeadline: ['Cut yourself a', 'slice'],
-  cakeSubhead:  'Stef turned thirty. The cake\'s big enough for everyone — readers, writers, lurkers, friends. The only catch: a slice costs one kind word. Leave it for me, or pass it to someone else at the table.',
-  footerSub:    'Thank you for celebrating this anniversary with me. Here\'s to more cake!',
+  // Cake page
+  cakeEyebrow:  '— Pull up a chair —',
+  cakeHeadline: ['Pour a coffee,', 'take a slice'],
+  cakeSubhead:  'Fika is the Swedish art of stopping — a coffee, a slice of cake, a little time for each other. The table\'s big enough for everyone: readers, writers, friends, lurkers. The only catch: a slice costs one kind word. Leave it on the table, or pass it to someone you appreciate.',
+  cakeCTA:      'Take a slice',
+  cakeFullBannerText: 'This week\'s cake is all gone — every slice taken. Bring out a fresh one?',
+  cakeFullBannerCTA:  'Bring out a fresh cake',
+
+  // Shared footer
+  footerScript: 'the table\'s always set',
+  footerSub:    'Pull up a chair whenever you like — there\'s always more coffee.',
 };
 
 // Pastel values as JS strings — needed for SVG fills and confetti
@@ -31,15 +40,17 @@ export const PASTELS = [
 ];
 
 export const TO_NAME_FALLBACK = {
-  host:   'Stef',
+  host:   'the host',
   writer: 'a writer',
   reader: 'a fellow reader',
+  friend: 'a friend',
   anyone: 'the table',
 };
 
 export const TYPE_LABEL = {
   writer: 'for a writer',
   reader: 'for a reader',
-  host:   'for the birthday girl',
+  friend: 'for a friend',
+  host:   'for the host',
   anyone: 'left on the table',
 };

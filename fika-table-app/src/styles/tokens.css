@@ -7,9 +7,10 @@
   --accent:     #c9756e;
   --accent-ink: #fffaf6;
   --edge:       rgba(52, 48, 42, 0.10);
-  --candle:     #e8a13a;
+  --candle:       #e8a13a;
+  --coffee-fill:  linear-gradient(to bottom, #6f4424, #4a2c17);
 
-  /* Frosting pastels — 8 harmonious OKLCH values */
+  /* Foam pastels — 8 harmonious OKLCH values */
   --pastel-0: oklch(0.86 0.052 18);
   --pastel-1: oklch(0.88 0.055 55);
   --pastel-2: oklch(0.90 0.05  96);
@@ -30,6 +31,14 @@
   --radius-card:  14px;
   --radius-modal: 22px;
   --container:    1060px;
+
+  /* Warm-wash illustration fills — fika scene */
+  --w-stand:  oklch(0.95 0.012 80);
+  --w-saucer: oklch(0.96 0.010 80);
+  --w-cup:    oklch(0.93 0.018 70);
+  --w-cake:   oklch(0.86 0.052 24);
+  --w-frost:  oklch(0.91 0.038 18);
+  --w-slice:  oklch(0.88 0.058 72);
   --container-sm: 760px;
   --px:           28px;
 }
