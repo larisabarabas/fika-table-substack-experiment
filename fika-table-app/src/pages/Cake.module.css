@@ -182,12 +182,14 @@
 }
 
 .footerScript {
+  margin: 0;
   font-family: var(--f-script);
   font-size: 1.5em;
   color: var(--accent);
 }
 
 .footerSub {
+  margin: 0;
   font-size: 13.5px;
   color: var(--sub);
 }

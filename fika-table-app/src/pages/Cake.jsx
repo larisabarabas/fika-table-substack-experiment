@@ -86,7 +86,7 @@ export default function Cake() {
       <main className={styles.container}>
         {/* Hero */}
         <section className={styles.hero}>
-          <div className="eyebrow">{CONFIG.cakeEyebrow}</div>
+          <p className="eyebrow">{CONFIG.cakeEyebrow}</p>
           <h1 className={styles.headline}>
             <span>{CONFIG.cakeHeadline[0]}</span>
             <em>{CONFIG.cakeHeadline[1]}</em>
@@ -144,8 +144,8 @@ export default function Cake() {
       </main>
 
       <footer className={styles.footer}>
-        <span className={styles.footerScript}>{CONFIG.footerScript}</span>
-        <span className={styles.footerSub}>{CONFIG.footerSub}</span>
+        <p className={styles.footerScript}>{CONFIG.footerScript}</p>
+        <p className={styles.footerSub}>{CONFIG.footerSub}</p>
       </footer>
 
       {/* Modals */}
