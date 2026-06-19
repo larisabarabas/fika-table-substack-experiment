@@ -84,8 +84,8 @@ button {
   color: var(--accent);
 }
 
-/* Date pill */
-.date-pill {
+/* Tagline pill */
+.tagline-pill {
   display: inline-block;
   margin-top: 26px;
   padding: 8px 18px;

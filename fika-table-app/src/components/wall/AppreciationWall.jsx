@@ -1,4 +1,4 @@
-import { useTransition } from 'react';
+import { useTransition, useMemo } from 'react';
 import WallCard from './WallCard';
 import styles from './wall.module.css';
 
@@ -11,16 +11,18 @@ const FILTERS = [
 export function AppreciationWall({ slices, filter, onFilter, onRead }) {
   const [, startTransition] = useTransition();
 
-  const visible = slices
-    .filter((s) => {
-      if (filter === 'all')    return true;
-      if (filter === 'passed') return s.toType !== 'anyone';
-      if (filter === 'table')  return s.toType === 'anyone';
-      return true;
-    })
-    .toSorted((a, b) =>
-      new Date(b.createdAt) - new Date(a.createdAt) || (a.idx ?? Infinity) - (b.idx ?? Infinity)
-    );
+  const visible = useMemo(() =>
+    slices
+      .filter((s) => {
+        if (filter === 'passed') return s.toType !== 'anyone';
+        if (filter === 'table')  return s.toType === 'anyone';
+        return true;
+      })
+      .toSorted((a, b) =>
+        new Date(b.createdAt) - new Date(a.createdAt) || (a.idx ?? Infinity) - (b.idx ?? Infinity)
+      ),
+    [slices, filter]
+  );
 
   return (
     <section className={styles.wall}>
@@ -47,7 +49,7 @@ export function AppreciationWall({ slices, filter, onFilter, onRead }) {
       ) : (
         <div className={styles.grid}>
           {visible.map((s) => (
-            <WallCard key={s.id} slice={s} onClick={() => onRead(s)} />
+            <WallCard key={s.id} slice={s} onRead={onRead} />
           ))}
         </div>
       )}

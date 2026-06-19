@@ -151,8 +151,8 @@
   background: transparent;
 }
 
-/* Override global date-pill margin to match design spacing */
-.wrap :global(.date-pill) {
+/* Override global tagline-pill margin to match design spacing */
+.wrap :global(.tagline-pill) {
   margin-top: 24px;
 }
 
