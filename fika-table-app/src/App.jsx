@@ -1,6 +1,8 @@
 import { lazy, Suspense } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import './styles/global.css';
+import { Analytics } from '@vercel/analytics/react';
+
 
 const Welcome = lazy(() => import('./pages/Welcome'));
 const Cake    = lazy(() => import('./pages/Cake'));
@@ -16,6 +18,7 @@ export default function App() {
           <Route path="*"     element={<Navigate to="/" replace />} />
         </Routes>
       </Suspense>
+       <Analytics />
     </BrowserRouter>
   );
 }
