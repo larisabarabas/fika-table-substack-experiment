@@ -5,6 +5,15 @@ Single-tenant fika table for **Stef's Dev Notes** newsletter. Readers "pour a co
 
 **Strategy:** Validate the fika concept with Stef's own readers first. If engagement signals are strong (readers leave appreciations for *each other*, not just the host; returning visitors across rounds), invest in multi-tenant.
 
+### Validation learnings (June 2026 — Substack note replies)
+| Insight | Impact on product |
+|---|---|
+| Core hypothesis confirmed: people agree "kind words" are a stronger signal than subscribes | Keep differentiation — lean into *why*, not *what* |
+| But adoption friction is the #1 open question | Embed/widget path moves up priority; reduce steps to participate |
+| "Top" is gamed by influencers — friend-level trust is the real moat | Anti-gaming is a feature, not just hygiene; "friend" recommendation mechanic is the brand |
+| No growth loop = risk of being a "jar of notes" | Need a v1 distribution experiment (shareable cards) |
+| The app itself is the experiment | Ship small, watch whether appreciation drives any measurable growth |
+
 ---
 
 ## Now
@@ -66,6 +75,45 @@ Prerequisite for everything else. Deploy before any UI work.
 
 **Effort:** S
 
+### Phase 9: Shareable appreciation card (growth loop v1)
+Ship alongside the rebrand to test whether appreciation drives any subscription traffic.
+
+**Approach:** Start with Option A (link) + D (text) — lowest effort, tests if people want to share at all before investing in images or serverless.
+
+| # | File | What |
+|---|---|---|
+| 9.1 | `src/components/modals/ReadModal.jsx` | Add "Share" button that opens a share sheet with "Copy link" + "Copy as text" (and native Share API on mobile) |
+| 9.2 | New page `src/pages/Share.jsx` | Route `/share/:id` — renders a minimal, centered appreciation card with note, names, color band, "Subscribe to [handle]" link, and "Leave your own note" back-link |
+| 9.3 | `src/App.jsx` | Add route `/share/:id` → `Share.jsx` |
+| 9.4 | New component `src/components/share/ShareSheet.jsx` | Inline share UI: Copy link, Copy as text, and native Share |
+
+**Share card layout (route `/share/:id`):**
+```
+┌─────────────────────────────┐
+│                             │
+│  ┌───────┐                  │
+│  │ color │                   │
+│  │ band  │                   │
+│  └───────┘                  │
+│                             │
+│  "Your words made my week"  │
+│                             │
+│  — Stef → @writerhandle     │
+│                             │
+│  [Subscribe to writer]      │
+│  [Leave a kind note →]      │
+│                             │
+└─────────────────────────────┘
+```
+
+**Future share options (deferred):**
+| Option | Approach | When |
+|---|---|---|
+| **B — Shareable image** | Render card as PNG via `html-to-image` or Canvas API | If link sharing shows demand but low engagement |
+| **C — Dynamic OG image** | Serverless function to generate Open Graph image per slice | If cross-platform visibility becomes important |
+
+**Effort:** M
+
 ### Phase 8: Polish & Cleanup
 | # | File | What |
 |---|---|---|
@@ -80,7 +128,21 @@ Prerequisite for everything else. Deploy before any UI work.
 
 ## Later
 - **Phase 3 — Coffee cups (`BdcCoffee`)** — full grid with steam. Deferred until validation.
-- Multi-tenant routing, embed script, cross-pub network, weekly automation, spam moderation, theme variants.
+- **Phase 10 — Embed widget** ("What readers are saying" for a writer's Substack). Reduces friction concern.
+- Multi-tenant routing, cross-pub network, weekly automation, spam moderation, theme variants.
+
+### Design constraint: no algorithmic discovery
+Strategic decision validated by feedback: the app will not use charts, leaderboards, or "most appreciated" rankings. Discovery should feel like word of mouth, not a popularity contest.
+
+Alternative discovery mechanics (for multi-tenant / beyond single-newsletter):
+| Mechanic | How it works | When |
+|---|---|---|
+| **Share-driven** (Phase 9) | Someone shares an appreciation card → their followers see it → click through to the writer | MVP — building now |
+| **Follow-network** | "See what [person you trust] appreciates" — discovery through people you already follow | Deferred until multi-tenant validation |
+| **Curiosity browsing** | Unranked directory of writers by topic — browse without scores | Deferred |
+| **Search** | Relevance-matched results from appreciation note content | Deferred |
+
+Anti-patterns (explicitly avoided): trending lists, "top appreciated," popularity-weighted feeds, influencer-boosted discovery.
 
 ---
 
@@ -90,8 +152,11 @@ Prerequisite for everything else. Deploy before any UI work.
 | Readers only leave slices for the host | Medium | High | Ship, watch wall 1 week |
 | Schema breaks existing slices | Low | High | Default `round=null` to round 0 |
 | `friend` type is confusing | Medium | Low | Easy to remove |
+| **No growth loop — app becomes a "jar of notes"** | High | High | Phase 9 (shareable cards) provides v1 distribution test |
+| **Separate app friction kills adoption** | Medium | High | Embed widget (Later) reduces barrier; Phase 9 helps writers distribute externally |
+| **Validation skewed toward creators, not readers** | Medium | Medium | Real test is when Stef's readers interact with it |
 
 ---
 
 ## Order
-**0 → 1 → 2 → 4 → 5 → 6 → 8.** Phase 7 merged into 0.3. Phases 4 and 1 can overlap.
+**0 → 1 → 2 → 4 → 5 → 6 → 9 → 8.** Phase 7 merged into 0.3. Phase 9 (shareable cards via link + text) inserted before polish to test the growth loop early. Future share options (B/C) deferred until link sharing data is available. Phases 4 and 1 can overlap.
