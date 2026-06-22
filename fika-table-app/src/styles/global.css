@@ -77,6 +77,7 @@ button {
 
 /* Eyebrow label */
 .eyebrow {
+  margin: 0;
   font-size: 13px;
   font-weight: 600;
   letter-spacing: 0.18em;
@@ -84,8 +85,8 @@ button {
   color: var(--accent);
 }
 
-/* Date pill */
-.date-pill {
+/* Tagline pill */
+.tagline-pill {
   display: inline-block;
   margin-top: 26px;
   padding: 8px 18px;

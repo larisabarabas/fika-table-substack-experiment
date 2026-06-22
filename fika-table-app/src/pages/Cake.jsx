@@ -86,22 +86,21 @@ export default function Cake() {
       <main className={styles.container}>
         {/* Hero */}
         <section className={styles.hero}>
-          <div className="eyebrow">{CONFIG.cakeEyebrow}</div>
+          <p className="eyebrow">{CONFIG.cakeEyebrow}</p>
           <h1 className={styles.headline}>
             <span>{CONFIG.cakeHeadline[0]}</span>
             <em>{CONFIG.cakeHeadline[1]}</em>
           </h1>
           <p className={styles.subhead}>{CONFIG.cakeSubhead}</p>
-          <div className="date-pill">{CONFIG.dateRange}</div>
+          <div className="tagline-pill">{CONFIG.dateRange}</div>
         </section>
 
         {/* Mode tabs */}
-        <div className={styles.tabs} role="tablist" aria-label="Cake view">
+        <div className={styles.tabs} aria-label="Cake view">
           {MODES.map((m) => (
             <button
               key={m.k}
-              role="tab"
-              aria-selected={mode === m.k}
+              aria-pressed={mode === m.k}
               className={`${styles.tab} ${mode === m.k ? styles.tabOn : ''}`}
               onClick={() => startTransition(() => setMode(m.k))}
             >
@@ -113,7 +112,7 @@ export default function Cake() {
         {/* Cake */}
         <section className={styles.stage}>
           {loading ? (
-            <div className={styles.loadingPlate} />
+            <div className={styles.loadingPlate} role="status" aria-label="Loading" />
           ) : (
             <SlicePicker
               mode={mode}
@@ -127,7 +126,7 @@ export default function Cake() {
 
         {/* Full banner */}
         {isFull && (
-          <div className={styles.fullBanner}>
+          <div className={styles.fullBanner} role="status">
             <span>{CONFIG.cakeFullBannerText}</span>
             <button className="btn-solid btn-solid-sm" onClick={freshCake}>
               {CONFIG.cakeFullBannerCTA}
@@ -145,21 +144,21 @@ export default function Cake() {
       </main>
 
       <footer className={styles.footer}>
-        <span className={styles.footerScript}>{CONFIG.footerScript}</span>
-        <span className={styles.footerSub}>{CONFIG.footerSub}</span>
+        <p className={styles.footerScript}>{CONFIG.footerScript}</p>
+        <p className={styles.footerSub}>{CONFIG.footerSub}</p>
       </footer>
 
       {/* Modals */}
-      {reading && (
+      {reading ? (
         <ReadModal slice={reading} onClose={() => setReading(null)} />
-      )}
-      {giving !== null && (
+      ) : null}
+      {giving !== null ? (
         <GiveModal
           idx={giving.idx}
           onClose={() => setGiving(null)}
           onGive={handleGive}
         />
-      )}
+      ) : null}
     </div>
   );
 }

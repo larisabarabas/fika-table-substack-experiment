@@ -6,7 +6,7 @@ export default function Welcome() {
   return (
     <div className={styles.page}>
       <main className={styles.wrap}>
-        <span className="eyebrow">{CONFIG.welcomeEyebrow}</span>
+        <p className="eyebrow">{CONFIG.welcomeEyebrow}</p>
 
         <div className={styles.scene} aria-hidden="true">
           <svg className={styles.sceneSvg} viewBox="0 0 360 272" xmlns="http://www.w3.org/2000/svg">
@@ -67,11 +67,11 @@ export default function Welcome() {
 
         <p className={styles.lede}>{CONFIG.welcomeLede}</p>
 
-        <div className="date-pill">{CONFIG.dateRange}</div>
+        <div className="tagline-pill">{CONFIG.dateRange}</div>
 
         <div className={styles.actions}>
           <Link to="/cake?give=1" className="btn-solid">
-            {CONFIG.welcomeCTA} <span className={styles.arrow}>→</span>
+            {CONFIG.welcomeCTA} <span className={styles.arrow} aria-hidden="true">→</span>
           </Link>
           <Link to="/cake" className="btn-ghost">
             {CONFIG.welcomeGhostCTA}
@@ -82,12 +82,12 @@ export default function Welcome() {
       </main>
 
       <footer className={styles.footer}>
-        <span className={styles.footerScript}>{CONFIG.footerScript}</span>
-        <span className={styles.footerSub}>
+        <p className={styles.footerScript}>{CONFIG.footerScript}</p>
+        <p className={styles.footerSub}>
           <a href={CONFIG.substackUrl} target="_blank" rel="noopener noreferrer" className={styles.footerLink}>
             {CONFIG.newsletter}
           </a>
-        </span>
+        </p>
       </footer>
     </div>
   );
