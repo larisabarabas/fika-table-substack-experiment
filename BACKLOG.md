@@ -16,6 +16,22 @@ Single-tenant fika table for **Stef's Dev Notes** newsletter. Readers "pour a co
 
 ---
 
+## Must Ship — MVP Launch (week of 2026-06-23)
+
+| # | Where | What | Effort |
+|---|---|---|---|
+| M1 | Supabase console | Enable Realtime — run the two commented-out `ALTER PUBLICATION` lines in `schema.sql` | XS |
+| M2 | Supabase console | Confirm RLS on `cake_config` — `freshCake()` must fail gracefully, not silently, for anon users | XS |
+| M3 | `Cake.jsx` | Render `error` from `useSlices` — users currently see a blank page on Supabase failure | XS |
+| M4 | `GiveModal.jsx` | Add `submitting` state — disable button during insert, surface errors, prevent double-submit | XS |
+| M5 | `Cake.jsx` | Add confirmation before "Bring out a fresh cake" — one click permanently bumps the round for everyone | XS |
+| M6 | `AppreciationWall.jsx` | Fix empty-state copy when a filter is active — "Be the first to take one" is wrong when slices exist but are filtered out | XS |
+| M7 | `Cake.module.css` | Unhide `.progress` on mobile — the scarcity counter is `display:none` below 560px | XS |
+| M8 | `AppreciationWall.jsx` + `wall.module.css` | Add search-by-handle input to the wall — users type their `@handle` to find slices addressed to them; filter matches `toName` case-insensitively (strip leading `@`); empty state updates to "No slices for @handle yet" | S |
+| M9 | Deployment | Confirm the app is live at a shareable URL | — |
+
+---
+
 ## Now
 
 ### Phase 0: Foundation — database, config, data layer
@@ -129,6 +145,7 @@ Ship alongside the rebrand to test whether appreciation drives any subscription 
 ## Later
 - **Phase 3 — Coffee cups (`BdcCoffee`)** — full grid with steam. Deferred until validation.
 - **Phase 10 — Embed widget** ("What readers are saying" for a writer's Substack). Reduces friction concern.
+- **Phase 11 — Backend wall search** — the current `@handle` search in `AppreciationWall` filters slices already loaded in memory (frontend). This is fine for a single newsletter with weekly rounds of 12 slices, but will degrade at scale. If the product is validated and the wall accumulates hundreds of slices across many rounds, move the search to a Supabase full-text or `ilike` query with pagination so only matching rows are fetched.
 - Multi-tenant routing, cross-pub network, weekly automation, spam moderation, theme variants.
 
 ### Design constraint: no algorithmic discovery
