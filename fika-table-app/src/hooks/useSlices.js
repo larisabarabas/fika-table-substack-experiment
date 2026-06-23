@@ -39,6 +39,8 @@ export function useSlices() {
 
   useEffect(() => {
     let active = true;
+    let slicesChannel = null;
+    let configChannel = null;
 
     Promise.all([
       supabase
@@ -54,39 +56,43 @@ export function useSlices() {
       if (!active) return;
       if (sliceErr) { setError(sliceErr); setLoading(false); return; }
       if (cfgErr)   { setError(cfgErr);   setLoading(false); return; }
+
       setSlices((sliceData ?? []).map(rowToSlice));
       if (cfg) {
         setCurrentRound(cfg.round);
         setRoundSize(cfg.round_size);
       }
       setLoading(false);
+
+      slicesChannel = supabase
+        .channel('slices-live')
+        .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'slices' }, (payload) => {
+          const incoming = rowToSlice(payload.new);
+          setSlices(curr => {
+            const exists = curr.some(s => s.id === incoming.id);
+            return exists ? curr : [incoming, ...curr];
+          });
+        })
+        .subscribe();
+
+      configChannel = supabase
+        .channel('config-live')
+        .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'cake_config' }, (payload) => {
+          if (!active) return;
+          setCurrentRound(payload.new.round);
+          setRoundSize(payload.new.round_size);
+        })
+        .subscribe();
+    }).catch((err) => {
+      if (!active) return;
+      setError(err);
+      setLoading(false);
     });
-
-    const slicesChannel = supabase
-      .channel('slices-live')
-      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'slices' }, (payload) => {
-        const incoming = rowToSlice(payload.new);
-        setSlices(curr => {
-          const exists = curr.some(s => s.id === incoming.id);
-          return exists ? curr : [incoming, ...curr];
-        });
-      })
-      .subscribe();
-
-    // Host bumps the round → update live for all visitors
-    const configChannel = supabase
-      .channel('config-live')
-      .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'cake_config' }, (payload) => {
-        if (!active) return;
-        setCurrentRound(payload.new.round);
-        setRoundSize(payload.new.round_size);
-      })
-      .subscribe();
 
     return () => {
       active = false;
-      supabase.removeChannel(slicesChannel);
-      supabase.removeChannel(configChannel);
+      if (slicesChannel) supabase.removeChannel(slicesChannel);
+      if (configChannel) supabase.removeChannel(configChannel);
     };
   }, []);
 
@@ -134,11 +140,15 @@ export function useSlices() {
 
   // Host action: brings out a fresh cake by incrementing the round
   const freshCake = useCallback(async () => {
-    const { error: err } = await supabase
+    const { data, error: err } = await supabase
       .from('cake_config')
       .update({ round: currentRound + 1 })
-      .eq('id', 1);
-    return err ? { error: err.message } : { data: true };
+      .eq('id', 1)
+      .select()
+      .single();
+    if (err) return { error: err.message };
+    if (!data) return { error: 'Could not start a fresh round — permission denied.' };
+    return { data: true };
   }, [currentRound]);
 
   return {

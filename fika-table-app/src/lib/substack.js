@@ -5,7 +5,7 @@ const RE_SUBSTACK_SUB = /^(?:https?:\/\/)?([A-Za-z0-9-]+)\.substack\.com\/?$/i;
 
 export function parseSubstackUrl(name) {
   if (!name) return null;
-  const n = String(name).trim();
+  const n = String(name).trim().replace(/^@{2,}/, '@');
 
   let m = n.match(RE_HANDLE);
   if (m) return 'https://substack.com/@' + m[1];

@@ -7,6 +7,9 @@
   --accent:     #c9756e;
   --accent-ink: #fffaf6;
   --edge:       rgba(52, 48, 42, 0.10);
+  --error:      #b91c1c;
+  --error-bg:   #fff3f3;
+  --error-edge: #f5c6c6;
   --candle:       #e8a13a;
   --coffee-fill:  linear-gradient(to bottom, #6f4424, #4a2c17);
 

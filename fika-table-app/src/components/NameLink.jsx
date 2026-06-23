@@ -3,14 +3,16 @@ import { parseSubstackUrl } from '../lib/substack';
 // Inside cards/buttons — visual cue only, no nested <a>
 export function NameSpan({ name, fallback }) {
   const url = parseSubstackUrl(name);
-  if (!url) return <span>{name || fallback}</span>;
-  return <span className="sub-name" title={url}>{name}</span>;
+  const display = url ? name.replace(/^@{2,}/, '@') : name;
+  if (!url) return <span>{display || fallback}</span>;
+  return <span className="sub-name" title={url}>{display}</span>;
 }
 
 // Inside modals where a real link is valid
 export function NameLink({ name, fallback }) {
   const url = parseSubstackUrl(name);
-  if (!url) return <span>{name || fallback}</span>;
+  const display = url ? name.replace(/^@{2,}/, '@') : name;
+  if (!url) return <span>{display || fallback}</span>;
   return (
     <a
       className="sub-link"
@@ -19,7 +21,7 @@ export function NameLink({ name, fallback }) {
       rel="noopener noreferrer"
       onMouseDown={(e) => e.stopPropagation()}
     >
-      {name}<span className="sub-arr">↗</span>
+      {display}<span className="sub-arr">↗</span>
     </a>
   );
 }

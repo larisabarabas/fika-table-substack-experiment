@@ -249,6 +249,12 @@
   margin-top: 18px;
 }
 
+.submitError {
+  font-size: 13.5px;
+  color: var(--error);
+  margin: 8px 0 0;
+}
+
 /* Spam honeypot — visually hidden, not display:none (bots detect that) */
 .honeypot {
   position: absolute;

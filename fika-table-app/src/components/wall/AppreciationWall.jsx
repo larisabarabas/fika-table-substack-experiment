@@ -45,7 +45,11 @@ export function AppreciationWall({ slices, filter, onFilter, onRead }) {
       </div>
 
       {visible.length === 0 ? (
-        <p className={styles.empty}>No slices here yet. Be the first to take one.</p>
+        <p className={styles.empty}>
+          {filter === 'all'
+            ? 'No slices here yet. Be the first to take one.'
+            : 'No slices match this filter yet.'}
+        </p>
       ) : (
         <div className={styles.grid}>
           {visible.map((s) => (
