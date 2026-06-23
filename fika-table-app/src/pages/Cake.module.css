@@ -222,7 +222,13 @@
 
 /* Responsive */
 @media (max-width: 560px) {
+  .headRight {
+    flex-direction: column-reverse;
+    align-items: center;
+    gap: 4px;
+  }
+
   .progress {
-    display: none;
+    font-size: 12px;
   }
 }
