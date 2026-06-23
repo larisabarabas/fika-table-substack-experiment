@@ -72,9 +72,7 @@ export function GiveModal({ idx, onClose, onGive }) {
             {isNote ? 'A kind word' : `This week · slice #${idx + 1}`}
           </div>
           <h3 className={styles.giveTitle}>Pour a coffee, take a slice</h3>
-          <p className={styles.giveSub}>
-            A slice costs one kind word. Leave it on the table, or pass it to someone you appreciate.
-          </p>
+          <p className={styles.giveSub}>{CONFIG.giveModalSub}</p>
         </div>
 
         <label className={styles.fieldLabel}>Who's this slice for?</label>

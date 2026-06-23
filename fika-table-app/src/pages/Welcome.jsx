@@ -69,6 +69,8 @@ export default function Welcome() {
 
         <div className="tagline-pill">{CONFIG.dateRange}</div>
 
+        <p className={styles.ruleLine}>{CONFIG.welcomeRule}</p>
+
         <div className={styles.actions}>
           <Link to="/cake?give=1" className="btn-solid">
             {CONFIG.welcomeCTA} <span className={styles.arrow} aria-hidden="true">→</span>

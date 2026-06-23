@@ -125,6 +125,14 @@
   text-wrap: pretty;
 }
 
+/* Rule line */
+.ruleLine {
+  font-size: 17px;
+  font-weight: 500;
+  color: var(--accent);
+  margin-top: 22px;
+}
+
 /* Actions */
 .actions {
   display: flex;

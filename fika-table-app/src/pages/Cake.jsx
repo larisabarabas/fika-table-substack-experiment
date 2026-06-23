@@ -101,6 +101,7 @@ export default function Cake() {
             <em>{CONFIG.cakeHeadline[1]}</em>
           </h1>
           <p className={styles.subhead}>{CONFIG.cakeSubhead}</p>
+          <p className={styles.ruleLine}>{CONFIG.welcomeRule}</p>
           <div className="tagline-pill">{CONFIG.dateRange}</div>
         </section>
 

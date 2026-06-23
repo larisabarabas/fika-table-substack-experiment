@@ -116,6 +116,14 @@
   text-wrap: pretty;
 }
 
+.ruleLine {
+  font-size: 17px;
+  font-weight: 500;
+  color: var(--accent);
+  margin: 20px auto 0;
+  text-align: center;
+}
+
 /* Mode tabs */
 .tabs {
   display: flex;

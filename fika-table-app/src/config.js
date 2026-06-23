@@ -9,15 +9,17 @@ export const CONFIG = {
   // Welcome page
   welcomeEyebrow:   'Where Substack writers & readers meet',
   welcomeHeadline:  ['Pull up', 'a chair'],
-  welcomeLede:      'Fika is the Swedish art of stopping — coffee, something sweet, and time for each other. Each week the cake\'s cut into slices and one has your name on it; the only cost is one kind word for someone whose words you\'re grateful for.',
-  welcomeFineprint:  'No agenda, no fuss — just coffee, cake, and one kind word passed around the table.',
+  welcomeLede:      'Fika is the Swedish art of stopping — coffee, something sweet, and time for each other.',
+  welcomeRule:      'A slice of cake costs one kind word. Nothing more.',
+  giveModalSub:     'A kind word for someone, or one for the whole table.',
+  welcomeFineprint:  'Your kind word stays visible to everyone at the table all week.',
   welcomeCTA:        'Pour a coffee, take a slice',
   welcomeGhostCTA:   'See who\'s at the table',
 
   // Cake page
   cakeEyebrow:  '— Pull up a chair —',
   cakeHeadline: ['Pour a coffee,', 'take a slice'],
-  cakeSubhead:  'Fika is the Swedish art of stopping — a coffee, a slice of cake, a little time for each other. The table\'s big enough for everyone: readers, writers, friends, lurkers. The only catch: a slice costs one kind word. Leave it on the table, or pass it to someone you appreciate.',
+  cakeSubhead:  'Leave it on the table, or pass it to someone you appreciate.',
   cakeCTA:      'Take a slice',
   cakeFullBannerText: 'This week\'s cake is all gone — every slice taken. Bring out a fresh one?',
   cakeFullBannerCTA:  'Bring out a fresh cake',
