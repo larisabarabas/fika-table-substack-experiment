@@ -148,6 +148,12 @@ export default function Cake() {
           )}
         </section>
 
+        {/* Scroll cue */}
+        <div className={styles.scrollCue} aria-hidden="true">
+          <span className={styles.scrollCueLine} />
+          <span className={styles.scrollCueArrow}>↓</span>
+        </div>
+
         {/* Full banner */}
         {!error && isFull && (
           <div className={styles.fullBanner} role="status">

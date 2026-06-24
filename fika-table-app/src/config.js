@@ -4,15 +4,18 @@ export const CONFIG = {
   hostHandle:    '@stefanialarisa',
   substackUrl:   'https://substack.com/@stefanialarisa',
   sliceCapacity: 12,
-  dateRange:     'Fresh cake every week · the pot\'s always on',
+  dateRange:     'Fresh cake every week · oven\'s always on',
 
   // Welcome page
   welcomeEyebrow:   'Where Substack writers & readers meet',
   welcomeHeadline:  ['Pull up', 'a chair'],
-  welcomeLede:      'Fika is the Swedish art of stopping — coffee, something sweet, and time for each other.',
-  welcomeRule:      'A slice of cake costs one kind word. Nothing more.',
+  welcomeLede: [
+    'Fika is a Swedish ritual meant to create a relaxing pause for socializing or recharge. The best part is that it\'s filled with sweet baked goods and coffee.',
+    'Here you can try a different type of Fika, where each week the cake\'s cut into slices and one has your name on it.',
+    'To get your slice, send one kind word for someone whose words you\'re grateful for.',
+  ],
   giveModalSub:     'A kind word for someone, or one for the whole table.',
-  welcomeFineprint:  'Your kind word stays visible to everyone at the table all week.',
+  welcomeFineprint:  'Your word stays visible to everyone at the table all week. Share your best appreciation!',
   welcomeCTA:        'Pour a coffee, take a slice',
   welcomeGhostCTA:   'See who\'s at the table',
 
