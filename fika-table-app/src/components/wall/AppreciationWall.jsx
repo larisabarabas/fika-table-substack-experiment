@@ -10,9 +10,9 @@ const FILTERS = [
 
 const stripAt = (s) => s.replace(/^@+/, '').toLowerCase();
 
-export function AppreciationWall({ slices, filter, onFilter, onRead }) {
+export function AppreciationWall({ slices, filter, onFilter, onRead, initialSearch }) {
   const [, startTransition] = useTransition();
-  const [search, setSearch] = useState('');
+  const [search, setSearch] = useState(initialSearch ?? '');
 
   const searchTerm = stripAt(search.trim());
 

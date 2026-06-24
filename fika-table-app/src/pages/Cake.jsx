@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useTransition } from 'react';
+import { useState, useEffect, useRef, useTransition, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { useSlices } from '../hooks/useSlices';
 import { CONFIG } from '../config';
@@ -25,6 +25,19 @@ export default function Cake() {
   const [, startTransition]   = useTransition();
   const giveHandled           = useRef(false);
 
+  const mentions = useMemo(() => {
+    const params = new URLSearchParams(window.location.search);
+    return params.get('mentions') ?? '';
+  }, []);
+
+  const wallRef = useRef(null);
+
+  // Handle ?mentions=@handle — scroll to wall once loaded
+  useEffect(() => {
+    if (loading || error || !mentions) return;
+    wallRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }, [mentions, loading, error]);
+
   // Handle ?give=1 from Welcome — run once after initial load
   useEffect(() => {
     if (loading || error || giveHandled.current) return;
@@ -34,7 +47,7 @@ export default function Cake() {
     window.history.replaceState({}, '', window.location.pathname);
     if (!isFull) {
       const free = nextFreeIdx();
-      if (free !== null) setGiving({ idx: free });
+      if (free !== null) startTransition(() => setGiving({ idx: free }));
     }
   }, [loading, error, isFull, nextFreeIdx]);
 
@@ -56,8 +69,9 @@ export default function Cake() {
       if (free !== null) setGiving({ idx: free });
       return result;
     }
-    if (!result?.error) {
+    if (!result?.error && result?.data) {
       setGiving(null);
+      setReading(result.data);
       setTimeout(fireConfetti, 60);
     }
     return result;
@@ -162,12 +176,15 @@ export default function Cake() {
 
         {/* Wall */}
         {!error && (
-          <AppreciationWall
-            slices={slices}
-            filter={filter}
-            onFilter={setFilter}
-            onRead={setReading}
-          />
+          <div ref={wallRef}>
+            <AppreciationWall
+              slices={slices}
+              filter={filter}
+              onFilter={setFilter}
+              onRead={setReading}
+              initialSearch={mentions}
+            />
+          </div>
         )}
       </main>
 
