@@ -3,6 +3,12 @@ import { Overlay } from './Overlay';
 import { PASTELS, TO_NAME_FALLBACK, CONFIG } from '../../config';
 import styles from './modals.module.css';
 
+const normalizeHandle = (name) => {
+  if (!name) return name;
+  const t = name.replace(/^@{2,}/, '@');
+  return /^[A-Za-z0-9_.-]+$/.test(t) ? '@' + t : t;
+};
+
 const TYPE_OPTS = [
   { value: 'writer', label: 'For a writer',          ph: 'their name or Substack @handle' },
   { value: 'reader', label: 'For a reader',          ph: 'a name, @handle, or "the lurkers"' },
@@ -13,26 +19,34 @@ const TYPE_OPTS = [
 
 export function GiveModal({ idx, onClose, onGive }) {
   const isNote = idx === null;
-  const [toType,   setToType]   = useState('anyone');
-  const [toName,   setToName]   = useState('');
-  const [message,  setMessage]  = useState('');
-  const [fromName, setFromName] = useState('');
-  const [color,    setColor]    = useState(isNote ? 0 : idx % 8);
-  const [website,  setWebsite]  = useState(''); // honeypot — should stay empty
+  const [toType,      setToType]      = useState('anyone');
+  const [toName,      setToName]      = useState('');
+  const [message,     setMessage]     = useState('');
+  const [fromName,    setFromName]    = useState('');
+  const [color,       setColor]       = useState(isNote ? 0 : idx % 8);
+  const [website,     setWebsite]     = useState(''); // honeypot — should stay empty
+  const [submitting,  setSubmitting]  = useState(false);
+  const [submitError, setSubmitError] = useState(null);
 
   const cur   = TYPE_OPTS.find((o) => o.value === toType);
   const valid = message.trim().length > 1;
 
-  const submit = () => {
-    if (!valid || website) return;
-    onGive({
+  const submit = async () => {
+    if (!valid || website || submitting) return;
+    setSubmitting(true);
+    setSubmitError(null);
+    const result = await onGive({
       idx,
       fromName: fromName.trim(),
-      toName:   toName.trim() || TO_NAME_FALLBACK[toType],
+      toName:   normalizeHandle(toName.trim() || TO_NAME_FALLBACK[toType]),
       toType,
       message:  message.trim(),
       color,
     });
+    if (result?.error && result.error !== 'conflict') {
+      setSubmitError('Something went wrong — please try again.');
+      setSubmitting(false);
+    }
   };
 
   return (
@@ -58,9 +72,7 @@ export function GiveModal({ idx, onClose, onGive }) {
             {isNote ? 'A kind word' : `This week · slice #${idx + 1}`}
           </div>
           <h3 className={styles.giveTitle}>Pour a coffee, take a slice</h3>
-          <p className={styles.giveSub}>
-            A slice costs one kind word. Leave it on the table, or pass it to someone you appreciate.
-          </p>
+          <p className={styles.giveSub}>{CONFIG.giveModalSub}</p>
         </div>
 
         <label className={styles.fieldLabel}>Who's this slice for?</label>
@@ -132,10 +144,13 @@ export function GiveModal({ idx, onClose, onGive }) {
           </div>
         </div>
 
+        {submitError && (
+          <p className={styles.submitError}>{submitError}</p>
+        )}
         <div className={styles.giveActions}>
-          <button className="btn-ghost" onClick={onClose}>Maybe later</button>
-          <button className="btn-solid" disabled={!valid} onClick={submit}>
-            Take the slice
+          <button className="btn-ghost" onClick={onClose} disabled={submitting}>Maybe later</button>
+          <button className="btn-solid" disabled={!valid || submitting} onClick={submit}>
+            {submitting ? 'Taking the slice…' : 'Take the slice'}
           </button>
         </div>
       </div>

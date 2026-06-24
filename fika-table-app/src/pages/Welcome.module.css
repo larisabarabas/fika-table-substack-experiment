@@ -117,12 +117,16 @@
 
 /* Lede */
 .lede {
-  font-size: clamp(16px, 2vw, 19px);
-  line-height: 1.62;
+  font-size: 16px;
+  line-height: 1.55;
   color: var(--sub);
-  max-width: 540px;
-  margin: 32px auto 0;
+  max-width: 460px;
+  margin: 24px auto 0;
   text-wrap: pretty;
+}
+
+.lede + .lede {
+  margin-top: 6px;
 }
 
 /* Actions */

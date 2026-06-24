@@ -65,7 +65,9 @@ export default function Welcome() {
           <em>{CONFIG.welcomeHeadline[1]}</em>
         </h1>
 
-        <p className={styles.lede}>{CONFIG.welcomeLede}</p>
+        {CONFIG.welcomeLede.map((paragraph, i) => (
+          <p key={i} className={styles.lede}>{paragraph}</p>
+        ))}
 
         <div className="tagline-pill">{CONFIG.dateRange}</div>
 

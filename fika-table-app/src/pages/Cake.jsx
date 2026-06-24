@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useTransition } from 'react';
+import { useState, useEffect, useRef, useTransition, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { useSlices } from '../hooks/useSlices';
 import { CONFIG } from '../config';
@@ -15,26 +15,41 @@ const MODES = [
 ];
 
 export default function Cake() {
-  const { slices, filled, sharedCount, isFull, loading, insertSlice, nextFreeIdx, roundSize, freshCake } = useSlices();
-  const [mode,    setMode]    = useState('round');
-  const [filter,  setFilter]  = useState('all');
-  const [reading, setReading] = useState(null);
-  const [giving,  setGiving]  = useState(null);
+  const { slices, filled, sharedCount, isFull, loading, error, insertSlice, nextFreeIdx, roundSize, freshCake } = useSlices();
+  const [mode,        setMode]        = useState('round');
+  const [filter,      setFilter]      = useState('all');
+  const [reading,     setReading]     = useState(null);
+  const [giving,      setGiving]      = useState(null);
+  const [confirmFresh,  setConfirmFresh]  = useState(false);
+  const [freshError,    setFreshError]    = useState(null);
   const [, startTransition]   = useTransition();
   const giveHandled           = useRef(false);
 
+  const mentions = useMemo(() => {
+    const params = new URLSearchParams(window.location.search);
+    return params.get('mentions') ?? '';
+  }, []);
+
+  const wallRef = useRef(null);
+
+  // Handle ?mentions=@handle — scroll to wall once loaded
+  useEffect(() => {
+    if (loading || error || !mentions) return;
+    wallRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }, [mentions, loading, error]);
+
   // Handle ?give=1 from Welcome — run once after initial load
   useEffect(() => {
-    if (loading || giveHandled.current) return;
+    if (loading || error || giveHandled.current) return;
     giveHandled.current = true;
     const params = new URLSearchParams(window.location.search);
     if (!params.has('give')) return;
     window.history.replaceState({}, '', window.location.pathname);
     if (!isFull) {
       const free = nextFreeIdx();
-      if (free !== null) setGiving({ idx: free });
+      if (free !== null) startTransition(() => setGiving({ idx: free }));
     }
-  }, [loading, isFull, nextFreeIdx]);
+  }, [loading, error, isFull, nextFreeIdx]);
 
   const onSlice = (idx) => {
     if (filled[idx]) setReading(filled[idx]);
@@ -52,12 +67,14 @@ export default function Cake() {
     if (result?.error === 'conflict') {
       const free = nextFreeIdx();
       if (free !== null) setGiving({ idx: free });
-      return;
+      return result;
     }
-    if (!result?.error) {
+    if (!result?.error && result?.data) {
       setGiving(null);
+      setReading(result.data);
       setTimeout(fireConfetti, 60);
     }
+    return result;
   };
 
   return (
@@ -83,6 +100,12 @@ export default function Cake() {
         </div>
       </header>
 
+      {error && (
+        <div className={styles.errorBanner} role="alert">
+          Could not load the table — {error.message ?? 'please refresh and try again.'}
+        </div>
+      )}
+
       <main className={styles.container}>
         {/* Hero */}
         <section className={styles.hero}>
@@ -92,6 +115,7 @@ export default function Cake() {
             <em>{CONFIG.cakeHeadline[1]}</em>
           </h1>
           <p className={styles.subhead}>{CONFIG.cakeSubhead}</p>
+          <p className={styles.ruleLine}>{CONFIG.welcomeRule}</p>
           <div className="tagline-pill">{CONFIG.dateRange}</div>
         </section>
 
@@ -124,23 +148,50 @@ export default function Cake() {
           )}
         </section>
 
+        {/* Scroll cue */}
+        <div className={styles.scrollCue} aria-hidden="true">
+          <span className={styles.scrollCueLine} />
+          <span className={styles.scrollCueArrow}>↓</span>
+        </div>
+
         {/* Full banner */}
-        {isFull && (
+        {!error && isFull && (
           <div className={styles.fullBanner} role="status">
-            <span>{CONFIG.cakeFullBannerText}</span>
-            <button className="btn-solid btn-solid-sm" onClick={freshCake}>
-              {CONFIG.cakeFullBannerCTA}
-            </button>
+            {confirmFresh ? (
+              <>
+                <span>Slices stay on the wall — the cake resets for everyone. Sure?{freshError && <> &mdash; <span style={{color:'var(--error)'}}>{freshError}</span></>}</span>
+                <button className="btn-ghost btn-solid-sm" onClick={() => { setConfirmFresh(false); setFreshError(null); }}>Cancel</button>
+                <button className="btn-solid btn-solid-sm" onClick={async () => {
+                  const result = await freshCake();
+                  if (result?.error) { setFreshError(result.error); }
+                  else { setConfirmFresh(false); setFreshError(null); }
+                }}>
+                  Yes, start fresh
+                </button>
+              </>
+            ) : (
+              <>
+                <span>{CONFIG.cakeFullBannerText}</span>
+                <button className="btn-solid btn-solid-sm" onClick={() => setConfirmFresh(true)}>
+                  {CONFIG.cakeFullBannerCTA}
+                </button>
+              </>
+            )}
           </div>
         )}
 
         {/* Wall */}
-        <AppreciationWall
-          slices={slices}
-          filter={filter}
-          onFilter={setFilter}
-          onRead={setReading}
-        />
+        {!error && (
+          <div ref={wallRef}>
+            <AppreciationWall
+              slices={slices}
+              filter={filter}
+              onFilter={setFilter}
+              onRead={setReading}
+              initialSearch={mentions}
+            />
+          </div>
+        )}
       </main>
 
       <footer className={styles.footer}>
