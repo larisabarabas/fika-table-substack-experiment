@@ -54,6 +54,23 @@ CREATE POLICY "public read cake_config"
 -- No anon updates or deletes; host bumps the round from Supabase console
 -- (or add a host-only update policy with a bearer token check)
 
+-- ── Manual round reset ─────────────────────────────────────────────────────────
+-- Run from the Supabase SQL editor to start a fresh round:
+--   SELECT increment_round();
+--
+CREATE OR REPLACE FUNCTION increment_round()
+RETURNS void
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = ''
+AS $$
+BEGIN
+  UPDATE public.cake_config
+  SET round = round + 1
+  WHERE id = 1;
+END;
+$$;
+
 -- Enable Realtime (run once after creating tables):
 -- ALTER PUBLICATION supabase_realtime ADD TABLE slices;
 -- ALTER PUBLICATION supabase_realtime ADD TABLE cake_config;

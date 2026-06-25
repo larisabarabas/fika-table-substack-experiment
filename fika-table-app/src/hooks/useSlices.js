@@ -138,19 +138,6 @@ export function useSlices() {
     return null;
   }, [currentFilled, roundSize]);
 
-  // Host action: brings out a fresh cake by incrementing the round
-  const freshCake = useCallback(async () => {
-    const { data, error: err } = await supabase
-      .from('cake_config')
-      .update({ round: currentRound + 1 })
-      .eq('id', 1)
-      .select()
-      .single();
-    if (err) return { error: err.message };
-    if (!data) return { error: 'Could not start a fresh round — permission denied.' };
-    return { data: true };
-  }, [currentRound]);
-
   return {
     slices,
     filled:         currentFilled,
@@ -163,6 +150,5 @@ export function useSlices() {
     error,
     insertSlice,
     nextFreeIdx,
-    freshCake,
   };
 }

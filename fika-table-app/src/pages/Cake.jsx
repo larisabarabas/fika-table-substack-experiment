@@ -15,13 +15,11 @@ const MODES = [
 ];
 
 export default function Cake() {
-  const { slices, filled, sharedCount, isFull, loading, error, insertSlice, nextFreeIdx, roundSize, freshCake } = useSlices();
+  const { slices, filled, sharedCount, isFull, loading, error, insertSlice, nextFreeIdx, roundSize } = useSlices();
   const [mode,        setMode]        = useState('round');
   const [filter,      setFilter]      = useState('all');
   const [reading,     setReading]     = useState(null);
   const [giving,      setGiving]      = useState(null);
-  const [confirmFresh,  setConfirmFresh]  = useState(false);
-  const [freshError,    setFreshError]    = useState(null);
   const [, startTransition]   = useTransition();
   const giveHandled           = useRef(false);
 
@@ -157,26 +155,7 @@ export default function Cake() {
         {/* Full banner */}
         {!error && isFull && (
           <div className={styles.fullBanner} role="status">
-            {confirmFresh ? (
-              <>
-                <span>Slices stay on the wall — the cake resets for everyone. Sure?{freshError && <> &mdash; <span style={{color:'var(--error)'}}>{freshError}</span></>}</span>
-                <button className="btn-ghost btn-solid-sm" onClick={() => { setConfirmFresh(false); setFreshError(null); }}>Cancel</button>
-                <button className="btn-solid btn-solid-sm" onClick={async () => {
-                  const result = await freshCake();
-                  if (result?.error) { setFreshError(result.error); }
-                  else { setConfirmFresh(false); setFreshError(null); }
-                }}>
-                  Yes, start fresh
-                </button>
-              </>
-            ) : (
-              <>
-                <span>{CONFIG.cakeFullBannerText}</span>
-                <button className="btn-solid btn-solid-sm" onClick={() => setConfirmFresh(true)}>
-                  {CONFIG.cakeFullBannerCTA}
-                </button>
-              </>
-            )}
+            <span>This week's cake is all gone — every slice taken. Check back next week!</span>
           </div>
         )}
 
