@@ -24,8 +24,7 @@ export const CONFIG = {
   cakeHeadline: ['Pour a coffee,', 'take a slice'],
   cakeSubhead:  'Leave it on the table, or pass it to someone you appreciate.',
   cakeCTA:      'Take a slice',
-  cakeFullBannerText: 'This week\'s cake is all gone — every slice taken. Bring out a fresh one?',
-  cakeFullBannerCTA:  'Bring out a fresh cake',
+  cakeFullBannerText: 'This week\'s cake is all gone — every slice taken. Check back next week!',
 
   // Shared footer
   footerScript: 'the table\'s always set',
