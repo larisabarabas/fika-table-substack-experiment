@@ -493,6 +493,21 @@
   color: var(--sub);
 }
 
+.footerPriv {
+  margin-top: 6px;
+  font-size: 13px;
+}
+
+.footerPriv a {
+  color: var(--sub);
+  text-decoration: none;
+  border-bottom: 1.5px dotted var(--accent);
+}
+
+.footerPriv a:hover {
+  color: var(--accent);
+}
+
 /* ── Confetti crumbs ── */
 .confetti {
   position: fixed;

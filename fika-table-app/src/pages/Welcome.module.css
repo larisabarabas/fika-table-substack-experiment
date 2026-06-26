@@ -205,3 +205,8 @@
 .footerLink:hover {
   color: var(--accent);
 }
+
+.footerSep {
+  color: var(--edge);
+  margin: 0 8px;
+}
