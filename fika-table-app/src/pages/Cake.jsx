@@ -176,6 +176,7 @@ export default function Cake() {
       <footer className={styles.footer}>
         <p className={styles.footerScript}>{CONFIG.footerScript}</p>
         <p className={styles.footerSub}>{CONFIG.footerSub}</p>
+        <p className={styles.footerPriv}><Link to="/privacy">Privacy</Link></p>
       </footer>
 
       {/* Modals */}

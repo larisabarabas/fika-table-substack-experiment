@@ -89,6 +89,8 @@ export default function Welcome() {
           <a href={CONFIG.substackUrl} target="_blank" rel="noopener noreferrer" className={styles.footerLink}>
             {CONFIG.newsletter}
           </a>
+          <span className={styles.footerSep}>&middot;</span>
+          <Link to="/privacy" className={styles.footerLink}>Privacy</Link>
         </p>
       </footer>
     </div>

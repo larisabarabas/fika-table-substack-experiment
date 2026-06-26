@@ -154,6 +154,7 @@ export default function Share() {
       <div className={styles.footer}>
         <span className={styles.footerScript}>{CONFIG.footerScript}</span>
         <span className={styles.footerSub}>{CONFIG.footerSub}</span>
+        <span className={styles.footerPriv}><Link to="/privacy">Privacy</Link></span>
       </div>
 
       <div className={styles.confetti} id="share-confetti" aria-hidden="true" />

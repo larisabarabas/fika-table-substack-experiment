@@ -224,6 +224,21 @@
   color: var(--sub);
 }
 
+.footerPriv {
+  margin: 6px 0 0;
+  font-size: 13px;
+}
+
+.footerPriv a {
+  color: var(--sub);
+  text-decoration: none;
+  border-bottom: 1.5px dotted var(--accent);
+}
+
+.footerPriv a:hover {
+  color: var(--accent);
+}
+
 /* Scroll cue */
 .scrollCue {
   display: flex;

@@ -1,0 +1,91 @@
+.page {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.wrap {
+  flex: 1;
+  max-width: var(--container-sm);
+  margin: 0 auto;
+  padding: 56px var(--px) 40px;
+  width: 100%;
+}
+
+.back {
+  display: inline-block;
+  font-size: 14px;
+  color: var(--accent);
+  text-decoration: none;
+  font-weight: 500;
+  margin-bottom: 32px;
+}
+
+.back:hover {
+  text-decoration: underline;
+}
+
+.title {
+  font-family: var(--f-display);
+  font-weight: var(--f-display-weight);
+  font-size: clamp(32px, 6vw, 52px);
+  letter-spacing: -0.018em;
+  line-height: 1.1;
+  margin: 0;
+}
+
+.updated {
+  font-size: 13px;
+  color: var(--sub);
+  margin-top: 8px;
+  margin-bottom: 36px;
+}
+
+section {
+  margin-bottom: 32px;
+}
+
+section h2 {
+  font-family: var(--f-display);
+  font-weight: var(--f-display-weight);
+  font-size: 22px;
+  margin: 0 0 10px;
+}
+
+section p {
+  font-size: 15.5px;
+  line-height: 1.6;
+  color: var(--sub);
+  margin: 0 0 10px;
+}
+
+section ul {
+  margin: 0 0 10px;
+  padding-left: 24px;
+}
+
+section li {
+  font-size: 15.5px;
+  line-height: 1.6;
+  color: var(--sub);
+  margin-bottom: 4px;
+}
+
+section a {
+  color: var(--accent);
+  text-decoration: none;
+  border-bottom: 1.5px dotted var(--accent);
+}
+
+section a:hover {
+  opacity: 0.8;
+}
+
+.footer {
+  text-align: center;
+  padding: 0 var(--px) 48px;
+}
+
+.footer .back {
+  margin-bottom: 0;
+}
