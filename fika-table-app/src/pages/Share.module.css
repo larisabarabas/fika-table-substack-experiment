@@ -65,7 +65,7 @@
   z-index: 1;
   flex: 1;
   width: 100%;
-  max-width: 460px;
+  max-width: 600px;
   margin: 0 auto;
   display: flex;
   flex-direction: column;
@@ -277,11 +277,11 @@
 }
 
 .message {
-  font-family: var(--f-display);
-  font-weight: var(--f-display-weight);
-  font-size: clamp(23px, 6.2vw, 29px);
-  line-height: 1.42;
-  letter-spacing: -0.012em;
+  font-family: var(--f-body);
+  font-weight: 400;
+  font-size: clamp(17px, 4.2vw, 21px);
+  line-height: 1.55;
+  letter-spacing: -0.005em;
   color: var(--ink);
   margin: 0;
   text-wrap: pretty;

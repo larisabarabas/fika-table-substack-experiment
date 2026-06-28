@@ -8,34 +8,38 @@ Single-tenant fika table for **Stef's Dev Notes** newsletter. Readers "pour a co
 
 ## Now
 
-### Post-submit: open ReadModal (no forced share)
-After submitting a slice, open the ReadModal so the user sees their note published — no need to hunt for it on the wall. Share button is one tap away; no auto-opened share sheet.
+### Launch MVP — host seed notes + deploy
+MVP is feature-complete. Remaining launch tasks:
+- [ ] Run `schema.sql` in Supabase SQL editor (tables, RLS, policies, realtime)
+- [ ] Add 4 host seed notes via the UI (CodeLikeAGirl, Marcos, Alex, Elena)
+- [ ] Test full flow: submit → ReadModal → confetti → wall → share page
+- [ ] Deploy to Vercel
+- [ ] Point Substack to deployed URL
 
-| # | File | What |
-|---|---|---|
-| — | `Cake.jsx` | In `handleGive`, on success: `setGiving(null)` + `setReading(result.data)` + `fireConfetti` |
-
-**Effort:** XS
+**Effort:** S
 
 ---
 
 ## Next
 
-### Share page: brand link consistency + footer text wrap
-Two small CSS fixes identified post-ship.
+### Post-launch: measure signal
+Ship first, then watch. Key signals to monitor in week 1:
+- Do readers leave slices for each other, not just the host?
+- Do visitors return across rounds?
+- Share rate baseline (what % submit → share?)
+
+No dashboards needed — just watch the wall and check the Supabase table in week 1.
+
+---
+
+### Share page: brand link consistency + footer text wrap (post-ship polish)
+Two small CSS fixes.
 
 | # | File | What |
 |---|---|---|
 | — | `Share.jsx` + `Share.module.css` | "for Stef's Dev Notes" links to Substack URL (not `/`); footer sub-headline doesn't wrap awkwardly |
 
 **Effort:** XS
-
----
-
-### Measure share rate
-Before any more share UX investment, know the baseline: what % of submissions result in a share action (copy link / copy text / native share)? Add a simple event if useful.
-
-**Effort:** S
 
 ---
 
@@ -56,8 +60,9 @@ Anti-patterns (explicitly avoided): trending lists, "top appreciated," popularit
 ## Risks
 
 | Risk | Likelihood | Impact | Mitigation |
-|---|---|---|---|
+|---|---|---|---|---|
+| **Schema not applied / DB not ready on launch day** | High | High | Confirm schema.sql was run in Supabase before deploy |
 | Readers only leave slices for the host | Medium | High | Ship, watch wall 1 week |
-| **No growth loop — app becomes a "jar of notes"** | High | High | Phase 9 (shareable cards) provides v1 distribution test |
-| **Separate app friction kills adoption** | Medium | High | Embed widget (Later) reduces barrier |
+| **No growth loop — app becomes a "jar of notes"** | High | High | Shareable cards (later) provide v1 distribution test |
+| **Separate app friction kills adoption** | Medium | High | Embed widget (later) reduces barrier |
 | **Validation skewed toward creators, not readers** | Medium | Medium | Real test is when Stef's readers interact with it |

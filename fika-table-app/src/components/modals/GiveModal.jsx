@@ -29,7 +29,8 @@ export function GiveModal({ idx, onClose, onGive }) {
   const [submitError, setSubmitError] = useState(null);
 
   const cur   = TYPE_OPTS.find((o) => o.value === toType);
-  const valid = message.trim().length > 1;
+  const msgLen = message.trim().length;
+  const valid  = msgLen > 1 && msgLen <= 1000;
 
   const submit = async () => {
     if (!valid || website || submitting) return;
@@ -37,7 +38,7 @@ export function GiveModal({ idx, onClose, onGive }) {
     setSubmitError(null);
     const result = await onGive({
       idx,
-      fromName: fromName.trim(),
+      fromName: normalizeHandle(fromName.trim()),
       toName:   normalizeHandle(toName.trim() || TO_NAME_FALLBACK[toType]),
       toType,
       message:  message.trim(),
@@ -110,9 +111,14 @@ export function GiveModal({ idx, onClose, onGive }) {
           value={message}
           rows={3}
           placeholder="What do you appreciate about them?"
-          maxLength={1000}
           onChange={(e) => setMessage(e.target.value)}
         />
+        <div className={styles.charRow}>
+          <p className={styles.charError}>{message.length > 1000 ? 'Your message is too long — please trim it to 1000 characters.' : ''}</p>
+          <span className={`${styles.charCount} ${message.length > 1000 ? styles.charCountOver : ''}`}>
+            {message.length} / 1000
+          </span>
+        </div>
 
         <div className={styles.giveRow}>
           <div className={styles.giveCol}>
