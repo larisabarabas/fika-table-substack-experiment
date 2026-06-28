@@ -37,7 +37,7 @@ export function GiveModal({ idx, onClose, onGive }) {
     setSubmitError(null);
     const result = await onGive({
       idx,
-      fromName: fromName.trim(),
+      fromName: normalizeHandle(fromName.trim()),
       toName:   normalizeHandle(toName.trim() || TO_NAME_FALLBACK[toType]),
       toType,
       message:  message.trim(),

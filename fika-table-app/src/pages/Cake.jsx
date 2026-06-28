@@ -100,7 +100,7 @@ export default function Cake() {
 
       {error && (
         <div className={styles.errorBanner} role="alert">
-          Could not load the table — {error.message ?? 'please refresh and try again.'}
+          Could not load the table — please refresh and try again.
         </div>
       )}
 
@@ -113,7 +113,6 @@ export default function Cake() {
             <em>{CONFIG.cakeHeadline[1]}</em>
           </h1>
           <p className={styles.subhead}>{CONFIG.cakeSubhead}</p>
-          <p className={styles.ruleLine}>{CONFIG.welcomeRule}</p>
           <div className="tagline-pill">{CONFIG.dateRange}</div>
         </section>
 
