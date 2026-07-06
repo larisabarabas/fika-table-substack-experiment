@@ -225,6 +225,16 @@
   margin-top: 4px;
 }
 
+.hintLink {
+  color: var(--accent);
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.hintLink:hover {
+  text-decoration: underline;
+}
+
 .charRow {
   display: flex;
   justify-content: space-between;

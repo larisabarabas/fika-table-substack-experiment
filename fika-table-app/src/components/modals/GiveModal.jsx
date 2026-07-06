@@ -28,8 +28,9 @@ export function GiveModal({ idx, onClose, onGive }) {
   const [website,        setWebsite]        = useState(''); // honeypot — should stay empty
   const [submitting,     setSubmitting]     = useState(false);
   const [submitError,    setSubmitError]    = useState(null);
-  const [profile,        setProfile]        = useState(null);   // { name, image, description }
-  const [profileLoading, setProfileLoading] = useState(false);
+  const [profile,         setProfile]         = useState(null);   // { name, image, description }
+  const [profileLoading,  setProfileLoading]  = useState(false);
+  const [profileNotFound, setProfileNotFound] = useState(false);
 
   const cur    = TYPE_OPTS.find((o) => o.value === toType);
   const msgLen = message.trim().length;
@@ -47,16 +48,22 @@ export function GiveModal({ idx, onClose, onGive }) {
     let cancelled = false;
     const timer = setTimeout(async () => {
       if (cancelled) return;
-      if (!handle) { setProfile(null); setProfileLoading(false); return; }
+      if (!handle) { setProfile(null); setProfileNotFound(false); setProfileLoading(false); return; }
       setProfileLoading(true);
       setProfile(null);
+      setProfileNotFound(false);
       try {
         const res = await fetch(`/api/substack-profile?handle=${encodeURIComponent(handle)}`);
-        if (cancelled || !res.ok) { setProfile(null); setProfileLoading(false); return; }
+        if (cancelled) return;
+        if (!res.ok) { setProfile(null); setProfileNotFound(true); setProfileLoading(false); return; }
         const data = await res.json();
-        if (!cancelled) { setProfile(data.error ? null : data); setProfileLoading(false); }
+        if (!cancelled) {
+          setProfile(data.error ? null : data);
+          setProfileNotFound(!!data.error);
+          setProfileLoading(false);
+        }
       } catch {
-        if (!cancelled) { setProfile(null); setProfileLoading(false); }
+        if (!cancelled) { setProfile(null); setProfileNotFound(false); setProfileLoading(false); }
       }
     }, handle ? 600 : 0);
     return () => { cancelled = true; clearTimeout(timer); };
@@ -136,12 +143,25 @@ export function GiveModal({ idx, onClose, onGive }) {
           onChange={(e) => setToName(e.target.value)}
           onBlur={handleToNameBlur}
         />
-        {!profileLoading && !profile && (
+        {!profileLoading && !profile && !profileNotFound && (
           <div className={styles.hint}>
             A Substack <b>@handle</b> (or profile link) becomes a link to their profile.
           </div>
         )}
         {profileLoading && <div className={styles.hint}>Looking up profile…</div>}
+        {!profileLoading && profileNotFound && (
+          <div className={styles.hint}>
+            No profile found ·{' '}
+            <a
+              href={`https://substack.com/search?query=${encodeURIComponent(toName.trim().replace(/^@/, ''))}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className={styles.hintLink}
+            >
+              Search on Substack ↗
+            </a>
+          </div>
+        )}
         {profile && (
           <div className={styles.profileCard}>
             <a
