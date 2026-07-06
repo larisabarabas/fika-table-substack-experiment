@@ -1,6 +1,7 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Overlay } from './Overlay';
-import { PASTELS, TO_NAME_FALLBACK, CONFIG } from '../../config';
+import { PASTELS, TO_NAME_FALLBACK, TYPE_LABEL, CONFIG } from '../../config';
+import { extractHandle } from '../../lib/substack';
 import styles from './modals.module.css';
 
 const normalizeHandle = (name) => {
@@ -10,27 +11,56 @@ const normalizeHandle = (name) => {
 };
 
 const TYPE_OPTS = [
-  { value: 'writer', label: 'For a writer',          ph: 'their name or Substack @handle' },
-  { value: 'reader', label: 'For a reader',          ph: 'a name, @handle, or "the lurkers"' },
-  { value: 'friend', label: 'For a friend',          ph: 'their name or @handle' },
-  { value: 'host',   label: 'For the host',          ph: 'whoever keeps this going' },
-  { value: 'anyone', label: 'Leave it on the table', ph: 'leave blank', full: true },
+  { value: 'writer', label: 'For a writer',          ph: 'their name or Substack @handle', msgLabel: 'What do you appreciate about their writing?' },
+  { value: 'reader', label: 'For a reader',          ph: 'a name, @handle, or "the lurkers"', msgLabel: 'What do you appreciate about them?' },
+  { value: 'friend', label: 'For a friend',          ph: 'their name or @handle', msgLabel: 'What do you appreciate about them?' },
+  { value: 'host',   label: 'For the host',          ph: 'whoever keeps this going', msgLabel: 'What do you want to thank them for?' },
+  { value: 'anyone', label: 'Leave it on the table', ph: 'leave blank', full: true, msgLabel: "What's something good you want to leave for whoever needs it?" },
 ];
 
 export function GiveModal({ idx, onClose, onGive }) {
   const isNote = idx === null;
-  const [toType,      setToType]      = useState('anyone');
-  const [toName,      setToName]      = useState('');
-  const [message,     setMessage]     = useState('');
-  const [fromName,    setFromName]    = useState('');
-  const [color,       setColor]       = useState(isNote ? 0 : idx % 8);
-  const [website,     setWebsite]     = useState(''); // honeypot — should stay empty
-  const [submitting,  setSubmitting]  = useState(false);
-  const [submitError, setSubmitError] = useState(null);
+  const [toType,         setToType]         = useState('anyone');
+  const [toName,         setToName]         = useState('');
+  const [message,        setMessage]        = useState('');
+  const [fromName,       setFromName]       = useState('');
+  const [color,          setColor]          = useState(isNote ? 0 : idx % 8);
+  const [website,        setWebsite]        = useState(''); // honeypot — should stay empty
+  const [submitting,     setSubmitting]     = useState(false);
+  const [submitError,    setSubmitError]    = useState(null);
+  const [profile,        setProfile]        = useState(null);   // { name, image, description }
+  const [profileLoading, setProfileLoading] = useState(false);
 
-  const cur   = TYPE_OPTS.find((o) => o.value === toType);
+  const cur    = TYPE_OPTS.find((o) => o.value === toType);
   const msgLen = message.trim().length;
   const valid  = msgLen > 1 && msgLen <= 1000;
+
+  // On blur: if the user pasted a full Substack URL, collapse it to @handle
+  const handleToNameBlur = () => {
+    const handle = extractHandle(toName.trim());
+    if (handle && !toName.trim().startsWith('@')) setToName('@' + handle);
+  };
+
+  // Debounced Substack profile preview fetch — all setState calls inside the callback (not sync in body)
+  useEffect(() => {
+    const handle = extractHandle(toName.trim());
+    let cancelled = false;
+    const timer = setTimeout(async () => {
+      if (cancelled) return;
+      if (!handle) { setProfile(null); setProfileLoading(false); return; }
+      setProfileLoading(true);
+      setProfile(null);
+      try {
+        const res = await fetch(`/api/substack-profile?handle=${encodeURIComponent(handle)}`);
+        if (cancelled || !res.ok) { setProfile(null); setProfileLoading(false); return; }
+        const data = await res.json();
+        if (!cancelled) { setProfile(data.error ? null : data); setProfileLoading(false); }
+      } catch {
+        if (!cancelled) { setProfile(null); setProfileLoading(false); }
+      }
+    }, handle ? 600 : 0);
+    return () => { cancelled = true; clearTimeout(timer); };
+  }, [toName]);
 
   const submit = async () => {
     if (!valid || website || submitting) return;
@@ -49,6 +79,10 @@ export function GiveModal({ idx, onClose, onGive }) {
       setSubmitting(false);
     }
   };
+
+  const displayToName   = toName.trim() || TO_NAME_FALLBACK[toType];
+  const displayFromName = fromName.trim() || 'you';
+  const showPreview     = msgLen > 1;
 
   return (
     <Overlay onClose={onClose} wide label="Pour a coffee, take a slice">
@@ -100,17 +134,40 @@ export function GiveModal({ idx, onClose, onGive }) {
           placeholder={cur.ph}
           maxLength={100}
           onChange={(e) => setToName(e.target.value)}
+          onBlur={handleToNameBlur}
         />
-        <div className={styles.hint}>
-          A Substack <b>@handle</b> (or profile link) becomes a link to their profile.
-        </div>
+        {!profileLoading && !profile && (
+          <div className={styles.hint}>
+            A Substack <b>@handle</b> (or profile link) becomes a link to their profile.
+          </div>
+        )}
+        {profileLoading && <div className={styles.hint}>Looking up profile…</div>}
+        {profile && (
+          <div className={styles.profileCard}>
+            {profile.image && (
+              <img className={styles.profileAvatar} src={profile.image} alt="" />
+            )}
+            <div className={styles.profileInfo}>
+              <span className={styles.profileName}>{profile.name}</span>
+              {profile.description && (
+                <span className={styles.profileDesc}>{profile.description}</span>
+              )}
+            </div>
+            <button
+              type="button"
+              className={styles.profileDismiss}
+              onClick={() => setProfile(null)}
+              aria-label="Dismiss profile"
+            >✕</button>
+          </div>
+        )}
 
-        <label className={styles.fieldLabel}>Your kind word</label>
+        <label className={styles.fieldLabel}>{cur.msgLabel}</label>
         <textarea
           className={`${styles.input} ${styles.textarea}`}
           value={message}
           rows={3}
-          placeholder="What do you appreciate about them?"
+          placeholder="Write something kind…"
           onChange={(e) => setMessage(e.target.value)}
         />
         <div className={styles.charRow}>
@@ -149,6 +206,25 @@ export function GiveModal({ idx, onClose, onGive }) {
             </div>
           </div>
         </div>
+
+        {showPreview && (
+          <div className={styles.previewWrap}>
+            <span className={styles.previewLabel}>Preview</span>
+            <div className={styles.previewCard}>
+              <div className={styles.previewBand} style={{ background: PASTELS[color % 8] }}>
+                <span className={styles.previewNames}>
+                  <b>{displayFromName}</b>
+                  {' '}<i className={styles.arrow}>→</i>{' '}
+                  {displayToName}
+                </span>
+              </div>
+              <div className={styles.previewBody}>
+                <p className={styles.previewMsg}>{message}</p>
+                <div className={styles.readTag}>{TYPE_LABEL[toType]}</div>
+              </div>
+            </div>
+          </div>
+        )}
 
         {submitError && (
           <p className={styles.submitError}>{submitError}</p>
