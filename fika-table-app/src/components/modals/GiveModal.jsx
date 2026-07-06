@@ -4,9 +4,12 @@ import { PASTELS, TO_NAME_FALLBACK, TYPE_LABEL, CONFIG } from '../../config';
 import { extractHandle } from '../../lib/substack';
 import styles from './modals.module.css';
 
+// Also strips Substack URLs to @handle before storing
 const normalizeHandle = (name) => {
   if (!name) return name;
-  const t = name.replace(/^@{2,}/, '@');
+  const handle = extractHandle(name.trim());
+  if (handle) return '@' + handle;
+  const t = name.trim().replace(/^@{2,}/, '@');
   return /^[A-Za-z0-9_.-]+$/.test(t) ? '@' + t : t;
 };
 
@@ -20,17 +23,18 @@ const TYPE_OPTS = [
 
 export function GiveModal({ idx, onClose, onGive }) {
   const isNote = idx === null;
-  const [toType,         setToType]         = useState('anyone');
-  const [toName,         setToName]         = useState('');
-  const [message,        setMessage]        = useState('');
-  const [fromName,       setFromName]       = useState('');
-  const [color,          setColor]          = useState(isNote ? 0 : idx % 8);
-  const [website,        setWebsite]        = useState(''); // honeypot — should stay empty
-  const [submitting,     setSubmitting]     = useState(false);
-  const [submitError,    setSubmitError]    = useState(null);
-  const [profile,         setProfile]         = useState(null);   // { name, image, description }
+  const [toType,          setToType]          = useState('anyone');
+  const [toName,          setToName]          = useState('');
+  const [message,         setMessage]         = useState('');
+  const [fromName,        setFromName]        = useState('');
+  const [color,           setColor]           = useState(isNote ? 0 : idx % 8);
+  const [website,         setWebsite]         = useState(''); // honeypot — should stay empty
+  const [submitting,      setSubmitting]      = useState(false);
+  const [submitError,     setSubmitError]     = useState(null);
+  const [profile,         setProfile]         = useState(null);  // { name, image, description, handle }
   const [profileLoading,  setProfileLoading]  = useState(false);
   const [profileNotFound, setProfileNotFound] = useState(false);
+  const [profileError,    setProfileError]    = useState(false); // network / server error
 
   const cur    = TYPE_OPTS.find((o) => o.value === toType);
   const msgLen = message.trim().length;
@@ -48,22 +52,35 @@ export function GiveModal({ idx, onClose, onGive }) {
     let cancelled = false;
     const timer = setTimeout(async () => {
       if (cancelled) return;
-      if (!handle) { setProfile(null); setProfileNotFound(false); setProfileLoading(false); return; }
+      if (!handle) {
+        setProfile(null); setProfileNotFound(false); setProfileError(false); setProfileLoading(false);
+        return;
+      }
       setProfileLoading(true);
       setProfile(null);
       setProfileNotFound(false);
+      setProfileError(false);
       try {
         const res = await fetch(`/api/substack-profile?handle=${encodeURIComponent(handle)}`);
         if (cancelled) return;
-        if (!res.ok) { setProfile(null); setProfileNotFound(true); setProfileLoading(false); return; }
+        if (!res.ok) {
+          const isServerError = res.status === 503 || res.status >= 500;
+          setProfile(null);
+          setProfileNotFound(!isServerError);
+          setProfileError(isServerError);
+          setProfileLoading(false);
+          return;
+        }
         const data = await res.json();
         if (!cancelled) {
-          setProfile(data.error ? null : data);
+          // Store handle alongside profile data so the link href doesn't depend on toName at render time
+          setProfile(data.error ? null : { ...data, handle });
           setProfileNotFound(!!data.error);
+          setProfileError(false);
           setProfileLoading(false);
         }
       } catch {
-        if (!cancelled) { setProfile(null); setProfileNotFound(false); setProfileLoading(false); }
+        if (!cancelled) { setProfile(null); setProfileNotFound(false); setProfileError(true); setProfileLoading(false); }
       }
     }, handle ? 600 : 0);
     return () => { cancelled = true; clearTimeout(timer); };
@@ -125,7 +142,11 @@ export function GiveModal({ idx, onClose, onGive }) {
               type="button"
               aria-pressed={toType === o.value}
               className={`${styles.typeBtn} ${o.full ? styles.typeFull : ''} ${toType === o.value ? styles.typeBtnOn : ''}`}
-              onClick={() => setToType(o.value)}
+              onClick={() => {
+                setToType(o.value);
+                // "Leave it on the table" is anonymous — clear any recipient name
+                if (o.value === 'anyone') setToName('');
+              }}
             >
               {o.label}
             </button>
@@ -143,7 +164,7 @@ export function GiveModal({ idx, onClose, onGive }) {
           onChange={(e) => setToName(e.target.value)}
           onBlur={handleToNameBlur}
         />
-        {!profileLoading && !profile && !profileNotFound && (
+        {!profileLoading && !profile && !profileNotFound && !profileError && (
           <div className={styles.hint}>
             A Substack <b>@handle</b> (or profile link) becomes a link to their profile.
           </div>
@@ -162,11 +183,14 @@ export function GiveModal({ idx, onClose, onGive }) {
             </a>
           </div>
         )}
+        {!profileLoading && profileError && (
+          <div className={styles.hint}>Couldn't reach Substack — try again.</div>
+        )}
         {profile && (
           <div className={styles.profileCard}>
             <a
               className={styles.profileLink}
-              href={`https://substack.com/@${extractHandle(toName.trim())}`}
+              href={`https://substack.com/@${profile.handle}`}
               target="_blank"
               rel="noopener noreferrer"
             >
@@ -218,7 +242,8 @@ export function GiveModal({ idx, onClose, onGive }) {
             />
           </div>
           <div className={styles.giveCol}>
-            <label className={styles.fieldLabel}>Foam</label>
+            <label className={styles.fieldLabel}>Pick your color</label>
+            <div className={styles.hint}>shows up on your card at the table</div>
             <div className={styles.frostPick}>
               {PASTELS.map((c, i) => (
                 <button
@@ -238,7 +263,7 @@ export function GiveModal({ idx, onClose, onGive }) {
           <div className={styles.previewWrap}>
             <span className={styles.previewLabel}>Preview</span>
             <div className={styles.previewCard}>
-              <div className={styles.previewBand} style={{ background: PASTELS[color % 8] }}>
+              <div className={styles.previewBand} style={{ background: PASTELS[color % PASTELS.length] }}>
                 <span className={styles.previewNames}>
                   <b>{displayFromName}</b>
                   {' '}<i className={styles.arrow}>→</i>{' '}
