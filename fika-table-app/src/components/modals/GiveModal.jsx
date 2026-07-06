@@ -151,14 +151,14 @@ export function GiveModal({ idx, onClose, onGive }) {
         {profileLoading && <div className={styles.hint}>Looking up profile…</div>}
         {!profileLoading && profileNotFound && (
           <div className={styles.hint}>
-            No profile found ·{' '}
+            No exact match —{' '}
             <a
               href={`https://substack.com/search?query=${encodeURIComponent(toName.trim().replace(/^@/, ''))}`}
               target="_blank"
               rel="noopener noreferrer"
               className={styles.hintLink}
             >
-              Search on Substack ↗
+              search on Substack ↗
             </a>
           </div>
         )}

@@ -18,6 +18,11 @@ export default async function handler(req, res) {
 
     if (!resp.ok) return res.status(404).json({ error: 'Profile not found' });
 
+    // If Substack redirected away from the profile URL, the handle doesn't exist
+    if (!resp.url.includes(`/@${handle.toLowerCase()}`)) {
+      return res.status(404).json({ error: 'Profile not found' });
+    }
+
     const html = await resp.text();
 
     const decode = (s) => s?.replace(/&amp;/g, '&').replace(/&quot;/g, '"').replace(/&#39;/g, "'");
