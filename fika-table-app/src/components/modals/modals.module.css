@@ -225,6 +225,16 @@
   margin-top: 4px;
 }
 
+.hintLink {
+  color: var(--accent);
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.hintLink:hover {
+  text-decoration: underline;
+}
+
 .charRow {
   display: flex;
   justify-content: space-between;
@@ -298,6 +308,136 @@
   font-size: 13.5px;
   color: var(--error);
   margin: 8px 0 0;
+}
+
+/* ── Substack profile preview card ── */
+.profileCard {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin-top: 8px;
+  padding: 10px 12px;
+  background: var(--paper);
+  border: 1px solid var(--edge);
+  border-radius: 10px;
+}
+
+.profileLink {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  flex: 1;
+  min-width: 0;
+  text-decoration: none;
+  color: inherit;
+}
+
+.profileLink:hover .profileName {
+  text-decoration: underline;
+}
+
+.profileAvatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+.profileInfo {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.profileName {
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--ink);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.profileDesc {
+  font-size: 12px;
+  color: var(--sub);
+  line-height: 1.4;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.profileDismiss {
+  background: none;
+  border: none;
+  color: var(--sub);
+  font-size: 11px;
+  cursor: pointer;
+  padding: 0 0 0 4px;
+  flex-shrink: 0;
+  align-self: flex-start;
+  line-height: 1;
+}
+
+.profileDismiss:hover {
+  color: var(--ink);
+}
+
+/* ── Slice note preview ── */
+.previewWrap {
+  margin-top: 10px;
+}
+
+.previewLabel {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--sub);
+  display: block;
+  margin-bottom: 6px;
+}
+
+.previewCard {
+  border-radius: 10px;
+  overflow: hidden;
+  border: 1px solid var(--edge);
+}
+
+.previewBand {
+  height: 56px;
+  padding: 0 16px 10px;
+  display: flex;
+  align-items: flex-end;
+}
+
+.previewNames {
+  font-family: var(--f-display);
+  font-size: 16px;
+  color: var(--ink);
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  flex-wrap: wrap;
+}
+
+.previewBody {
+  padding: 14px 16px 16px;
+  background: var(--panel);
+}
+
+.previewMsg {
+  font-family: var(--f-display);
+  font-size: 15px;
+  line-height: 1.55;
+  color: var(--ink);
+  margin: 0 0 10px;
+  white-space: pre-wrap;
+  word-break: break-word;
 }
 
 /* Spam honeypot — visually hidden, not display:none (bots detect that) */
