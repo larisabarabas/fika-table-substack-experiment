@@ -312,6 +312,20 @@
   border-radius: 10px;
 }
 
+.profileLink {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  flex: 1;
+  min-width: 0;
+  text-decoration: none;
+  color: inherit;
+}
+
+.profileLink:hover .profileName {
+  text-decoration: underline;
+}
+
 .profileAvatar {
   width: 40px;
   height: 40px;

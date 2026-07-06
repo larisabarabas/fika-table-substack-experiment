@@ -1,4 +1,4 @@
-// Vercel serverless function — fetches Substack OG meta server-side to avoid CORS
+// Vercel serverless function — fetches Substack profile data server-side to avoid CORS
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
 
@@ -20,16 +20,36 @@ export default async function handler(req, res) {
 
     const html = await resp.text();
 
+    const decode = (s) => s?.replace(/&amp;/g, '&').replace(/&quot;/g, '"').replace(/&#39;/g, "'");
+
     const getMeta = (attr, value) => {
-      const decode = (s) => s?.replace(/&amp;/g, '&').replace(/&quot;/g, '"').replace(/&#39;/g, "'");
       const a = html.match(new RegExp(`<meta[^>]+${attr}=["']${value}["'][^>]+content=["']([^"']+)["']`, 'i'));
       if (a) return decode(a[1]);
       const b = html.match(new RegExp(`<meta[^>]+content=["']([^"']+)["'][^>]+${attr}=["']${value}["']`, 'i'));
       return b ? decode(b[1]) : null;
     };
 
-    const name        = getMeta('property', 'og:title')       || getMeta('name', 'twitter:title');
-    const image       = getMeta('property', 'og:image')       || getMeta('name', 'twitter:image');
+    // Prefer the real avatar from JSON-LD Person schema over the og:image social card
+    let image = null;
+    const jsonLdMatch = html.match(/<script[^>]+type=["']application\/ld\+json["'][^>]*>([\s\S]*?)<\/script>/i);
+    if (jsonLdMatch) {
+      try {
+        const data = JSON.parse(jsonLdMatch[1]);
+        const objs = Array.isArray(data) ? data : [data];
+        for (const obj of objs) {
+          if (obj['@type'] === 'Person' && obj.image) {
+            image = typeof obj.image === 'string' ? obj.image : obj.image?.url ?? null;
+            break;
+          }
+        }
+      } catch { /* ignore parse errors */ }
+    }
+    if (!image) image = getMeta('property', 'og:image') || getMeta('name', 'twitter:image');
+
+    // Strip " | Substack" suffix from the og:title
+    const rawName = getMeta('property', 'og:title') || getMeta('name', 'twitter:title');
+    const name = rawName?.replace(/\s*\|\s*Substack\s*$/i, '').trim() || null;
+
     const description = getMeta('property', 'og:description') || getMeta('name', 'twitter:description');
 
     if (!name) return res.status(404).json({ error: 'Profile not found' });

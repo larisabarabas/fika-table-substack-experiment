@@ -144,15 +144,22 @@ export function GiveModal({ idx, onClose, onGive }) {
         {profileLoading && <div className={styles.hint}>Looking up profile…</div>}
         {profile && (
           <div className={styles.profileCard}>
-            {profile.image && (
-              <img className={styles.profileAvatar} src={profile.image} alt="" />
-            )}
-            <div className={styles.profileInfo}>
-              <span className={styles.profileName}>{profile.name}</span>
-              {profile.description && (
-                <span className={styles.profileDesc}>{profile.description}</span>
+            <a
+              className={styles.profileLink}
+              href={`https://substack.com/@${extractHandle(toName.trim())}`}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              {profile.image && (
+                <img className={styles.profileAvatar} src={profile.image} alt="" />
               )}
-            </div>
+              <div className={styles.profileInfo}>
+                <span className={styles.profileName}>{profile.name}</span>
+                {profile.description && (
+                  <span className={styles.profileDesc}>{profile.description}</span>
+                )}
+              </div>
+            </a>
             <button
               type="button"
               className={styles.profileDismiss}
