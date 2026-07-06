@@ -1,7 +1,9 @@
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { CONFIG, PASTELS, TO_NAME_FALLBACK } from '../config';
 import { useSlices } from '../hooks/useSlices';
 import { NameSpan } from '../components/NameLink';
+import { ReadModal } from '../components/modals/ReadModal';
 import styles from './Welcome.module.css';
 
 const PROOF_COUNT = 3;
@@ -13,6 +15,7 @@ function clip(s, n) {
 
 export default function Welcome() {
   const { slices, currentRound, roundSize, takenThisRound, loading } = useSlices();
+  const [reading, setReading] = useState(null);
 
   const wordsThisRound = slices.filter((s) => s.round === currentRound && s.message);
   const proofWords = wordsThisRound.slice(0, PROOF_COUNT);
@@ -109,7 +112,7 @@ export default function Welcome() {
             <div className={styles.proofHead}>Already on the table this week</div>
             <div className={styles.words}>
               {proofWords.map((w) => (
-                <article key={w.id} className={styles.word}>
+                <button key={w.id} className={styles.word} onClick={() => setReading(w)}>
                   <span className={styles.wordFrost} style={{ background: PASTELS[w.color % 8] }} />
                   <div className={styles.wordIn}>
                     <div className={styles.wordTo}>
@@ -121,7 +124,7 @@ export default function Welcome() {
                       from <NameSpan name={w.fromName} fallback="a guest" />
                     </div>
                   </div>
-                </article>
+                </button>
               ))}
             </div>
             <p className={styles.micro}>
@@ -141,6 +144,8 @@ export default function Welcome() {
           <Link to="/privacy" className={styles.footerLink}>Privacy</Link>
         </p>
       </footer>
+
+      {reading ? <ReadModal slice={reading} onClose={() => setReading(null)} /> : null}
     </div>
   );
 }
