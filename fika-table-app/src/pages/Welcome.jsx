@@ -1,8 +1,23 @@
 import { Link } from 'react-router-dom';
-import { CONFIG } from '../config';
+import { CONFIG, PASTELS, TO_NAME_FALLBACK } from '../config';
+import { useSlices } from '../hooks/useSlices';
+import { NameSpan } from '../components/NameLink';
 import styles from './Welcome.module.css';
 
+const PROOF_COUNT = 3;
+
+function clip(s, n) {
+  if (!s) return '';
+  return s.length > n ? s.slice(0, n - 1).replace(/\s+\S*$/, '') + '…' : s;
+}
+
 export default function Welcome() {
+  const { slices, currentRound, roundSize, takenThisRound, loading } = useSlices();
+
+  const wordsThisRound = slices.filter((s) => s.round === currentRound && s.message);
+  const proofWords = wordsThisRound.slice(0, PROOF_COUNT);
+  const slicesLeft = Math.max(roundSize - takenThisRound, 0);
+
   return (
     <div className={styles.page}>
       <main className={styles.wrap}>
@@ -65,11 +80,20 @@ export default function Welcome() {
           <em>{CONFIG.welcomeHeadline[1]}</em>
         </h1>
 
-        {CONFIG.welcomeLede.map((paragraph, i) => (
-          <p key={i} className={styles.lede}>{paragraph}</p>
-        ))}
+        <p className={styles.poetic}>{CONFIG.welcomePoetic}</p>
+        <p className={styles.mechanic}>
+          {CONFIG.welcomeMechanic.map((part, i) =>
+            part.bold ? <b key={i}>{part.text}</b> : <span key={i}>{part.text}</span>
+          )}
+        </p>
 
-        <div className="tagline-pill">{CONFIG.dateRange}</div>
+        {!loading && (
+          <div className={styles.datepill}>
+            <span className={styles.dot} aria-hidden="true" />
+            This week&rsquo;s cake &middot;{' '}
+            <b>{slicesLeft > 0 ? `${slicesLeft} slice${slicesLeft === 1 ? '' : 's'} left` : 'all slices taken'}</b>
+          </div>
+        )}
 
         <div className={styles.actions}>
           <Link to="/cake?give=1" className="btn-solid">
@@ -80,7 +104,31 @@ export default function Welcome() {
           </Link>
         </div>
 
-        <p className={styles.fineprint}>{CONFIG.welcomeFineprint}</p>
+        {!loading && proofWords.length > 0 && (
+          <div className={styles.proof}>
+            <div className={styles.proofHead}>Already on the table this week</div>
+            <div className={styles.words}>
+              {proofWords.map((w) => (
+                <article key={w.id} className={styles.word}>
+                  <span className={styles.wordFrost} style={{ background: PASTELS[w.color % 8] }} />
+                  <div className={styles.wordIn}>
+                    <div className={styles.wordTo}>
+                      For <NameSpan name={w.toName} fallback={TO_NAME_FALLBACK[w.toType] ?? 'the table'} />
+                    </div>
+                    <p className={styles.wordMsg}>{clip(w.message, 120)}</p>
+                    <div className={styles.wordFrom}>
+                      <span className={styles.wordTag}>{w.toType || 'writer'}</span>
+                      from <NameSpan name={w.fromName} fallback="a guest" />
+                    </div>
+                  </div>
+                </article>
+              ))}
+            </div>
+            <p className={styles.micro}>
+              <b>{takenThisRound} kind word{takenThisRound === 1 ? '' : 's'}</b> shared so far &middot; fresh cake every week
+            </p>
+          </div>
+        )}
       </main>
 
       <footer className={styles.footer}>
