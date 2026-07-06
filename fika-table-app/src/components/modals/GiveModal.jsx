@@ -153,7 +153,7 @@ export function GiveModal({ idx, onClose, onGive }) {
           <div className={styles.hint}>
             No exact match —{' '}
             <a
-              href={`https://substack.com/search?query=${encodeURIComponent(toName.trim().replace(/^@/, ''))}`}
+              href={`https://substack.com/search/${encodeURIComponent(toName.trim().replace(/^@/, ''))}?searching=profile`}
               target="_blank"
               rel="noopener noreferrer"
               className={styles.hintLink}
