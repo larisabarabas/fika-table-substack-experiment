@@ -90,13 +90,17 @@ export default function Welcome() {
           )}
         </p>
 
-        {!loading && (
-          <div className={styles.datepill}>
-            <span className={styles.dot} aria-hidden="true" />
-            This week&rsquo;s cake &middot;{' '}
-            <b>{slicesLeft > 0 ? `${slicesLeft} slice${slicesLeft === 1 ? '' : 's'} left` : 'all slices taken'}</b>
-          </div>
-        )}
+        <div className={styles.datepill}>
+          <span className={styles.dot} aria-hidden="true" />
+          {loading ? (
+            <span className={styles.pillSkeleton} aria-hidden="true" />
+          ) : (
+            <>
+              This week&rsquo;s cake &middot;{' '}
+              <b>{slicesLeft > 0 ? `${slicesLeft} slice${slicesLeft === 1 ? '' : 's'} left` : 'all slices taken'}</b>
+            </>
+          )}
+        </div>
 
         <div className={styles.actions}>
           <Link to="/cake?give=1" className="btn-solid">
@@ -107,7 +111,12 @@ export default function Welcome() {
           </Link>
         </div>
 
-        {!loading && proofWords.length > 0 && (
+        {loading ? (
+          <div className={styles.proof}>
+            <div className={styles.proofHead}>Already on the table this week</div>
+            <div className={styles.spinner} role="status" aria-label="Loading" />
+          </div>
+        ) : proofWords.length > 0 && (
           <div className={styles.proof}>
             <div className={styles.proofHead}>Already on the table this week</div>
             <div className={styles.words}>
