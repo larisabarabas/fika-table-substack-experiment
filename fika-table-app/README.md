@@ -1,4 +1,4 @@
-# Fika Table 🍰
+# Fika for Substack 🍰
 
 A single-tenant "fika table" built for [Stef's Dev Notes](https://substack.com/@stefanialarisa) on Substack. Fika is the Swedish ritual of stopping for coffee, cake, and a little time for each other — this app turns that into a small web ritual for newsletter readers.
 

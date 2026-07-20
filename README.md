@@ -1,6 +1,6 @@
-# Fika Table — Substack Experiment
+# Fika for Substack — Substack Experiment
 
-A validation experiment for **Fika Table**, an appreciation-based recommendation network for Substack writers: readers "pour a coffee, take a slice" of a weekly cake by leaving a kind word for a writer, a fellow reader, the host, or "the table." Built first as a single-tenant table for [Stef's Dev Notes](https://substack.com/@stefanialarisa) to see whether the concept resonates before investing in a multi-tenant version.
+A validation experiment for **Fika for Substack**, an appreciation-based recommendation network for Substack writers: readers "pour a coffee, take a slice" of a weekly cake by leaving a kind word for a writer, a fellow reader, the host, or "the table." Built first as a single-tenant table for [Stef's Dev Notes](https://substack.com/@stefanialarisa) to see whether the concept resonates before investing in a multi-tenant version.
 
 ## Repo layout
 
