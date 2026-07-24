@@ -1,8 +1,10 @@
 export const CONFIG = {
   newsletter:    'Stef\'s Dev Notes',
+  substackProfile: 'Stefania Barabas',
   hostName:      'Stef',
   hostHandle:    '@stefanialarisa',
   substackUrl:   'https://substack.com/@stefanialarisa',
+  supportEmail:  'stefsdevnotes@gmail.com',
   sliceCapacity: 12,
   dateRange:     'Fresh cake every week · oven\'s always on',
 
