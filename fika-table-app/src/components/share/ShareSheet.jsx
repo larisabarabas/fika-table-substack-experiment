@@ -2,17 +2,8 @@ import { useState, useCallback, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { domToPng } from 'modern-screenshot';
 import { SharePoster } from './SharePoster';
+import { getShareUrl, getShareText } from '../../lib/shareText';
 import styles from './ShareSheet.module.css';
-
-function getShareUrl(id) {
-  return `${window.location.origin}/share/${id}`;
-}
-
-function getShareText(slice) {
-  const from = slice.fromName || 'a guest';
-  const to = slice.toName || 'the table';
-  return `"${slice.message}" — ${from} → ${to} ${getShareUrl(slice.id)}`;
-}
 
 export function ShareSheet({ slice }) {
   const [copiedField, setCopiedField] = useState(null);

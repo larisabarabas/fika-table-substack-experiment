@@ -1,7 +1,8 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { fetchSlice } from '../lib/api';
 import { parseSubstackUrl } from '../lib/substack';
+import { getShareText } from '../lib/shareText';
 import { PASTELS, CONFIG } from '../config';
 import { ShareCard } from '../components/share/ShareCard';
 import styles from './Share.module.css';
@@ -40,6 +41,7 @@ export default function Share() {
   const { id } = useParams();
   const [slice, setSlice] = useState(null);
   const [state, setState] = useState(STATES.LOADING);
+  const [substackCopied, setSubstackCopied] = useState(false);
   const burstFired = useRef(false);
 
   useEffect(() => {
@@ -62,6 +64,14 @@ export default function Share() {
 
   const subUrl = slice ? parseSubstackUrl(slice.toName) : null;
   const displayName = slice?.toName?.replace(/^@{2,}/, '@') ?? '';
+
+  const handleShareOnSubstack = useCallback(() => {
+    if (!slice) return;
+    window.open('https://substack.com/notes', '_blank', 'noopener,noreferrer');
+    navigator.clipboard.writeText(getShareText(slice))
+      .then(() => setSubstackCopied(true))
+      .catch(() => {/* clipboard not available */});
+  }, [slice]);
 
   return (
     <div className={styles.page} data-state={state}>
@@ -99,9 +109,21 @@ export default function Share() {
               tagClassName={`${styles.reveal} ${styles.d2}`}
             >
               <div className={styles.actions}>
+                <button
+                  type="button"
+                  onClick={handleShareOnSubstack}
+                  className={`${styles.cta} ${styles.reveal} ${styles.d3}`}
+                >
+                  Copy note &amp; open Substack <span className={styles.ctaArr}>&rarr;</span>
+                </button>
+                <p className={`${styles.ctaHint} ${styles.reveal} ${styles.d3}`} aria-live="polite">
+                  {substackCopied
+                    ? 'Copied to your clipboard — paste it into the new Note.'
+                    : "We'll copy your note — just paste it into the new Note."}
+                </p>
                 <Link
                   to="/cake?give=1"
-                  className={`${styles.cta} ${styles.reveal} ${styles.d3}`}
+                  className={`${styles.subscribe} ${styles.reveal} ${styles.d4}`}
                 >
                   Pass a slice to someone <span className={styles.ctaArr}>&rarr;</span>
                 </Link>
