@@ -12,6 +12,10 @@
   margin: 0 0 10px;
 }
 
+.label:not(:first-child) {
+  margin-top: 18px;
+}
+
 .actions {
   display: flex;
   flex-wrap: wrap;
@@ -36,4 +40,17 @@
 .action:hover {
   background: var(--paper);
   transform: translateY(-1px);
+}
+
+.action:disabled {
+  opacity: 0.6;
+  cursor: default;
+  transform: none;
+}
+
+.captureStage {
+  position: fixed;
+  top: 0;
+  left: -9999px;
+  pointer-events: none;
 }

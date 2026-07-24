@@ -93,32 +93,6 @@
   margin-bottom: 16px;
 }
 
-.shareRow {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-}
-
-.shareBtn {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 8px 16px;
-  border-radius: var(--radius-pill);
-  border: 1px solid var(--edge);
-  font-size: 13px;
-  font-weight: 500;
-  color: var(--sub);
-  text-decoration: none;
-  cursor: pointer;
-  transition: background 0.12s, color 0.12s;
-}
-
-.shareBtn:hover {
-  background: var(--paper);
-  color: var(--ink);
-}
-
 /* ── Give modal ── */
 .give {
   padding: 28px 28px 24px;
