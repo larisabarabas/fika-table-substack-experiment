@@ -93,6 +93,12 @@
   margin-bottom: 16px;
 }
 
+.shareRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
 .shareBtn {
   display: inline-flex;
   align-items: center;
@@ -103,6 +109,7 @@
   font-size: 13px;
   font-weight: 500;
   color: var(--sub);
+  text-decoration: none;
   cursor: pointer;
   transition: background 0.12s, color 0.12s;
 }

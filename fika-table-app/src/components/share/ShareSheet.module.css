@@ -28,6 +28,7 @@
   font-size: 13.5px;
   font-weight: 500;
   color: var(--ink);
+  text-decoration: none;
   cursor: pointer;
   transition: background 0.12s, transform 0.12s;
 }
