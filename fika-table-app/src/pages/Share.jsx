@@ -1,8 +1,10 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { fetchSlice } from '../lib/api';
-import { parseSubstackUrl } from '../lib/substack';
-import { PASTELS, TYPE_LABEL, CONFIG } from '../config';
+import { parseSubstackUrl, RE_MULTI_AT } from '../lib/substack';
+import { getShareText } from '../lib/shareText';
+import { PASTELS, CONFIG } from '../config';
+import { ShareCard } from '../components/share/ShareCard';
 import styles from './Share.module.css';
 
 const STATES = { LOADING: 'loading', OPEN: 'open', ERROR: 'error' };
@@ -39,6 +41,7 @@ export default function Share() {
   const { id } = useParams();
   const [slice, setSlice] = useState(null);
   const [state, setState] = useState(STATES.LOADING);
+  const [substackCopied, setSubstackCopied] = useState(false);
   const burstFired = useRef(false);
 
   useEffect(() => {
@@ -47,7 +50,6 @@ export default function Share() {
       .then((data) => {
         if (!active) return;
         setSlice(data);
-        document.documentElement.style.setProperty('--foam', PASTELS[data.color % 8]);
         setState(STATES.OPEN);
         if (!burstFired.current) {
           burstFired.current = true;
@@ -61,7 +63,15 @@ export default function Share() {
   }, [id]);
 
   const subUrl = slice ? parseSubstackUrl(slice.toName) : null;
-  const displayName = slice?.toName?.replace(/^@{2,}/, '@') ?? '';
+  const displayName = slice?.toName?.replace(RE_MULTI_AT, '@') ?? '';
+
+  const handleShareOnSubstack = useCallback(() => {
+    if (!slice) return;
+    window.open('https://substack.com/notes', '_blank', 'noopener,noreferrer');
+    navigator.clipboard.writeText(getShareText(slice))
+      .then(() => setSubstackCopied(true))
+      .catch(() => {/* clipboard not available */});
+  }, [slice]);
 
   return (
     <div className={styles.page} data-state={state}>
@@ -92,45 +102,44 @@ export default function Share() {
         {/* ── Open card ── */}
         {slice && (
           <div className={styles.cardWrap}>
-            <div className={styles.card}>
-              <span className={styles.quoteMark} aria-hidden="true">&ldquo;</span>
-              <svg className={styles.steam} viewBox="0 0 40 34" aria-hidden="true">
-                <path d="M10 32 q-6 -8 0 -15 q6 -7 0 -14" />
-                <path d="M20 32 q6 -8 0 -15 q-6 -7 0 -14" />
-                <path d="M30 32 q-6 -8 0 -15 q6 -7 0 -14" />
-              </svg>
-              <div className={styles.cardInner}>
-                <p className={`${styles.fromLine} ${styles.reveal} ${styles.d1}`}>
-                  From <span className={styles.fromLineNm}>{slice.fromName || 'a guest'}</span>
-                  &nbsp;&middot; on this week&rsquo;s cake
+            <ShareCard
+              slice={slice}
+              fromLineClassName={`${styles.reveal} ${styles.d1}`}
+              messageClassName={`${styles.reveal} ${styles.d2}`}
+              tagClassName={`${styles.reveal} ${styles.d2}`}
+            >
+              <div className={styles.actions}>
+                <button
+                  type="button"
+                  onClick={handleShareOnSubstack}
+                  className={`${styles.cta} ${styles.reveal} ${styles.d3}`}
+                >
+                  Copy note &amp; open Substack <span className={styles.ctaArr}>&rarr;</span>
+                </button>
+                <p className={`${styles.ctaHint} ${styles.reveal} ${styles.d3}`} aria-live="polite">
+                  {substackCopied
+                    ? 'Copied to your clipboard — paste it into the new Note.'
+                    : "We'll copy your note — just paste it into the new Note."}
                 </p>
-                <p className={`${styles.message} ${styles.reveal} ${styles.d2}`}>
-                  {slice.message}
-                </p>
-                <div className={`${styles.typeTag} ${styles.reveal} ${styles.d2}`}>
-                  {TYPE_LABEL[slice.toType]}
-                </div>
-                <div className={styles.actions}>
-                  <Link
-                    to="/cake?give=1"
-                    className={`${styles.cta} ${styles.reveal} ${styles.d3}`}
+                <Link
+                  to="/cake?give=1"
+                  className={`${styles.subscribe} ${styles.reveal} ${styles.d4}`}
+                >
+                  Pass a slice to someone <span className={styles.ctaArr}>&rarr;</span>
+                </Link>
+                {subUrl && (
+                  <a
+                    href={subUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={`${styles.subscribe} ${styles.reveal} ${styles.d4}`}
                   >
-                    Pass a slice to someone <span className={styles.ctaArr}>&rarr;</span>
-                  </Link>
-                  {subUrl && (
-                    <a
-                      href={subUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className={`${styles.subscribe} ${styles.reveal} ${styles.d4}`}
-                    >
-                      Subscribe to <span className={styles.subscribeNm}>{displayName}</span>
-                      <span className={styles.subscribeArr}>&#8599;</span>
-                    </a>
-                  )}
-                </div>
+                    Subscribe to <span className={styles.subscribeNm}>{displayName}</span>
+                    <span className={styles.subscribeArr}>&#8599;</span>
+                  </a>
+                )}
               </div>
-            </div>
+            </ShareCard>
           </div>
         )}
 

@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Overlay } from './Overlay';
 import { PASTELS, TO_NAME_FALLBACK, TYPE_LABEL, CONFIG } from '../../config';
-import { extractHandle } from '../../lib/substack';
+import { extractHandle, RE_MULTI_AT } from '../../lib/substack';
 import styles from './modals.module.css';
 
 // Also strips Substack URLs to @handle before storing
@@ -9,7 +9,7 @@ const normalizeHandle = (name) => {
   if (!name) return name;
   const handle = extractHandle(name.trim());
   if (handle) return '@' + handle;
-  const t = name.trim().replace(/^@{2,}/, '@');
+  const t = name.trim().replace(RE_MULTI_AT, '@');
   return /^[A-Za-z0-9_.-]+$/.test(t) ? '@' + t : t;
 };
 

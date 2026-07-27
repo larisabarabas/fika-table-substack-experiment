@@ -1,26 +1,20 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useRef } from 'react';
+import { Link } from 'react-router-dom';
+import { SharePoster } from './SharePoster';
+import { getShareUrl, getShareText } from '../../lib/shareText';
 import styles from './ShareSheet.module.css';
 
-function getShareUrl(id) {
-  return `${window.location.origin}/share/${id}`;
-}
-
-function getShareText(slice) {
-  const from = slice.fromName || 'a guest';
-  const to = slice.toName || 'the table';
-  return `"${slice.message}" — ${from} → ${to} ${getShareUrl(slice.id)}`;
-}
-
-export function ShareSheet({ slice, onClose }) {
+export function ShareSheet({ slice }) {
   const [copiedField, setCopiedField] = useState(null);
+  const [downloading, setDownloading] = useState(false);
+  const cardRef = useRef(null);
   const url = getShareUrl(slice.id);
   const text = getShareText(slice);
 
   const handleNativeShare = useCallback(() => {
     navigator.share({ title: 'Pull up a chair', text, url })
-      .then(onClose)
       .catch(() => {/* user cancelled */});
-  }, [text, url, onClose]);
+  }, [text, url]);
 
   const handleCopyLink = useCallback(async () => {
     try {
@@ -38,9 +32,42 @@ export function ShareSheet({ slice, onClose }) {
     } catch {/* clipboard not available */}
   }, [text]);
 
+  const handleDownload = useCallback(async () => {
+    if (!cardRef.current || downloading) return;
+    setDownloading(true);
+    try {
+      const { domToPng } = await import('modern-screenshot');
+      await document.fonts.ready;
+      const dataUrl = await domToPng(cardRef.current, { scale: 2 });
+      const link = document.createElement('a');
+      link.href = dataUrl;
+      link.download = `fika-slice-${slice.id}.png`;
+      link.click();
+    } catch {/* capture failed; user can retry */} finally {
+      setDownloading(false);
+    }
+  }, [slice.id, downloading]);
+
   return (
     <div className={styles.sheet}>
-      <p className={styles.label}>Share this slice</p>
+      <p className={styles.label}>Get it</p>
+      <div className={styles.actions}>
+        <Link
+          className={styles.action}
+          to={`/share/${slice.id}`}
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+          Preview link
+        </Link>
+        <button className={styles.action} onClick={handleDownload} disabled={downloading}>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          {downloading ? 'Preparing…' : 'Download'}
+        </button>
+      </div>
+
+      <p className={styles.label}>Send it</p>
       <div className={styles.actions}>
         {'share' in navigator && (
           <button className={styles.action} onClick={handleNativeShare}>
@@ -56,6 +83,12 @@ export function ShareSheet({ slice, onClose }) {
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
           {copiedField === 'text' ? 'Copied!' : 'Copy text'}
         </button>
+      </div>
+
+      <div className={styles.captureStage} aria-hidden="true">
+        <div ref={cardRef}>
+          <SharePoster slice={slice} />
+        </div>
       </div>
     </div>
   );

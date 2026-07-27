@@ -78,8 +78,8 @@ export default function Privacy() {
           <p>
             Messages stay visible on the cake during the current round, and
             remain accessible in the appreciation wall even after the round
-            ends. If you want a specific message removed,{' '}
-            <a href={CONFIG.substackUrl} target="_blank" rel="noopener noreferrer">reach out</a>.
+            ends. If you want a specific message removed, please reach out{' '}
+            <a href={`mailto:${CONFIG.supportEmail}`}>here</a>.
           </p>
         </section>
 
@@ -97,8 +97,8 @@ export default function Privacy() {
         <section>
           <h2>Contact</h2>
           <p>
-            Questions about this policy? Reach out via{' '}
-            <a href={CONFIG.substackUrl} target="_blank" rel="noopener noreferrer">{CONFIG.newsletter}</a>.
+            Questions about this policy? Reach out via email{' '}
+            <a href={`mailto:${CONFIG.supportEmail}`}>{CONFIG.supportEmail}</a>.
           </p>
         </section>
       </div>
