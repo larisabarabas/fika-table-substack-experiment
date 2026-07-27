@@ -1,5 +1,5 @@
-import { useState, useEffect, useRef, useTransition, useMemo, useCallback } from 'react';
-import { Link } from 'react-router-dom';
+import { useState, useEffect, useRef, useTransition, useCallback } from 'react';
+import { Link, useSearchParams } from 'react-router-dom';
 import { useSlices } from '../hooks/useSlices';
 import { CONFIG } from '../config';
 import { fireConfetti } from '../lib/confetti';
@@ -22,11 +22,8 @@ export default function Cake() {
   const [giving,      setGiving]      = useState(null);
   const [, startTransition]   = useTransition();
   const giveHandled           = useRef(false);
-
-  const mentions = useMemo(() => {
-    const params = new URLSearchParams(window.location.search);
-    return params.get('mentions') ?? '';
-  }, []);
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [mentions] = useState(() => searchParams.get('mentions') ?? '');
 
   const wallRef = useRef(null);
 
@@ -40,14 +37,13 @@ export default function Cake() {
   useEffect(() => {
     if (loading || error || giveHandled.current) return;
     giveHandled.current = true;
-    const params = new URLSearchParams(window.location.search);
-    if (!params.has('give')) return;
-    window.history.replaceState({}, '', window.location.pathname);
+    if (!searchParams.has('give')) return;
+    setSearchParams({}, { replace: true });
     if (!isFull) {
       const free = nextFreeIdx();
       if (free !== null) startTransition(() => setGiving({ idx: free }));
     }
-  }, [loading, error, isFull, nextFreeIdx]);
+  }, [loading, error, isFull, nextFreeIdx, searchParams, setSearchParams]);
 
   const onSlice = useCallback((idx) => {
     if (filled[idx]) setReading(filled[idx]);

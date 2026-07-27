@@ -3,7 +3,7 @@ export const CONFIG = {
   substackProfile: 'Stefania Barabas',
   hostName:      'Stef',
   hostHandle:    '@stefanialarisa',
-  substackUrl:   'https://substack.com/@stefanialarisa',
+  substackUrl:   'https://stefsdevnotes.substack.com/',
   supportEmail:  'stefsdevnotes@gmail.com',
   sliceCapacity: 12,
   dateRange:     'Fresh cake every week · oven\'s always on',
