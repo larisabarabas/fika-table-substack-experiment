@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { fetchSlice } from '../lib/api';
-import { parseSubstackUrl } from '../lib/substack';
+import { parseSubstackUrl, RE_MULTI_AT } from '../lib/substack';
 import { getShareText } from '../lib/shareText';
 import { PASTELS, CONFIG } from '../config';
 import { ShareCard } from '../components/share/ShareCard';
@@ -63,7 +63,7 @@ export default function Share() {
   }, [id]);
 
   const subUrl = slice ? parseSubstackUrl(slice.toName) : null;
-  const displayName = slice?.toName?.replace(/^@{2,}/, '@') ?? '';
+  const displayName = slice?.toName?.replace(RE_MULTI_AT, '@') ?? '';
 
   const handleShareOnSubstack = useCallback(() => {
     if (!slice) return;

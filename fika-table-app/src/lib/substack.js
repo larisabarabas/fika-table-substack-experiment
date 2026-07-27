@@ -2,6 +2,7 @@
 const RE_HANDLE      = /^@([A-Za-z0-9_.-]+)$/;
 const RE_SUBSTACK_AT = /^(?:https?:\/\/)?(?:www\.)?substack\.com\/@([A-Za-z0-9_.-]+)\/?$/i;
 const RE_SUBSTACK_SUB = /^(?:https?:\/\/)?([A-Za-z0-9-]+)\.substack\.com\/?$/i;
+export const RE_MULTI_AT = /^@{2,}/;
 
 // Returns the bare handle string (no @) if input is a @handle or substack.com/@handle URL, else null
 export function extractHandle(input) {

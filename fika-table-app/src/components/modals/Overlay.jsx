@@ -5,6 +5,11 @@ const FOCUSABLE = 'button, [href], input, select, textarea, [tabindex]:not([tabi
 
 export function Overlay({ onClose, wide, label, children }) {
   const modalRef = useRef(null);
+  const onCloseRef = useRef(onClose);
+
+  useEffect(() => {
+    onCloseRef.current = onClose;
+  });
 
   useEffect(() => {
     const previouslyFocused = document.activeElement;
@@ -14,7 +19,7 @@ export function Overlay({ onClose, wide, label, children }) {
     (firstFocusable ?? modal)?.focus();
 
     const onKey = (e) => {
-      if (e.key === 'Escape') { onClose(); return; }
+      if (e.key === 'Escape') { onCloseRef.current(); return; }
       if (e.key !== 'Tab' || !modal) return;
 
       const focusable = [...modal.querySelectorAll(FOCUSABLE)];
@@ -40,7 +45,7 @@ export function Overlay({ onClose, wide, label, children }) {
       document.body.style.overflow = '';
       previouslyFocused?.focus();
     };
-  }, [onClose]);
+  }, []);
 
   return (
     <div className="overlay" onMouseDown={onClose} role="dialog" aria-modal="true" aria-label={label}>

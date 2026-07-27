@@ -16,6 +16,34 @@ function wedgePath(r, a0, a1) {
   return `M ${CX} ${CY} L ${x0.toFixed(1)} ${y0.toFixed(1)} A ${r} ${r} 0 ${large} 1 ${x1.toFixed(1)} ${y1.toFixed(1)} Z`;
 }
 
+const MEDALLION_SVG = (
+  <svg className={styles.medCake} viewBox="115 100 130 80" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <filter id="roughMed" x="-20%" y="-20%" width="140%" height="140%">
+        <feTurbulence type="fractalNoise" baseFrequency="0.016" numOctaves="2" seed="7" result="n" />
+        <feDisplacementMap in="SourceGraphic" in2="n" scale="1.5" xChannelSelector="R" yChannelSelector="G" />
+      </filter>
+    </defs>
+    <g className="medFills" transform="translate(1.5 1.8) rotate(-0.5 180 150)">
+      <ellipse className="medStand" cx="180" cy="166" rx="60" ry="10" />
+      <path className="medCake" d="M138 118 Q180 130 222 118 L222 150 Q180 162 138 150 Z" />
+      <ellipse className="medFrost" cx="180" cy="118" rx="42" ry="9" />
+    </g>
+    <g className="medLines" filter="url(#roughMed)">
+      <ellipse cx="180" cy="165" rx="62" ry="10" />
+      <path d="M138 150 Q180 162 222 150" />
+      <path d="M138 150 L138 119" />
+      <path d="M222 150 L222 119" />
+      <ellipse cx="180" cy="118" rx="42" ry="9" />
+      <path d="M139 121 q8 11 16 0 q8 11 16 0 q8 11 16 0 q8 11 16 0 q8 11 16 0" />
+      <circle cx="166" cy="111" r="4" />
+      <circle cx="181" cy="114" r="4.5" />
+      <circle cx="196" cy="111" r="4" />
+      <path d="M181 109 q3 -5 6 -3" />
+    </g>
+  </svg>
+);
+
 function CakeRound({ count, filled, sharedCount, onSlice }) {
   const [hover, setHover] = useState(-1);
   const step = 360 / count;
@@ -84,31 +112,7 @@ function CakeRound({ count, filled, sharedCount, onSlice }) {
 
       {/* HTML medallion overlay — real fonts, mini fika scene */}
       <div className={styles.medallion} aria-hidden="true">
-        <svg className={styles.medCake} viewBox="115 100 130 80" xmlns="http://www.w3.org/2000/svg">
-          <defs>
-            <filter id="roughMed" x="-20%" y="-20%" width="140%" height="140%">
-              <feTurbulence type="fractalNoise" baseFrequency="0.016" numOctaves="2" seed="7" result="n" />
-              <feDisplacementMap in="SourceGraphic" in2="n" scale="1.5" xChannelSelector="R" yChannelSelector="G" />
-            </filter>
-          </defs>
-          <g className="medFills" transform="translate(1.5 1.8) rotate(-0.5 180 150)">
-            <ellipse className="medStand" cx="180" cy="166" rx="60" ry="10" />
-            <path className="medCake" d="M138 118 Q180 130 222 118 L222 150 Q180 162 138 150 Z" />
-            <ellipse className="medFrost" cx="180" cy="118" rx="42" ry="9" />
-          </g>
-          <g className="medLines" filter="url(#roughMed)">
-            <ellipse cx="180" cy="165" rx="62" ry="10" />
-            <path d="M138 150 Q180 162 222 150" />
-            <path d="M138 150 L138 119" />
-            <path d="M222 150 L222 119" />
-            <ellipse cx="180" cy="118" rx="42" ry="9" />
-            <path d="M139 121 q8 11 16 0 q8 11 16 0 q8 11 16 0 q8 11 16 0 q8 11 16 0" />
-            <circle cx="166" cy="111" r="4" />
-            <circle cx="181" cy="114" r="4.5" />
-            <circle cx="196" cy="111" r="4" />
-            <path d="M181 109 q3 -5 6 -3" />
-          </g>
-        </svg>
+        {MEDALLION_SVG}
         <div className={styles.medFika}>fika</div>
         <div className={styles.medSub}>
           {sharedCount === 0 ? 'the first slice is yours' : `${sharedCount} of ${count} taken`}

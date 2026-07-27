@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useTransition, useMemo } from 'react';
+import { useState, useEffect, useRef, useTransition, useMemo, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { useSlices } from '../hooks/useSlices';
 import { CONFIG } from '../config';
@@ -49,18 +49,18 @@ export default function Cake() {
     }
   }, [loading, error, isFull, nextFreeIdx]);
 
-  const onSlice = (idx) => {
+  const onSlice = useCallback((idx) => {
     if (filled[idx]) setReading(filled[idx]);
     else setGiving({ idx });
-  };
+  }, [filled]);
 
-  const openGive = () => {
+  const openGive = useCallback(() => {
     if (isFull) return;
     const free = nextFreeIdx();
     if (free !== null) setGiving({ idx: free });
-  };
+  }, [isFull, nextFreeIdx]);
 
-  const handleGive = async (data) => {
+  const handleGive = useCallback(async (data) => {
     const result = await insertSlice(data);
     if (result?.error === 'conflict') {
       const free = nextFreeIdx();
@@ -73,7 +73,7 @@ export default function Cake() {
       setTimeout(fireConfetti, 60);
     }
     return result;
-  };
+  }, [insertSlice, nextFreeIdx]);
 
   return (
     <div className={styles.page}>

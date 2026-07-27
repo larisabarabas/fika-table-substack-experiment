@@ -1,6 +1,5 @@
 import { useState, useCallback, useRef } from 'react';
 import { Link } from 'react-router-dom';
-import { domToPng } from 'modern-screenshot';
 import { SharePoster } from './SharePoster';
 import { getShareUrl, getShareText } from '../../lib/shareText';
 import styles from './ShareSheet.module.css';
@@ -37,6 +36,7 @@ export function ShareSheet({ slice }) {
     if (!cardRef.current || downloading) return;
     setDownloading(true);
     try {
+      const { domToPng } = await import('modern-screenshot');
       await document.fonts.ready;
       const dataUrl = await domToPng(cardRef.current, { scale: 2 });
       const link = document.createElement('a');

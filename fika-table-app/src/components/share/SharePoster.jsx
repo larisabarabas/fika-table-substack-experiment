@@ -1,4 +1,4 @@
-import { parseSubstackUrl } from '../../lib/substack';
+import { parseSubstackUrl, RE_MULTI_AT } from '../../lib/substack';
 import { CONFIG } from '../../config';
 import { ShareCard } from './ShareCard';
 import shareStyles from '../../pages/Share.module.css';
@@ -6,7 +6,7 @@ import styles from './SharePoster.module.css';
 
 export function SharePoster({ slice }) {
   const subUrl = parseSubstackUrl(slice.toName);
-  const displayName = slice.toName?.replace(/^@{2,}/, '@') ?? '';
+  const displayName = slice.toName?.replace(RE_MULTI_AT, '@') ?? '';
 
   return (
     <div className={styles.poster}>
