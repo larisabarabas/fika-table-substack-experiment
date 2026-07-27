@@ -11,11 +11,12 @@ export const CONFIG = {
   // Welcome page
   welcomeEyebrow:   'Where Substack writers & readers meet',
   welcomeHeadline:  ['Leave one kind word.', 'Take a slice.'],
-  welcomePoetic:    'Fika is the Swedish art of stopping — coffee, cake, and a little time for each other.',
+  welcomePoetic:    'Fika is a Swedish ritual meant to create a relaxing pause for socializing or recharge. The best part is that it\'s filled with sweet baked goods and coffee.',
   welcomeMechanic: [
-    { text: 'Each week the cake is cut into slices. Send ' },
+    { text: 'Each week the cake is cut into slices.' },
+    { text: ' To get your slice, send '},
     { text: 'one kind word', bold: true },
-    { text: ' to someone whose writing you\'re grateful for, and a slice is yours.' },
+    { text: ' to someone whose writing you\'re grateful for.' },
   ],
   giveModalSub:     'A kind word for someone, or one for the whole table.',
   welcomeCTA:        'Pour a coffee, take a slice',
