@@ -119,7 +119,7 @@ export default function Welcome() {
         ) : proofWords.length > 0 && (
           <div className={styles.proof}>
             <div className={styles.proofHead}>Already on the table this week</div>
-            <div className={styles.words}>
+            <div className={styles.words} style={{ '--card-count': proofWords.length }}>
               {proofWords.map((w) => (
                 <button key={w.id} className={styles.word} onClick={() => setReading(w)}>
                   <span className={styles.wordFrost} style={{ background: PASTELS[w.color % 8] }} />
@@ -137,7 +137,11 @@ export default function Welcome() {
               ))}
             </div>
             <p className={styles.micro}>
-              <b>{takenThisRound} kind word{takenThisRound === 1 ? '' : 's'}</b> shared so far &middot; fresh cake every week
+              {proofWords.length < takenThisRound ? (
+                <><b>{takenThisRound} kind words</b> shared so far &middot; a few pinned above &middot; fresh cake every week</>
+              ) : (
+                <><b>{takenThisRound} kind word{takenThisRound === 1 ? '' : 's'}</b> shared so far &middot; fresh cake every week</>
+              )}
             </p>
           </div>
         )}
