@@ -6,9 +6,6 @@ A validation experiment for **Fika for Substack**, an appreciation-based recomme
 
 - [`fika-table-app/`](fika-table-app/) — the React + Vite + Supabase app. See its [README](fika-table-app/README.md) for setup, architecture, and deployment.
 - [`BACKLOG.md`](BACKLOG.md) — current roadmap, launch checklist, and risks.
-- [`docs/product/`](docs/product/) — product validation notes and strategy.
-- [`docs/ux/`](docs/ux/) — UX issue tracking and copy iterations.
-- [`docs/design_handoff_*/`, `docs/design-handoff_*/`](docs/) — design handoffs, including the original 30th-birthday concept this app was rebranded from.
 
 ## Origin
 
