@@ -368,6 +368,49 @@
   color: var(--ink);
 }
 
+/* ── Same-name candidate picker ── */
+.candidateList {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 6px;
+}
+
+.candidateItem {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 10px 12px;
+  background: var(--paper);
+  border: 1px solid var(--edge);
+  border-radius: 10px;
+  cursor: pointer;
+  text-align: left;
+  width: 100%;
+}
+
+.candidateItem:hover {
+  border-color: var(--accent);
+}
+
+.candidateItem:hover .profileName {
+  text-decoration: underline;
+}
+
+.candidateNone {
+  align-self: flex-start;
+  background: none;
+  border: none;
+  color: var(--sub);
+  font-size: 12.5px;
+  cursor: pointer;
+  padding: 0;
+}
+
+.candidateNone:hover {
+  color: var(--ink);
+}
+
 /* ── Slice note preview ── */
 .previewWrap {
   margin-top: 10px;

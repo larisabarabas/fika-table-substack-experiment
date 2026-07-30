@@ -32,6 +32,8 @@ export function GiveModal({ idx, onClose, onGive }) {
   const [submitting,      setSubmitting]      = useState(false);
   const [submitError,     setSubmitError]     = useState(null);
   const [profile,         setProfile]         = useState(null);  // { name, image, description, handle }
+  const [candidates,      setCandidates]      = useState([]);    // same-name matches awaiting a pick
+  const [candidatesNone,  setCandidatesNone]  = useState(false); // user picked "None of these"
   const [profileLoading,  setProfileLoading]  = useState(false);
   const [profileNotFound, setProfileNotFound] = useState(false);
   const [profileError,    setProfileError]    = useState(false); // network / server error
@@ -61,11 +63,13 @@ export function GiveModal({ idx, onClose, onGive }) {
     const timer = setTimeout(async () => {
       if (cancelled) return;
       if (!handle && !nameQuery) {
-        setProfile(null); setProfileNotFound(false); setProfileError(false); setProfileLoading(false);
+        setProfile(null); setCandidates([]); setCandidatesNone(false); setProfileNotFound(false); setProfileError(false); setProfileLoading(false);
         return;
       }
       setProfileLoading(true);
       setProfile(null);
+      setCandidates([]);
+      setCandidatesNone(false);
       setProfileNotFound(false);
       setProfileError(false);
       try {
@@ -81,12 +85,27 @@ export function GiveModal({ idx, onClose, onGive }) {
           return;
         }
         const data = await res.json();
-        if (!cancelled) {
+        if (cancelled) return;
+        if (handle) {
+          // Handle/URL lookup is an exact fetch — always a single profile
           setProfile(data.error ? null : data);
           setProfileNotFound(!!data.error);
-          setProfileError(false);
-          setProfileLoading(false);
+        } else {
+          // Name search may return several same-name matches to disambiguate
+          const found = data.candidates || [];
+          if (data.error || found.length === 0) {
+            setProfile(null);
+            setProfileNotFound(true);
+          } else if (found.length === 1) {
+            setProfile(found[0]);
+            setProfileNotFound(false);
+          } else {
+            setCandidates(found);
+            setProfileNotFound(false);
+          }
         }
+        setProfileError(false);
+        setProfileLoading(false);
       } catch {
         if (!cancelled) { setProfile(null); setProfileNotFound(false); setProfileError(true); setProfileLoading(false); }
       }
@@ -177,7 +196,7 @@ export function GiveModal({ idx, onClose, onGive }) {
           onChange={(e) => setToName(e.target.value)}
           onBlur={handleToNameBlur}
         />
-        {!profileLoading && !profile && !profileNotFound && !profileError && (
+        {!profileLoading && !profile && candidates.length === 0 && !candidatesNone && !profileNotFound && !profileError && (
           <div className={styles.hint}>
             A Substack <b>@handle</b> (or profile link) becomes a link to their profile.
           </div>
@@ -198,6 +217,37 @@ export function GiveModal({ idx, onClose, onGive }) {
         )}
         {!profileLoading && profileError && (
           <div className={styles.hint}>Couldn't reach Substack — try again.</div>
+        )}
+        {!profileLoading && candidates.length > 0 && (
+          <div className={styles.candidateList}>
+            <div className={styles.hint}>A few people go by this name — who did you mean?</div>
+            {candidates.map((c) => (
+              <button
+                key={c.handle}
+                type="button"
+                className={styles.candidateItem}
+                onClick={() => { setProfile(c); setCandidates([]); }}
+              >
+                {c.image && <img className={styles.profileAvatar} src={c.image} alt="" />}
+                <div className={styles.profileInfo}>
+                  <span className={styles.profileName}>{c.name}</span>
+                  {c.description && <span className={styles.profileDesc}>{c.description}</span>}
+                </div>
+              </button>
+            ))}
+            <button
+              type="button"
+              className={styles.candidateNone}
+              onClick={() => { setCandidates([]); setCandidatesNone(true); }}
+            >
+              None of these
+            </button>
+          </div>
+        )}
+        {!profileLoading && candidatesNone && (
+          <div className={styles.hint}>
+            If you know their <b>@handle</b>, try searching with that instead.
+          </div>
         )}
         {profile && (
           <div className={styles.profileCard}>
