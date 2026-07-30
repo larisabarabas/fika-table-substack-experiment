@@ -14,11 +14,11 @@ const normalizeHandle = (name) => {
 };
 
 const TYPE_OPTS = [
-  { value: 'writer', label: 'For a writer',          ph: 'their name or Substack @handle', msgLabel: 'What do you appreciate about their writing?' },
-  { value: 'reader', label: 'For a reader',          ph: 'a name, @handle, or "the lurkers"', msgLabel: 'What do you appreciate about them?' },
-  { value: 'friend', label: 'For a friend',          ph: 'their name or @handle', msgLabel: 'What do you appreciate about them?' },
+  { value: 'writer', label: 'For a writer',          ph: 'a name or Substack @handle', msgLabel: 'What do you appreciate about their writing?' },
+  { value: 'reader', label: 'For a reader',          ph: 'a name or Substack @handle', msgLabel: 'What do you appreciate about them?' },
+  { value: 'friend', label: 'For a friend',          ph: 'a name or Substack @handle', msgLabel: 'What do you appreciate about them?' },
   { value: 'host',   label: 'For the host',          ph: 'whoever keeps this going', msgLabel: 'What do you want to thank them for?' },
-  { value: 'anyone', label: 'Leave it on the table', ph: 'leave blank', full: true, msgLabel: "What's something good you want to leave for whoever needs it?" },
+  { value: 'anyone', label: 'Leave it on the table', ph: 'you can leave this blank', full: true, msgLabel: "What's something good you want to leave for whoever needs it?" },
 ];
 
 export function GiveModal({ idx, onClose, onGive }) {
@@ -40,19 +40,27 @@ export function GiveModal({ idx, onClose, onGive }) {
   const msgLen = message.trim().length;
   const valid  = msgLen > 1 && msgLen <= 1000;
 
-  // On blur: if the user pasted a full Substack URL, collapse it to @handle
+  // On blur: collapse a pasted Substack URL/handle, or a name resolved to a
+  // confirmed profile match, down to @handle so it's stored as a real link
   const handleToNameBlur = () => {
-    const handle = extractHandle(toName.trim());
-    if (handle && !toName.trim().startsWith('@')) setToName('@' + handle);
+    const trimmed = toName.trim();
+    if (trimmed.startsWith('@')) return;
+    const handle = extractHandle(trimmed);
+    if (handle) { setToName('@' + handle); return; }
+    if (profile?.handle) setToName('@' + profile.handle);
   };
 
   // Debounced Substack profile preview fetch — all setState calls inside the callback (not sync in body)
   useEffect(() => {
-    const handle = extractHandle(toName.trim());
+    const trimmed = toName.trim();
+    const handle = extractHandle(trimmed);
+    // Plain text with no '@' is treated as a display name to search for; anything
+    // containing '@' that isn't a valid handle/URL (e.g. a stray "@") is left alone
+    const nameQuery = !handle && trimmed && !trimmed.includes('@') ? trimmed : null;
     let cancelled = false;
     const timer = setTimeout(async () => {
       if (cancelled) return;
-      if (!handle) {
+      if (!handle && !nameQuery) {
         setProfile(null); setProfileNotFound(false); setProfileError(false); setProfileLoading(false);
         return;
       }
@@ -61,7 +69,8 @@ export function GiveModal({ idx, onClose, onGive }) {
       setProfileNotFound(false);
       setProfileError(false);
       try {
-        const res = await fetch(`/api/substack-profile?handle=${encodeURIComponent(handle)}`);
+        const param = handle ? `handle=${encodeURIComponent(handle)}` : `query=${encodeURIComponent(nameQuery)}`;
+        const res = await fetch(`/api/substack-profile?${param}`);
         if (cancelled) return;
         if (!res.ok) {
           const isServerError = res.status === 503 || res.status >= 500;
@@ -73,8 +82,7 @@ export function GiveModal({ idx, onClose, onGive }) {
         }
         const data = await res.json();
         if (!cancelled) {
-          // Store handle alongside profile data so the link href doesn't depend on toName at render time
-          setProfile(data.error ? null : { ...data, handle });
+          setProfile(data.error ? null : data);
           setProfileNotFound(!!data.error);
           setProfileError(false);
           setProfileLoading(false);
@@ -82,7 +90,7 @@ export function GiveModal({ idx, onClose, onGive }) {
       } catch {
         if (!cancelled) { setProfile(null); setProfileNotFound(false); setProfileError(true); setProfileLoading(false); }
       }
-    }, handle ? 600 : 0);
+    }, (handle || nameQuery) ? 600 : 0);
     return () => { cancelled = true; clearTimeout(timer); };
   }, [toName]);
 
@@ -90,10 +98,15 @@ export function GiveModal({ idx, onClose, onGive }) {
     if (!valid || website || submitting) return;
     setSubmitting(true);
     setSubmitError(null);
+    // Prefer a confirmed profile match's real handle over the raw typed name,
+    // independent of whether the field was blurred — a dismissed/no match
+    // falls through to the plain text as before.
+    const trimmedToName = toName.trim();
+    const resolvedToName = profile?.handle && !extractHandle(trimmedToName) ? '@' + profile.handle : trimmedToName;
     const result = await onGive({
       idx,
       fromName: normalizeHandle(fromName.trim()),
-      toName:   normalizeHandle(toName.trim() || TO_NAME_FALLBACK[toType]),
+      toName:   normalizeHandle(resolvedToName || TO_NAME_FALLBACK[toType]),
       toType,
       message:  message.trim(),
       color,
@@ -154,7 +167,7 @@ export function GiveModal({ idx, onClose, onGive }) {
         </div>
 
         <label className={styles.fieldLabel}>
-          Their name <span className={styles.opt}>optional</span>
+          Their name or Substack @handle <span className={styles.opt}>optional</span>
         </label>
         <input
           className={styles.input}
