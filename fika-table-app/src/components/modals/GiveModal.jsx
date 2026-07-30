@@ -13,6 +13,16 @@ const normalizeHandle = (name) => {
   return /^[A-Za-z0-9_.-]+$/.test(t) ? '@' + t : t;
 };
 
+// Falls back to initials when a Substack profile has no photo, so avatar-less
+// results don't leave a blank gap in the profile card / candidate list
+const getInitials = (name) =>
+  (name || '?').trim().split(/\s+/).slice(0, 2).map((w) => w[0]).join('').toUpperCase();
+
+const Avatar = ({ image, name }) =>
+  image
+    ? <img className={styles.profileAvatar} src={image} alt="" />
+    : <div className={styles.profileAvatarFallback} aria-hidden="true">{getInitials(name)}</div>;
+
 const TYPE_OPTS = [
   { value: 'writer', label: 'For a writer',          ph: 'a name or Substack @handle', msgLabel: 'What do you appreciate about their writing?' },
   { value: 'reader', label: 'For a reader',          ph: 'a name or Substack @handle', msgLabel: 'What do you appreciate about them?' },
@@ -228,7 +238,7 @@ export function GiveModal({ idx, onClose, onGive }) {
                 className={styles.candidateItem}
                 onClick={() => { setProfile(c); setCandidates([]); }}
               >
-                {c.image && <img className={styles.profileAvatar} src={c.image} alt="" />}
+                <Avatar image={c.image} name={c.name} />
                 <div className={styles.profileInfo}>
                   <span className={styles.profileName}>{c.name}</span>
                   {c.description && <span className={styles.profileDesc}>{c.description}</span>}
@@ -257,9 +267,7 @@ export function GiveModal({ idx, onClose, onGive }) {
               target="_blank"
               rel="noopener noreferrer"
             >
-              {profile.image && (
-                <img className={styles.profileAvatar} src={profile.image} alt="" />
-              )}
+              <Avatar image={profile.image} name={profile.name} />
               <div className={styles.profileInfo}>
                 <span className={styles.profileName}>{profile.name}</span>
                 {profile.description && (

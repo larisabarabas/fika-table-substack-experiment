@@ -325,6 +325,20 @@
   flex-shrink: 0;
 }
 
+.profileAvatarFallback {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--edge);
+  color: var(--sub);
+  font-size: 13px;
+  font-weight: 600;
+}
+
 .profileInfo {
   flex: 1;
   min-width: 0;
