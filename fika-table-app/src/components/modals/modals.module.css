@@ -26,9 +26,7 @@
 
 /* Close button */
 .closeBtn {
-  position: absolute;
-  top: 14px;
-  right: 14px;
+  flex-shrink: 0;
   width: 32px;
   height: 32px;
   border-radius: 50%;
@@ -52,8 +50,9 @@
   height: 80px;
   border-radius: var(--radius-modal) var(--radius-modal) 0 0;
   display: flex;
-  align-items: flex-end;
-  padding: 0 24px 14px;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 24px 12px;
 }
 
 .bandNames {
@@ -102,6 +101,10 @@
 }
 
 .giveHead {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
   margin-bottom: 10px;
 }
 
@@ -325,6 +328,20 @@
   flex-shrink: 0;
 }
 
+.profileAvatarFallback {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--edge);
+  color: var(--sub);
+  font-size: 13px;
+  font-weight: 600;
+}
+
 .profileInfo {
   flex: 1;
   min-width: 0;
@@ -365,6 +382,49 @@
 }
 
 .profileDismiss:hover {
+  color: var(--ink);
+}
+
+/* ── Same-name candidate picker ── */
+.candidateList {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 6px;
+}
+
+.candidateItem {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 10px 12px;
+  background: var(--paper);
+  border: 1px solid var(--edge);
+  border-radius: 10px;
+  cursor: pointer;
+  text-align: left;
+  width: 100%;
+}
+
+.candidateItem:hover {
+  border-color: var(--accent);
+}
+
+.candidateItem:hover .profileName {
+  text-decoration: underline;
+}
+
+.candidateNone {
+  align-self: flex-start;
+  background: none;
+  border: none;
+  color: var(--sub);
+  font-size: 12.5px;
+  cursor: pointer;
+  padding: 0;
+}
+
+.candidateNone:hover {
   color: var(--ink);
 }
 
@@ -439,5 +499,12 @@
 
   .giveRow {
     grid-template-columns: 1fr;
+  }
+
+  /* Flex's `gap` sets row-gap too, which is too tight once the two names
+     wrap onto separate lines. Fall back to normal inline flow so wrapped
+     lines get real line-height spacing and the literal spaces render. */
+  .bandNames {
+    display: inline;
   }
 }

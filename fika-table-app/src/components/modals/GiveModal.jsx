@@ -13,17 +13,27 @@ const normalizeHandle = (name) => {
   return /^[A-Za-z0-9_.-]+$/.test(t) ? '@' + t : t;
 };
 
+// Falls back to initials when a Substack profile has no photo, so avatar-less
+// results don't leave a blank gap in the profile card / candidate list
+const getInitials = (name) =>
+  (name || '?').trim().split(/\s+/).slice(0, 2).map((w) => w[0]).join('').toUpperCase();
+
+const Avatar = ({ image, name }) =>
+  image
+    ? <img className={styles.profileAvatar} src={image} alt="" />
+    : <div className={styles.profileAvatarFallback} aria-hidden="true">{getInitials(name)}</div>;
+
 const TYPE_OPTS = [
-  { value: 'writer', label: 'For a writer',          ph: 'their name or Substack @handle', msgLabel: 'What do you appreciate about their writing?' },
-  { value: 'reader', label: 'For a reader',          ph: 'a name, @handle, or "the lurkers"', msgLabel: 'What do you appreciate about them?' },
-  { value: 'friend', label: 'For a friend',          ph: 'their name or @handle', msgLabel: 'What do you appreciate about them?' },
+  { value: 'writer', label: 'For a writer',          ph: 'a name or Substack @handle', msgLabel: 'What do you appreciate about their writing?' },
+  { value: 'reader', label: 'For a reader',          ph: 'a name or Substack @handle', msgLabel: 'What do you appreciate about them?' },
+  { value: 'friend', label: 'For a friend',          ph: 'a name or Substack @handle', msgLabel: 'What do you appreciate about them?' },
   { value: 'host',   label: 'For the host',          ph: 'whoever keeps this going', msgLabel: 'What do you want to thank them for?' },
-  { value: 'anyone', label: 'Leave it on the table', ph: 'leave blank', full: true, msgLabel: "What's something good you want to leave for whoever needs it?" },
+  { value: 'anyone', label: 'Leave it on the table', ph: 'you can leave this blank', full: true, msgLabel: "What's something good you want to leave for whoever needs it?" },
 ];
 
 export function GiveModal({ idx, onClose, onGive }) {
   const isNote = idx === null;
-  const [toType,          setToType]          = useState('anyone');
+  const [toType,          setToType]          = useState('writer');
   const [toName,          setToName]          = useState('');
   const [message,         setMessage]         = useState('');
   const [fromName,        setFromName]        = useState('');
@@ -32,6 +42,8 @@ export function GiveModal({ idx, onClose, onGive }) {
   const [submitting,      setSubmitting]      = useState(false);
   const [submitError,     setSubmitError]     = useState(null);
   const [profile,         setProfile]         = useState(null);  // { name, image, description, handle }
+  const [candidates,      setCandidates]      = useState([]);    // same-name matches awaiting a pick
+  const [candidatesNone,  setCandidatesNone]  = useState(false); // user picked "None of these"
   const [profileLoading,  setProfileLoading]  = useState(false);
   const [profileNotFound, setProfileNotFound] = useState(false);
   const [profileError,    setProfileError]    = useState(false); // network / server error
@@ -40,28 +52,50 @@ export function GiveModal({ idx, onClose, onGive }) {
   const msgLen = message.trim().length;
   const valid  = msgLen > 1 && msgLen <= 1000;
 
-  // On blur: if the user pasted a full Substack URL, collapse it to @handle
+  // Clears any resolved profile synchronously, so a submit (or blur) that
+  // lands before the 600ms debounce below has run can't reuse a match from
+  // the previous toName instead of the one currently on screen.
+  const clearProfile = () => {
+    setProfile(null);
+    setCandidates([]);
+    setCandidatesNone(false);
+    setProfileNotFound(false);
+    setProfileError(false);
+  };
+
+  // On blur: collapse a pasted Substack URL/handle, or a name resolved to a
+  // confirmed profile match, down to @handle so it's stored as a real link
   const handleToNameBlur = () => {
-    const handle = extractHandle(toName.trim());
-    if (handle && !toName.trim().startsWith('@')) setToName('@' + handle);
+    const trimmed = toName.trim();
+    if (trimmed.startsWith('@')) return;
+    const handle = extractHandle(trimmed);
+    if (handle) { setToName('@' + handle); return; }
+    if (profile?.handle) setToName('@' + profile.handle);
   };
 
   // Debounced Substack profile preview fetch — all setState calls inside the callback (not sync in body)
   useEffect(() => {
-    const handle = extractHandle(toName.trim());
+    const trimmed = toName.trim();
+    const handle = extractHandle(trimmed);
+    // Plain text with no '@' is treated as a display name to search for; anything
+    // containing '@' that isn't a valid handle/URL (e.g. a stray "@") is left alone
+    const nameQuery = !handle && trimmed && !trimmed.includes('@') ? trimmed : null;
     let cancelled = false;
     const timer = setTimeout(async () => {
       if (cancelled) return;
-      if (!handle) {
-        setProfile(null); setProfileNotFound(false); setProfileError(false); setProfileLoading(false);
+      if (!handle && !nameQuery) {
+        setProfile(null); setCandidates([]); setCandidatesNone(false); setProfileNotFound(false); setProfileError(false); setProfileLoading(false);
         return;
       }
       setProfileLoading(true);
       setProfile(null);
+      setCandidates([]);
+      setCandidatesNone(false);
       setProfileNotFound(false);
       setProfileError(false);
       try {
-        const res = await fetch(`/api/substack-profile?handle=${encodeURIComponent(handle)}`);
+        const param = handle ? `handle=${encodeURIComponent(handle)}` : `query=${encodeURIComponent(nameQuery)}`;
+        const res = await fetch(`/api/substack-profile?${param}`);
         if (cancelled) return;
         if (!res.ok) {
           const isServerError = res.status === 503 || res.status >= 500;
@@ -72,17 +106,31 @@ export function GiveModal({ idx, onClose, onGive }) {
           return;
         }
         const data = await res.json();
-        if (!cancelled) {
-          // Store handle alongside profile data so the link href doesn't depend on toName at render time
-          setProfile(data.error ? null : { ...data, handle });
+        if (cancelled) return;
+        if (handle) {
+          // Handle/URL lookup is an exact fetch — always a single profile
+          setProfile(data.error ? null : data);
           setProfileNotFound(!!data.error);
-          setProfileError(false);
-          setProfileLoading(false);
+        } else {
+          // Name search may return several same-name matches to disambiguate
+          const found = data.candidates || [];
+          if (data.error || found.length === 0) {
+            setProfile(null);
+            setProfileNotFound(true);
+          } else if (found.length === 1) {
+            setProfile(found[0]);
+            setProfileNotFound(false);
+          } else {
+            setCandidates(found);
+            setProfileNotFound(false);
+          }
         }
+        setProfileError(false);
+        setProfileLoading(false);
       } catch {
         if (!cancelled) { setProfile(null); setProfileNotFound(false); setProfileError(true); setProfileLoading(false); }
       }
-    }, handle ? 600 : 0);
+    }, (handle || nameQuery) ? 600 : 0);
     return () => { cancelled = true; clearTimeout(timer); };
   }, [toName]);
 
@@ -90,10 +138,15 @@ export function GiveModal({ idx, onClose, onGive }) {
     if (!valid || website || submitting) return;
     setSubmitting(true);
     setSubmitError(null);
+    // Prefer a confirmed profile match's real handle over the raw typed name,
+    // independent of whether the field was blurred — a dismissed/no match
+    // falls through to the plain text as before.
+    const trimmedToName = toName.trim();
+    const resolvedToName = profile?.handle && !extractHandle(trimmedToName) ? '@' + profile.handle : trimmedToName;
     const result = await onGive({
       idx,
       fromName: normalizeHandle(fromName.trim()),
-      toName:   normalizeHandle(toName.trim() || TO_NAME_FALLBACK[toType]),
+      toName:   normalizeHandle(resolvedToName || TO_NAME_FALLBACK[toType]),
       toType,
       message:  message.trim(),
       color,
@@ -127,11 +180,14 @@ export function GiveModal({ idx, onClose, onGive }) {
         </div>
 
         <div className={styles.giveHead}>
-          <div className={styles.kicker}>
-            {isNote ? 'A kind word' : `This week · slice #${idx + 1}`}
+          <div>
+            <div className={styles.kicker}>
+              {isNote ? 'A kind word' : `This week · slice #${idx + 1}`}
+            </div>
+            <h3 className={styles.giveTitle}>Pour a coffee, take a slice</h3>
+            <p className={styles.giveSub}>{CONFIG.giveModalSub}</p>
           </div>
-          <h3 className={styles.giveTitle}>Pour a coffee, take a slice</h3>
-          <p className={styles.giveSub}>{CONFIG.giveModalSub}</p>
+          <button className={styles.closeBtn} onClick={onClose} aria-label="Close">✕</button>
         </div>
 
         <label className={styles.fieldLabel}>Who's this slice for?</label>
@@ -145,7 +201,8 @@ export function GiveModal({ idx, onClose, onGive }) {
               onClick={() => {
                 setToType(o.value);
                 // "Leave it on the table" is anonymous — clear any recipient name
-                if (o.value === 'anyone') setToName('');
+                // and any profile already resolved for the old name
+                if (o.value === 'anyone') { setToName(''); clearProfile(); }
               }}
             >
               {o.label}
@@ -154,17 +211,17 @@ export function GiveModal({ idx, onClose, onGive }) {
         </div>
 
         <label className={styles.fieldLabel}>
-          Their name <span className={styles.opt}>optional</span>
+          Their name or Substack @handle <span className={styles.opt}>optional</span>
         </label>
         <input
           className={styles.input}
           value={toName}
           placeholder={cur.ph}
           maxLength={100}
-          onChange={(e) => setToName(e.target.value)}
+          onChange={(e) => { setToName(e.target.value); clearProfile(); }}
           onBlur={handleToNameBlur}
         />
-        {!profileLoading && !profile && !profileNotFound && !profileError && (
+        {!profileLoading && !profile && candidates.length === 0 && !candidatesNone && !profileNotFound && !profileError && (
           <div className={styles.hint}>
             A Substack <b>@handle</b> (or profile link) becomes a link to their profile.
           </div>
@@ -186,6 +243,37 @@ export function GiveModal({ idx, onClose, onGive }) {
         {!profileLoading && profileError && (
           <div className={styles.hint}>Couldn't reach Substack — try again.</div>
         )}
+        {!profileLoading && candidates.length > 0 && (
+          <div className={styles.candidateList}>
+            <div className={styles.hint}>A few people go by this name — who did you mean?</div>
+            {candidates.map((c) => (
+              <button
+                key={c.handle}
+                type="button"
+                className={styles.candidateItem}
+                onClick={() => { setProfile(c); setCandidates([]); }}
+              >
+                <Avatar image={c.image} name={c.name} />
+                <div className={styles.profileInfo}>
+                  <span className={styles.profileName}>{c.name}</span>
+                  {c.description && <span className={styles.profileDesc}>{c.description}</span>}
+                </div>
+              </button>
+            ))}
+            <button
+              type="button"
+              className={styles.candidateNone}
+              onClick={() => { setCandidates([]); setCandidatesNone(true); }}
+            >
+              None of these
+            </button>
+          </div>
+        )}
+        {!profileLoading && candidatesNone && (
+          <div className={styles.hint}>
+            If you know their <b>@handle</b>, try searching with that instead.
+          </div>
+        )}
         {profile && (
           <div className={styles.profileCard}>
             <a
@@ -194,9 +282,7 @@ export function GiveModal({ idx, onClose, onGive }) {
               target="_blank"
               rel="noopener noreferrer"
             >
-              {profile.image && (
-                <img className={styles.profileAvatar} src={profile.image} alt="" />
-              )}
+              <Avatar image={profile.image} name={profile.name} />
               <div className={styles.profileInfo}>
                 <span className={styles.profileName}>{profile.name}</span>
                 {profile.description && (
@@ -288,7 +374,6 @@ export function GiveModal({ idx, onClose, onGive }) {
           </button>
         </div>
       </div>
-      <button className={styles.closeBtn} onClick={onClose} aria-label="Close">✕</button>
     </Overlay>
   );
 }

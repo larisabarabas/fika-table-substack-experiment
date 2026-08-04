@@ -13,12 +13,12 @@ export function ReadModal({ slice, onClose }) {
           {' '}<i className={styles.arrow}>→</i>{' '}
           <NameLink name={slice.toName} fallback="" />
         </span>
+        <button className={styles.closeBtn} onClick={onClose} aria-label="Close">✕</button>
       </div>
       <div className={styles.readBody}>
         <p className={styles.readMsg}>{slice.message}</p>
         <div className={styles.readTag}>{TYPE_LABEL[slice.toType]}</div>
       </div>
-      <button className={styles.closeBtn} onClick={onClose} aria-label="Close">✕</button>
       <ShareSheet slice={slice} />
     </Overlay>
   );

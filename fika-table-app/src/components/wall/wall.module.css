@@ -99,16 +99,20 @@
   margin-top: 16px;
 }
 
-/* Masonry grid */
+/* Masonry grid — column assignment computed in JS (useMasonryColumns) and
+   rendered as plain flexbox columns to avoid a Safari-only flicker bug with
+   CSS `columns` + break-inside-avoid + hover transforms. */
 .grid {
-  columns: 3 260px;
-  column-gap: 16px;
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
 }
 
-@media (max-width: 560px) {
-  .grid {
-    columns: 1;
-  }
+.gridColumn {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 0;
+  min-width: 0;
 }
 
 /* Wall cards — content-visibility for long lists (rule 6.2) */
@@ -127,7 +131,6 @@
   overflow: hidden;
   cursor: pointer;
   text-align: left;
-  break-inside: avoid;
   transition: transform 0.15s, box-shadow 0.15s;
   content-visibility: auto;
   contain-intrinsic-size: 0 140px;

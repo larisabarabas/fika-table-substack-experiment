@@ -1,5 +1,6 @@
 import { useState, useTransition, useMemo } from 'react';
 import WallCard from './WallCard';
+import { useMasonryColumns } from '../../hooks/useMasonryColumns';
 import styles from './wall.module.css';
 
 const FILTERS = [
@@ -35,6 +36,8 @@ export function AppreciationWall({ slices, filter, onFilter, onRead, initialSear
     : filter === 'all'
       ? 'No slices here yet. Be the first to take one.'
       : 'No slices match this filter yet.';
+
+  const { containerRef, columns } = useMasonryColumns(visible);
 
   return (
     <section className={styles.wall}>
@@ -72,9 +75,13 @@ export function AppreciationWall({ slices, filter, onFilter, onRead, initialSear
       {visible.length === 0 ? (
         <p className={styles.empty}>{emptyMessage}</p>
       ) : (
-        <div className={styles.grid}>
-          {visible.map((s) => (
-            <WallCard key={s.id} slice={s} onRead={onRead} />
+        <div className={styles.grid} ref={containerRef}>
+          {columns.map((column, i) => (
+            <div className={styles.gridColumn} key={i}>
+              {column.map((s) => (
+                <WallCard key={s.id} slice={s} onRead={onRead} />
+              ))}
+            </div>
           ))}
         </div>
       )}
