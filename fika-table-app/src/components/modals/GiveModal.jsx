@@ -52,6 +52,17 @@ export function GiveModal({ idx, onClose, onGive }) {
   const msgLen = message.trim().length;
   const valid  = msgLen > 1 && msgLen <= 1000;
 
+  // Clears any resolved profile synchronously, so a submit (or blur) that
+  // lands before the 600ms debounce below has run can't reuse a match from
+  // the previous toName instead of the one currently on screen.
+  const clearProfile = () => {
+    setProfile(null);
+    setCandidates([]);
+    setCandidatesNone(false);
+    setProfileNotFound(false);
+    setProfileError(false);
+  };
+
   // On blur: collapse a pasted Substack URL/handle, or a name resolved to a
   // confirmed profile match, down to @handle so it's stored as a real link
   const handleToNameBlur = () => {
@@ -190,7 +201,8 @@ export function GiveModal({ idx, onClose, onGive }) {
               onClick={() => {
                 setToType(o.value);
                 // "Leave it on the table" is anonymous — clear any recipient name
-                if (o.value === 'anyone') setToName('');
+                // and any profile already resolved for the old name
+                if (o.value === 'anyone') { setToName(''); clearProfile(); }
               }}
             >
               {o.label}
@@ -206,7 +218,7 @@ export function GiveModal({ idx, onClose, onGive }) {
           value={toName}
           placeholder={cur.ph}
           maxLength={100}
-          onChange={(e) => setToName(e.target.value)}
+          onChange={(e) => { setToName(e.target.value); clearProfile(); }}
           onBlur={handleToNameBlur}
         />
         {!profileLoading && !profile && candidates.length === 0 && !candidatesNone && !profileNotFound && !profileError && (
