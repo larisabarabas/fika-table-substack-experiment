@@ -169,11 +169,14 @@ export function GiveModal({ idx, onClose, onGive }) {
         </div>
 
         <div className={styles.giveHead}>
-          <div className={styles.kicker}>
-            {isNote ? 'A kind word' : `This week · slice #${idx + 1}`}
+          <div>
+            <div className={styles.kicker}>
+              {isNote ? 'A kind word' : `This week · slice #${idx + 1}`}
+            </div>
+            <h3 className={styles.giveTitle}>Pour a coffee, take a slice</h3>
+            <p className={styles.giveSub}>{CONFIG.giveModalSub}</p>
           </div>
-          <h3 className={styles.giveTitle}>Pour a coffee, take a slice</h3>
-          <p className={styles.giveSub}>{CONFIG.giveModalSub}</p>
+          <button className={styles.closeBtn} onClick={onClose} aria-label="Close">✕</button>
         </div>
 
         <label className={styles.fieldLabel}>Who's this slice for?</label>
@@ -359,7 +362,6 @@ export function GiveModal({ idx, onClose, onGive }) {
           </button>
         </div>
       </div>
-      <button className={styles.closeBtn} onClick={onClose} aria-label="Close">✕</button>
     </Overlay>
   );
 }

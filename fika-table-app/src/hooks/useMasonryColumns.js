@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useMemo, useRef, useState } from 'react';
 
 // Mirrors the old `columns: 3 260px` fluid breakpoint: as many >=260px
 // columns as fit, capped at 3, collapsing to 1 below 560px.
@@ -40,15 +40,20 @@ function columnsForWidth(width) {
 // `columns` to avoid Safari's columns+break-inside-avoid+hover-transform
 // flicker bug.
 export function useMasonryColumns(items) {
-  const containerRef = useRef(null);
   const [width, setWidth] = useState(() => (typeof window === 'undefined' ? 0 : window.innerWidth));
+  const observerRef = useRef(null);
 
-  useEffect(() => {
-    const el = containerRef.current;
+  // Callback ref (not useRef + effect([])) so the observer re-attaches whenever
+  // the grid node itself mounts/unmounts — e.g. the empty-state <p> swapping
+  // with the grid <div> as `visible` crosses zero items, which a mount-once
+  // effect would miss entirely or leave watching a detached node.
+  const containerRef = useCallback((el) => {
+    observerRef.current?.disconnect();
+    observerRef.current = null;
     if (!el) return;
     const observer = new ResizeObserver(([entry]) => setWidth(entry.contentRect.width));
     observer.observe(el);
-    return () => observer.disconnect();
+    observerRef.current = observer;
   }, []);
 
   const columnCount = columnsForWidth(width);

@@ -26,9 +26,7 @@
 
 /* Close button */
 .closeBtn {
-  position: absolute;
-  top: 14px;
-  right: 14px;
+  flex-shrink: 0;
   width: 32px;
   height: 32px;
   border-radius: 50%;
@@ -52,8 +50,9 @@
   height: 80px;
   border-radius: var(--radius-modal) var(--radius-modal) 0 0;
   display: flex;
-  align-items: flex-end;
-  padding: 0 24px 14px;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 24px 12px;
 }
 
 .bandNames {
@@ -102,6 +101,10 @@
 }
 
 .giveHead {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
   margin-bottom: 10px;
 }
 
@@ -496,5 +499,12 @@
 
   .giveRow {
     grid-template-columns: 1fr;
+  }
+
+  /* Flex's `gap` sets row-gap too, which is too tight once the two names
+     wrap onto separate lines. Fall back to normal inline flow so wrapped
+     lines get real line-height spacing and the literal spaces render. */
+  .bandNames {
+    display: inline;
   }
 }
