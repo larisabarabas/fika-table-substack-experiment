@@ -33,7 +33,7 @@ const TYPE_OPTS = [
 
 export function GiveModal({ idx, onClose, onGive }) {
   const isNote = idx === null;
-  const [toType,          setToType]          = useState('anyone');
+  const [toType,          setToType]          = useState('writer');
   const [toName,          setToName]          = useState('');
   const [message,         setMessage]         = useState('');
   const [fromName,        setFromName]        = useState('');
