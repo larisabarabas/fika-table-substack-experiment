@@ -9,4 +9,4 @@ A validation experiment for **Fika for Substack**, an appreciation-based recomme
 
 ## Origin
 
-This app started as a one-time 30th birthday party app, then was rebranded into an evergreen weekly ritual (candles → coffee cups, birthday countdown → weekly cake round). See [`docs/product/fika-product-validation.md`](docs/product/fika-product-validation.md) for the full history and product thesis.
+This app started as a one-time 30th birthday party app, then was rebranded into an evergreen weekly ritual (candles → coffee cups, birthday countdown → weekly cake round).
