@@ -79,12 +79,12 @@
 
 @media (max-width: 480px) {
   .fikaTable        { max-width: 340px; }
-  .fikaTableTarta   { height: 88px; }
-  .fikaTableFlag    { height: 68px; }
-  .fikaTableCup     { height: 38px; }
-  .fikaTableBulle   { height: 40px; }
+  .fikaTableTarta   { height: 120px; }
+  .fikaTableFlag    { height: 112px; }
+  .fikaTableCup     { height: 40px; }
+  .fikaTableBulle   { height: 36px; }
   .fikaTableChoklad { height: 36px; }
-  .fikaTablePeppar  { height: 42px; }
+  .fikaTablePeppar  { height: 40px; }
 }
 
 /* Headline */
