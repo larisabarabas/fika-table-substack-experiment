@@ -68,8 +68,16 @@
   margin: 32px 0 0;
 }
 
-.fikaTableItem {
+/* Wrapper is the flex item (carries size/overlap/z-index + the entrance
+   animation); the img inside carries hover/idle-bob so the two never fight. */
+.fikaTableItemWrap {
+  display: inline-block;
+  line-height: 0;
+}
+
+.fikaTableImg {
   display: block;
+  height: 100%;
   width: auto;
   filter: drop-shadow(0 8px 12px rgba(0, 0, 0, 0.12));
 }
@@ -87,7 +95,7 @@
 }
 
 @media (prefers-reduced-motion: no-preference) {
-  .fikaTableTarta {
+  .fikaTableBob {
     animation: bob 7.4s ease-in-out infinite;
   }
 }
@@ -405,4 +413,15 @@
 
 .footerSep {
   color: var(--edge);
+}
+
+/* ── One-time entrance reveal ────────────────────────────
+   `data-reveal` is set on <html> by an inline script in <head> before any
+   paint (only when the user has no motion preference against it), and
+   removed by Welcome's reveal effect once the sequence finishes. Gating
+   visibility this way means nothing flashes before JS runs, and the page
+   is fully visible if JS never runs at all. */
+:global(html[data-reveal]) .fikaTableItemWrap,
+:global(html[data-reveal]) .revealCopy {
+  opacity: 0;
 }

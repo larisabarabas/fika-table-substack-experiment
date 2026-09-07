@@ -3,6 +3,15 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script>
+      // One-time entrance reveal gate: hides the animated elements (via CSS
+      // scoped to this attribute) until the reveal sequence runs and removes
+      // it. Motion-reduced users never get the attribute, so they see the
+      // finished page immediately with no flash of hidden content.
+      if (window.matchMedia('(prefers-reduced-motion: no-preference)').matches) {
+        document.documentElement.setAttribute('data-reveal', '');
+      }
+    </script>
     <title>Pull up a chair — a slice, a coffee &amp; a word</title>
     <meta name="description" content="A fika table for Stef's Dev Notes readers. Take a slice, leave a kind word." />
 

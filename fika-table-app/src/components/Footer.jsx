@@ -8,9 +8,9 @@ import styles from './Footer.module.css';
 // children. `className`/`scriptClassName` let a page adjust outer layout
 // (e.g. position/z-index above a background) or the tagline size without
 // forking the component.
-export function Footer({ className = '', scriptClassName = '', children }) {
+export function Footer({ className = '', scriptClassName = '', children, ...rest }) {
   return (
-    <footer className={`${styles.footer} ${className}`}>
+    <footer className={`${styles.footer} ${className}`} {...rest}>
       <p className={`${styles.footerScript} ${scriptClassName}`}>{CONFIG.footerScript}</p>
       {children ?? (
         <>
