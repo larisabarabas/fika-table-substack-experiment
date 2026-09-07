@@ -20,43 +20,24 @@
 
 /* ── Brand lockup ── */
 .brand {
-  position: relative;
-  z-index: 2;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 3px;
-  padding: 4px 6px;
+  width: 100%;
+  max-width: 760px;
+  gap: 18px;
+}
+.logoLink {
+  flex: none;
+  display: block;
+  line-height: 0;
 }
 
-.brandMark {
-  font-family: var(--f-script);
-  font-size: 30px;
-  color: var(--accent);
-  letter-spacing: 0.01em;
-  line-height: 1;
-  text-decoration: none;
-  transition: opacity 0.2s ease, transform 0.2s ease;
-}
-
-.brandMark:hover {
-  opacity: 1;
-  transform: translateY(-1px);
-}
-
-.brandPub {
-  font-family: var(--f-body);
-  font-size: 15px;
-  font-weight: 500;
-  color: var(--sub);
-  line-height: 1.1;
-}
-
-.brandPubNm {
-  color: var(--ink);
-  border-bottom: 1.5px dotted var(--accent);
-  padding-bottom: 1px;
-  text-decoration: none;
+.logo {
+  display: block;
+  height: 54px;
+  width: auto;
+  transition: opacity 0.15s ease;
 }
 
 /* ── Stage ── */
@@ -373,44 +354,10 @@
 }
 
 /* ── Footer ── */
-.footer {
+.footerLayer {
   position: relative;
   z-index: 1;
   margin-top: 30px;
-  text-align: center;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 4px;
-}
-
-.footerScript {
-  font-family: var(--f-script);
-  font-size: 22px;
-  color: var(--accent);
-  opacity: 0.9;
-  line-height: 1;
-}
-
-.footerSub {
-  font-family: var(--f-body);
-  font-size: 14px;
-  color: var(--sub);
-}
-
-.footerPriv {
-  margin-top: 6px;
-  font-size: 13px;
-}
-
-.footerPriv a {
-  color: var(--sub);
-  text-decoration: none;
-  border-bottom: 1.5px dotted var(--accent);
-}
-
-.footerPriv a:hover {
-  color: var(--accent);
 }
 
 /* ── Confetti crumbs ── */

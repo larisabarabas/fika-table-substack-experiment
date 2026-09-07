@@ -1,6 +1,6 @@
 .wall {
-  padding-top: 64px;
-  padding-bottom: 48px;
+  padding-top: var(--s6);
+  padding-bottom: var(--s7);
 }
 
 .wallHead {
@@ -22,12 +22,39 @@
   margin: 0;
 }
 
-/* Filter chips */
-.filters {
+/* Filter bar — sticky while scrolling the wall */
+.filterBar {
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  flex-wrap: wrap;
+  padding: 12px 0;
+  margin-bottom: 20px;
+  background: var(--paper);
+  border-bottom: 1px solid var(--edge);
+}
+
+.filterChips {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
-  margin-bottom: 28px;
+}
+
+.filterRight {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.count {
+  font-size: var(--t2);
+  color: var(--sub);
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
 }
 
 .chip {
@@ -158,6 +185,7 @@
   color: var(--ink);
   padding: 4px 14px 0;
   flex-wrap: wrap;
+  overflow-wrap: anywhere;
 }
 
 .arrow {
@@ -180,4 +208,42 @@
   text-transform: uppercase;
   color: var(--accent);
   padding: 0 14px;
+}
+
+/* The rail sits directly above the wall below 900px, so the wall no longer
+   needs the tall top padding that used to clear a full-height hero. */
+@media (max-width: 900px) {
+  .wall {
+    padding-top: var(--s4);
+  }
+}
+
+@media (max-width: 640px) {
+  .wall {
+    padding-top: var(--s3);
+  }
+
+  /* Bigger tap targets for chips/search, and let search take the full row
+     instead of animating between two fixed widths as the keyboard opens. */
+  .filterChips {
+    gap: 10px;
+  }
+
+  .chip {
+    padding: 10px 16px;
+  }
+
+  .filterRight {
+    width: 100%;
+  }
+
+  .searchWrap {
+    flex: 1;
+  }
+
+  .searchInput,
+  .searchInput:focus {
+    width: 100%;
+    padding: 10px 32px 10px 14px;
+  }
 }

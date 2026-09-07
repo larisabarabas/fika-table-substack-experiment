@@ -46,29 +46,34 @@ export function AppreciationWall({ slices, filter, onFilter, onRead, initialSear
         <p className={styles.wallLede}>Every slice that's been taken, and the kind word it cost.</p>
       </div>
 
-      <div className={styles.filters}>
-        {FILTERS.map((f) => (
-          <button
-            key={f.k}
-            aria-pressed={filter === f.k}
-            className={`${styles.chip} ${filter === f.k ? styles.chipOn : ''}`}
-            onClick={() => startTransition(() => onFilter(f.k))}
-          >
-            {f.label}
-          </button>
-        ))}
-        <div className={styles.searchWrap}>
-          <input
-            className={styles.searchInput}
-            type="text"
-            placeholder="Search by @handle"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            aria-label="Search slices by handle"
-          />
-          {search && (
-            <button className={styles.searchClear} onClick={() => setSearch('')} aria-label="Clear search">✕</button>
-          )}
+      <div className={styles.filterBar}>
+        <div className={styles.filterChips}>
+          {FILTERS.map((f) => (
+            <button
+              key={f.k}
+              aria-pressed={filter === f.k}
+              className={`${styles.chip} ${filter === f.k ? styles.chipOn : ''}`}
+              onClick={() => startTransition(() => onFilter(f.k))}
+            >
+              {f.label}
+            </button>
+          ))}
+        </div>
+        <div className={styles.filterRight}>
+          <div className={styles.searchWrap}>
+            <input
+              className={styles.searchInput}
+              type="text"
+              placeholder="Search by @handle"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              aria-label="Search slices by handle"
+            />
+            {search && (
+              <button className={styles.searchClear} onClick={() => setSearch('')} aria-label="Clear search">✕</button>
+            )}
+          </div>
+          <span className={styles.count}>{visible.length} slice{visible.length === 1 ? '' : 's'}</span>
         </div>
       </div>
 

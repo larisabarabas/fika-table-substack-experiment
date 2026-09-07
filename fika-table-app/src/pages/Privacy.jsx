@@ -15,7 +15,7 @@ export default function Privacy() {
           <p>
             This is a small, community-focused app for leaving appreciative notes
             on a virtual cake. It&rsquo;s made for readers and writers of{' '}
-            <a href={CONFIG.substackUrl} target="_blank" rel="noopener noreferrer">{CONFIG.newsletter}</a>.
+            <a href={CONFIG.creatorSite} target="_blank" rel="noopener noreferrer">{CONFIG.newsletter}</a>.
             This page explains what data is collected, why, and what control you have over it.
           </p>
         </section>

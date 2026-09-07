@@ -5,6 +5,7 @@ import { parseSubstackUrl, RE_MULTI_AT } from '../lib/substack';
 import { getShareText } from '../lib/shareText';
 import { PASTELS, CONFIG } from '../config';
 import { ShareCard } from '../components/share/ShareCard';
+import { Footer } from '../components/Footer';
 import styles from './Share.module.css';
 
 const STATES = { LOADING: 'loading', OPEN: 'open', ERROR: 'error' };
@@ -76,13 +77,10 @@ export default function Share() {
   return (
     <div className={styles.page} data-state={state}>
       <div className={styles.brand}>
-        <Link to="/" className={styles.brandMark}>Substack FIKA</Link>
-        <span className={styles.brandPub}>
-          for{' '}
-          <a href={CONFIG.substackUrl} target="_blank" rel="noopener noreferrer" className={styles.brandPubNm}>
-            {CONFIG.newsletter}
-          </a>
-        </span>
+        <Link to="/" className={styles.logoLink} aria-label="Fika — back to the welcome page">
+          <img src="/illustrations/Fika_logo_text.svg" alt="Fika" className={styles.logo} />
+        </Link>
+        <p className="eyebrow">{CONFIG.welcomeEyebrow}</p>
       </div>
 
       <div className={styles.stage}>
@@ -122,7 +120,7 @@ export default function Share() {
                     : "We'll copy your note — just paste it into the new Note."}
                 </p>
                 <Link
-                  to="/cake?give=1"
+                  to="/table?give=1"
                   className={`${styles.subscribe} ${styles.reveal} ${styles.d4}`}
                 >
                   Pass a slice to someone <span className={styles.ctaArr}>&rarr;</span>
@@ -154,17 +152,13 @@ export default function Share() {
           <p className={styles.errorBody}>
             We couldn&rsquo;t find that note &mdash; but the table&rsquo;s still set. Pull up a chair.
           </p>
-          <Link to="/cake?give=1" className={styles.errorCta}>
+          <Link to="/table?give=1" className={styles.errorCta}>
             Take a fresh slice <span className={styles.ctaArr}>&rarr;</span>
           </Link>
         </div>
       </div>
 
-      <div className={styles.footer}>
-        <span className={styles.footerScript}>{CONFIG.footerScript}</span>
-        <span className={styles.footerSub}>{CONFIG.footerSub}</span>
-        <span className={styles.footerPriv}><Link to="/privacy">Privacy</Link></span>
-      </div>
+      <Footer className={styles.footerLayer} />
 
       <div className={styles.confetti} id="share-confetti" aria-hidden="true" />
     </div>
