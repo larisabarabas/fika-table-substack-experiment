@@ -1,14 +1,16 @@
 import { lazy, Suspense } from 'react';
 import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import './styles/global.css';
-import { Analytics } from '@vercel/analytics/react';
-import { SpeedInsights } from "@vercel/speed-insights/react"
-
 
 const Welcome = lazy(() => import('./pages/Welcome'));
 const Table   = lazy(() => import('./pages/Table'));
 const Share   = lazy(() => import('./pages/Share'));
 const Privacy = lazy(() => import('./pages/Privacy'));
+
+// Analytics/SpeedInsights don't gate interactivity — lazy-load them into their
+// own chunk so they never share the initial bundle with the app itself.
+const Analytics     = lazy(() => import('@vercel/analytics/react').then(m => ({ default: m.Analytics })));
+const SpeedInsights = lazy(() => import('@vercel/speed-insights/react').then(m => ({ default: m.SpeedInsights })));
 
 // /cake is the old route — redirect old links to /table, preserving ?give=1 etc.
 function CakeRedirect() {
@@ -40,8 +42,10 @@ export default function App() {
           <Route path="*"        element={<Navigate to="/" replace />} />
         </Routes>
       </Suspense>
-       <Analytics />
-       <SpeedInsights />
+      <Suspense fallback={null}>
+        <Analytics />
+        <SpeedInsights />
+      </Suspense>
     </BrowserRouter>
   );
 }
