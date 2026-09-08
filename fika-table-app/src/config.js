@@ -1,9 +1,10 @@
 export const CONFIG = {
   newsletter:    'Stef\'s Dev Notes',
-  substackProfile: 'Stefania Barabas',
+  creator: 'Stefania Barabas',
   hostName:      'Stef',
   hostHandle:    '@stefanialarisa',
-  substackUrl:   'https://stefsdevnotes.substack.com/',
+  creatorSite:   'https://stefaniabarabas.com',
+  newsletterURL: 'https://stefsdevnotes.substack.com',
   supportEmail:  'stefsdevnotes@gmail.com',
   sliceCapacity: 12,
   dateRange:     'Fresh cake every week · oven\'s always on',
@@ -19,15 +20,14 @@ export const CONFIG = {
     { text: ' to someone whose writing you\'re grateful for.' },
   ],
   giveModalSub:     'A kind word for someone, or one for the whole table.',
-  welcomeCTA:        'Pour a coffee, take a slice',
+  welcomeCTA:        'Send your kind word',
   welcomeGhostCTA:   'See who\'s at the table',
+  welcomePillError:  'Checking the oven…',
 
-  // Cake page
-  cakeEyebrow:  '— Pull up a chair —',
-  cakeHeadline: ['Pour a coffee,', 'take a slice'],
-  cakeSubhead:  'Leave it on the table, or pass it to someone you appreciate.',
-  cakeCTA:      'Take a slice',
-  cakeFullBannerText: 'This week\'s cake is all gone — every slice taken. Check back next week!',
+  // Table page
+  tableSubline:  'A slice costs one kind word.',
+  tableCTA:      'Take a slice',
+  tableFullText: 'This week\'s cake is all gone — every slice taken. Check back next week!',
 
   // Shared footer
   footerScript: 'the table\'s always set',

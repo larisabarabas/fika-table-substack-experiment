@@ -106,6 +106,17 @@ Use the Clipboard API (`navigator.clipboard.write` + `ClipboardItem`) to copy th
 
 ---
 
+### Weekly recap / digest — not started, blocked on identity
+A writer has no way to know a slice was left for them, let alone see a rollup of who appreciated them that week. This is distinct from (and more specific than) the general "no return triggers" gap in `docs/ux/ux-product-gap.md` — it's the specific "weekly digest showing who appreciated you back" mechanic that a designer sketched but that has no data model, auth, or notification channel behind it today.
+
+**Who it's for:** a writer (Stef, or a future multi-tenant writer) who wants to know appreciation happened without manually scrolling the whole wall.
+
+**Blocked on:** identity/auth (`ux-product-gap.md` gap #1) — without a verified writer account, there's no inbox to build a digest for. Do not scope this before identity is scoped.
+
+**Effort:** L (new data model to associate slices with a specific writer, a scheduled job, a delivery channel — likely email — and identity as a hard prerequisite)
+
+---
+
 ### Design constraint: no algorithmic discovery
 Strategic decision validated by feedback: the app will not use charts, leaderboards, or "most appreciated" rankings. Discovery should feel like word of mouth, not a popularity contest.
 

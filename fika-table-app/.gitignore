@@ -28,3 +28,9 @@ dist-ssr
 *.sln
 *.sw?
 .vercel
+
+# Locally-installed Claude Code skills
+.agents/
+.claude/skills/ui-design-review
+.claude/skills/ux-audit-rethink
+skills-lock.json

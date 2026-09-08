@@ -1,9 +1,10 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { CONFIG, PASTELS, TO_NAME_FALLBACK } from '../config';
 import { useSlices } from '../hooks/useSlices';
 import { NameSpan } from '../components/NameLink';
 import { ReadModal } from '../components/modals/ReadModal';
+import { Footer } from '../components/Footer';
 import styles from './Welcome.module.css';
 
 const PROOF_COUNT = 3;
@@ -13,91 +14,160 @@ function clip(s, n) {
   return s.length > n ? s.slice(0, n - 1).replace(/\s+\S*$/, '') + '…' : s;
 }
 
-const SCENE = (
-  <div className={styles.scene} aria-hidden="true">
-    <svg className={styles.sceneSvg} viewBox="0 0 360 272" xmlns="http://www.w3.org/2000/svg">
-      <defs>
-        <filter id="rough" x="-12%" y="-12%" width="124%" height="124%">
-          <feTurbulence type="fractalNoise" baseFrequency="0.016" numOctaves="2" seed="7" result="n" />
-          <feDisplacementMap in="SourceGraphic" in2="n" scale="2.2" xChannelSelector="R" yChannelSelector="G" />
-        </filter>
-      </defs>
+// Left-to-right DOM order doubles as the entrance-reveal stagger order.
+const FIKA_ITEMS = [
+  { src: '/illustrations/Flag-ornament.svg', cls: 'fikaTableFlag' },
+  { src: '/illustrations/Kardemummabulle.svg', cls: 'fikaTableBulle' },
+  { src: '/illustrations/Coffee-cup.svg', cls: 'fikaTableCup' },
+  { src: '/illustrations/Prinsesstarta.svg', cls: 'fikaTableTarta', bob: true },
+  { src: '/illustrations/Chokladbolls.svg', cls: 'fikaTableChoklad' },
+  { src: '/illustrations/Pepparkakor.svg', cls: 'fikaTablePeppar' },
+];
 
-      <g className="fills" transform="translate(2.4 2.6) rotate(-0.5 180 180)">
-        <ellipse className="f-stand" cx="180" cy="166" rx="60" ry="10" />
-        <ellipse className="f-stand" cx="180" cy="207" rx="29" ry="6" />
-        <path className="f-cake" d="M138 118 Q180 130 222 118 L222 150 Q180 162 138 150 Z" />
-        <ellipse className="f-frost" cx="180" cy="118" rx="42" ry="9" />
-        <ellipse className="f-saucer" cx="92" cy="204" rx="34" ry="6" />
-        <path className="f-cup" d="M67 170 C69 186 74 197 92 199 C110 197 115 186 117 170 Q92 180 67 170 Z" />
-        <ellipse className="f-saucer" cx="272" cy="206" rx="48" ry="8" />
-        <path className="f-slice" d="M244 203 L298 203 L298 168 Z" />
-      </g>
-
-      <g className="lines" filter="url(#rough)">
-        <path d="M22 214 Q180 224 338 214" />
-        <ellipse cx="180" cy="207" rx="30" ry="6" />
-        <path d="M168 205 C170 190 170 180 173 169" />
-        <path d="M192 205 C190 190 190 180 187 169" />
-        <ellipse cx="180" cy="165" rx="62" ry="10" />
-        <path d="M138 150 Q180 162 222 150" />
-        <path d="M138 150 L138 119" />
-        <path d="M222 150 L222 119" />
-        <ellipse cx="180" cy="118" rx="42" ry="9" />
-        <path d="M139 121 q8 11 16 0 q8 11 16 0 q8 11 16 0 q8 11 16 0 q8 11 16 0" />
-        <circle cx="166" cy="111" r="4" />
-        <circle cx="181" cy="114" r="4.5" />
-        <circle cx="196" cy="111" r="4" />
-        <path d="M181 109 q3 -5 6 -3" />
-        <ellipse cx="92" cy="170" rx="25" ry="6.5" />
-        <ellipse cx="92" cy="170" rx="19" ry="4.6" />
-        <path d="M67 170 C69 186 74 197 92 199 C110 197 115 186 117 170" />
-        <path d="M118 176 C135 174 135 193 113 192" />
-        <ellipse cx="92" cy="204" rx="34" ry="6" />
-        <path className="steam s1" d="M85 158 q-7 -9 0 -18 q7 -8 0 -17" />
-        <path className="steam s2" d="M100 158 q7 -9 0 -18 q-7 -8 0 -17" />
-        <ellipse cx="272" cy="206" rx="48" ry="8" />
-        <path d="M244 203 L298 203 L298 168 Z" />
-        <path d="M246 200 L298 167" />
-        <path d="M262 192 L298 192" />
-        <path d="M277 182 L298 182" />
-        <circle cx="291" cy="163" r="4" />
-      </g>
-    </svg>
+const FIKA_TABLE = (
+  <div className={styles.fikaTable} aria-hidden="true">
+    {FIKA_ITEMS.map((item) => (
+      <span key={item.src} className={`${styles.fikaTableItemWrap} ${styles[item.cls]}`} data-reveal-item>
+        <img
+          src={item.src}
+          alt=""
+          className={`${styles.fikaTableImg} ${item.bob ? styles.fikaTableBob : ''}`}
+        />
+      </span>
+    ))}
   </div>
 );
 
+// Module-level, not state: survives remounts within the same page load so the
+// reveal never replays when the user navigates back to this page.
+let hasRevealed = false;
+
+// Resolves once an <img> has settled — loaded or failed, either counts.
+function whenImgSettled(img) {
+  if (img.complete) return Promise.resolve();
+  return new Promise((resolve) => {
+    const done = () => {
+      img.removeEventListener('load', done);
+      img.removeEventListener('error', done);
+      resolve();
+    };
+    img.addEventListener('load', done);
+    img.addEventListener('error', done);
+  });
+}
+
+function runReveal(root) {
+  const animations = [];
+
+  root.querySelectorAll('[data-reveal-item]').forEach((el, i) => {
+    animations.push(
+      el.animate(
+        [
+          { opacity: 0, transform: 'translateY(22px)', offset: 0 },
+          { opacity: 1, transform: 'translateY(-3px)', offset: 0.72 },
+          { opacity: 1, transform: 'translateY(0)', offset: 1 },
+        ],
+        { duration: 620, delay: 240 + i * 95, easing: 'cubic-bezier(.2,.85,.3,1)', fill: 'both' }
+      )
+    );
+  });
+
+  root.querySelectorAll('[data-reveal-copy]').forEach((el) => {
+    const i = Number(el.dataset.revealCopy);
+    animations.push(
+      el.animate(
+        [
+          { opacity: 0, transform: 'translateY(14px)' },
+          { opacity: 1, transform: 'translateY(0)' },
+        ],
+        { duration: 620, delay: 620 + i * 85, easing: 'cubic-bezier(.2,.8,.3,1)', fill: 'both' }
+      )
+    );
+  });
+
+  Promise.all(animations.map((a) => a.finished.catch(() => {}))).then(() => {
+    document.documentElement.removeAttribute('data-reveal');
+  });
+}
+
 export default function Welcome() {
-  const { slices, currentRound, roundSize, takenThisRound, loading } = useSlices();
+  const { slices, currentRound, roundSize, takenThisRound, loading, error } = useSlices();
   const [reading, setReading] = useState(null);
+  const pageRef = useRef(null);
+
+  useEffect(() => {
+    const root = pageRef.current;
+    if (!root) return;
+
+    // StrictMode double-invokes effects on the *same* DOM node in dev; guard
+    // per-node so the in-flight sequence from the first invocation isn't
+    // short-circuited by the second.
+    if (root.dataset.revealHandled) return;
+    root.dataset.revealHandled = '1';
+
+    if (hasRevealed) {
+      // A real remount (route back to this page) after the reveal already
+      // ran once this page load — nothing replays, just don't stay hidden.
+      document.documentElement.removeAttribute('data-reveal');
+      return;
+    }
+    hasRevealed = true;
+
+    if (!window.matchMedia('(prefers-reduced-motion: no-preference)').matches) return;
+
+    const imgs = Array.from(root.querySelectorAll('[data-reveal-item] img'));
+    const settled = Promise.all(imgs.map(whenImgSettled));
+    const timeout = new Promise((resolve) => setTimeout(resolve, 2200));
+
+    Promise.race([settled, timeout]).then(() => runReveal(root));
+  }, []);
 
   const wordsThisRound = slices.filter((s) => s.round === currentRound && s.message);
   const proofWords = wordsThisRound.slice(0, PROOF_COUNT);
   const slicesLeft = Math.max(roundSize - takenThisRound, 0);
 
   return (
-    <div className={styles.page}>
+    <div className={styles.page} ref={pageRef}>
+      {/* Sits outside .wrap so it always sits flush against the page top —
+          nested inside .wrap's vertically-centered flex column, it would
+          leave a gap above it on tall viewports where .page's own (slightly
+          darker) background shows through, seaming visibly against .hero's
+          lighter one right where the gap ends. */}
+      <header className={styles.hero}>
+        <div className={styles.heroInner}>
+          <img
+            src="/illustrations/Fika_logo_text.svg"
+            alt="Fika"
+            className={`${styles.logo} ${styles.revealCopy}`}
+            data-reveal-copy="0"
+          />
+          <p className={`eyebrow ${styles.revealCopy}`} data-reveal-copy="0">{CONFIG.welcomeEyebrow}</p>
+          <h1 className={`${styles.headline} ${styles.revealCopy}`} data-reveal-copy="1">
+            <span>{CONFIG.welcomeHeadline[0]}</span>
+            <span className={styles.headlineScript}>{CONFIG.welcomeHeadline[1]}</span>
+          </h1>
+        </div>
+
+        {FIKA_TABLE}
+      </header>
+
       <main className={styles.wrap}>
-        <p className="eyebrow">{CONFIG.welcomeEyebrow}</p>
-
-        {SCENE}
-
-        <h1 className={styles.headline}>
-          <span>{CONFIG.welcomeHeadline[0]}</span>
-          <em>{CONFIG.welcomeHeadline[1]}</em>
-        </h1>
-
-        <p className={styles.poetic}>{CONFIG.welcomePoetic}</p>
-        <p className={styles.mechanic}>
+        <p className={`${styles.poetic} ${styles.revealCopy}`} data-reveal-copy="2">{CONFIG.welcomePoetic}</p>
+        <p className={`${styles.mechanic} ${styles.revealCopy}`} data-reveal-copy="3">
           {CONFIG.welcomeMechanic.map((part, i) =>
             part.bold ? <b key={i}>{part.text}</b> : <span key={i}>{part.text}</span>
           )}
         </p>
 
-        <div className={styles.datepill}>
+        <div
+          className={`${styles.datepill} ${error ? styles.datepillUnknown : ''} ${styles.revealCopy}`}
+          data-reveal-copy="5"
+        >
           <span className={styles.dot} aria-hidden="true" />
           {loading ? (
             <span className={styles.pillSkeleton} aria-hidden="true" />
+          ) : error ? (
+            <span>{CONFIG.welcomePillError}</span>
           ) : (
             <>
               This week&rsquo;s cake &middot;{' '}
@@ -106,22 +176,22 @@ export default function Welcome() {
           )}
         </div>
 
-        <div className={styles.actions}>
-          <Link to="/cake?give=1" className="btn-solid">
+        <div className={`${styles.actions} ${styles.revealCopy}`} data-reveal-copy="4">
+          <Link to="/table?give=1" className="btn-solid">
             {CONFIG.welcomeCTA} <span className={styles.arrow} aria-hidden="true">→</span>
           </Link>
-          <Link to="/cake" className="btn-ghost">
+          <Link to="/table" className="btn-ghost">
             {CONFIG.welcomeGhostCTA}
           </Link>
         </div>
 
         {loading ? (
-          <div className={styles.proof}>
+          <div className={`${styles.proof} ${styles.revealCopy}`} data-reveal-copy="6">
             <div className={styles.proofHead}>Already on the table this week</div>
             <div className={styles.spinner} role="status" aria-label="Loading" />
           </div>
         ) : proofWords.length > 0 && (
-          <div className={styles.proof}>
+          <div className={`${styles.proof} ${styles.revealCopy}`} data-reveal-copy="6">
             <div className={styles.proofHead}>Already on the table this week</div>
             <div className={styles.words} style={{ '--card-count': proofWords.length }}>
               {proofWords.map((w) => (
@@ -151,16 +221,20 @@ export default function Welcome() {
         )}
       </main>
 
-      <footer className={styles.footer}>
-        <p className={styles.footerScript}>{CONFIG.footerScript}</p>
+      <Footer
+        className={`${styles.footerLayer} ${styles.revealCopy}`}
+        scriptClassName={styles.footerScriptLg}
+        data-reveal-copy="7"
+      >
         <p className={styles.footerSub}>
-          <a href={CONFIG.substackUrl} target="_blank" rel="noopener noreferrer" className={styles.footerLink}>
-            {CONFIG.newsletter}
+          <span>created by</span>
+          <a href={CONFIG.creatorSite} target="_blank" rel="noopener noreferrer" className={styles.footerLink}>
+            {CONFIG.creator}
           </a>
           <span className={styles.footerSep}>&middot;</span>
           <Link to="/privacy" className={styles.footerLink}>Privacy</Link>
         </p>
-      </footer>
+      </Footer>
 
       {reading ? <ReadModal slice={reading} onClose={() => setReading(null)} /> : null}
     </div>

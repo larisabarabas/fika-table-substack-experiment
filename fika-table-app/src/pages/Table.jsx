@@ -3,20 +3,15 @@ import { Link, useSearchParams } from 'react-router-dom';
 import { useSlices } from '../hooks/useSlices';
 import { CONFIG } from '../config';
 import { fireConfetti } from '../lib/confetti';
-import { SlicePicker } from '../components/cake/SlicePicker';
+import CakeRound from '../components/cake/CakeRound';
+import { Footer } from '../components/Footer';
 import { AppreciationWall } from '../components/wall/AppreciationWall';
 import { ReadModal } from '../components/modals/ReadModal';
 import { GiveModal } from '../components/modals/GiveModal';
-import styles from './Cake.module.css';
+import styles from './Table.module.css';
 
-const MODES = [
-  { k: 'round', label: 'Round cake' },
-  { k: 'cards', label: 'Slice cards' },
-];
-
-export default function Cake() {
+export default function Table() {
   const { slices, filled, sharedCount, isFull, loading, error, insertSlice, nextFreeIdx, roundSize } = useSlices();
-  const [mode,        setMode]        = useState('round');
   const [filter,      setFilter]      = useState('all');
   const [reading,     setReading]     = useState(null);
   const [giving,      setGiving]      = useState(null);
@@ -45,11 +40,6 @@ export default function Cake() {
     }
   }, [loading, error, isFull, nextFreeIdx, searchParams, setSearchParams]);
 
-  const onSlice = useCallback((idx) => {
-    if (filled[idx]) setReading(filled[idx]);
-    else setGiving({ idx });
-  }, [filled]);
-
   const openGive = useCallback(() => {
     if (isFull) return;
     const free = nextFreeIdx();
@@ -71,25 +61,22 @@ export default function Cake() {
     return result;
   }, [insertSlice, nextFreeIdx]);
 
+  const slicesLeft = Math.max(roundSize - sharedCount, 0);
+
   return (
     <div className={styles.page}>
       {/* Header */}
       <header className={styles.header}>
-        <div className={styles.brandGroup}>
-          <Link to="/" className={styles.brandTop}>Substack FIKA</Link>
-          <span className={styles.brandBottom}>
-            for{' '}
-            <a href={CONFIG.substackUrl} target="_blank" rel="noopener noreferrer" className={styles.brandSubLink}>
-              {CONFIG.newsletter}
-            </a>
-          </span>
-        </div>
+        <Link to="/" className={styles.logoLink} aria-label="Fika — back to the welcome page">
+          <img src="/illustrations/Fika_logo_text.svg" alt="Fika" className={styles.logo} />
+        </Link>
+        <p className={styles.subline}>{CONFIG.tableSubline}</p>
         <div className={styles.headRight}>
           <span className={styles.progress}>
             <b>{sharedCount}</b> / {roundSize} this week
           </span>
           <button className="btn-solid btn-solid-sm" onClick={openGive} disabled={isFull}>
-            {CONFIG.cakeCTA}
+            {isFull ? 'All slices taken' : CONFIG.tableCTA}
           </button>
         </div>
       </header>
@@ -100,63 +87,37 @@ export default function Cake() {
         </div>
       )}
 
-      <main className={styles.container}>
-        {/* Hero */}
-        <section className={styles.hero}>
-          <p className="eyebrow">{CONFIG.cakeEyebrow}</p>
-          <h1 className={styles.headline}>
-            <span>{CONFIG.cakeHeadline[0]}</span>
-            <em>{CONFIG.cakeHeadline[1]}</em>
-          </h1>
-          <p className={styles.subhead}>{CONFIG.cakeSubhead}</p>
-          <div className="tagline-pill">{CONFIG.dateRange}</div>
-        </section>
-
-        {/* Mode tabs */}
-        <div className={styles.tabs} aria-label="Cake view">
-          {MODES.map((m) => (
-            <button
-              key={m.k}
-              aria-pressed={mode === m.k}
-              className={`${styles.tab} ${mode === m.k ? styles.tabOn : ''}`}
-              onClick={() => startTransition(() => setMode(m.k))}
-            >
-              {m.label}
-            </button>
-          ))}
-        </div>
-
-        {/* Cake */}
-        <section className={styles.stage}>
-          {loading ? (
-            <div className={styles.loadingPlate} role="status" aria-label="Loading" />
-          ) : (
-            <SlicePicker
-              mode={mode}
-              count={roundSize}
-              filled={filled}
-              sharedCount={sharedCount}
-              onSlice={onSlice}
-            />
-          )}
-        </section>
-
-        {/* Scroll cue */}
-        <div className={styles.scrollCue} aria-hidden="true">
-          <span className={styles.scrollCueLine} />
-          <span className={styles.scrollCueArrow}>↓</span>
-        </div>
-
-        {/* Full banner */}
-        {!error && isFull && (
-          <div className={styles.fullBanner} role="status">
-            <span>This week's cake is all gone — every slice taken. Check back next week!</span>
+      <main className={styles.main}>
+        {/* Rail — this week's cake */}
+        <aside className={styles.rail}>
+          <div className={styles.railInner}>
+            <div className={styles.railCard}>
+              <div className={styles.railKicker}>This week&rsquo;s cake</div>
+              <div className={styles.railCake}>
+                {loading ? (
+                  <div className={styles.loadingPlate} role="status" aria-label="Loading" />
+                ) : (
+                  <CakeRound count={roundSize} filled={filled} sharedCount={sharedCount} />
+                )}
+              </div>
+              <button className={`btn-solid ${styles.railCta}`} onClick={openGive} disabled={isFull}>
+                {isFull ? 'All slices taken' : CONFIG.tableCTA}
+              </button>
+              <div className={styles.railMeter}>
+                <span style={{ width: `${roundSize ? (sharedCount / roundSize) * 100 : 0}%` }} />
+              </div>
+              <div className={styles.railNote}>
+                {isFull
+                  ? CONFIG.tableFullText
+                  : `${slicesLeft} slice${slicesLeft === 1 ? '' : 's'} left.`}
+              </div>
+            </div>
           </div>
-        )}
+        </aside>
 
         {/* Wall */}
         {!error && (
-          <div ref={wallRef}>
+          <div ref={wallRef} className={styles.wallWrap}>
             <AppreciationWall
               slices={slices}
               filter={filter}
@@ -168,11 +129,7 @@ export default function Cake() {
         )}
       </main>
 
-      <footer className={styles.footer}>
-        <p className={styles.footerScript}>{CONFIG.footerScript}</p>
-        <p className={styles.footerSub}>{CONFIG.footerSub}</p>
-        <p className={styles.footerPriv}><Link to="/privacy">Privacy</Link></p>
-      </footer>
+      <Footer />
 
       {/* Modals */}
       {reading ? (

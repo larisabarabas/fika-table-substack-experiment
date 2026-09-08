@@ -4,13 +4,16 @@ import { PASTELS, TO_NAME_FALLBACK, TYPE_LABEL, CONFIG } from '../../config';
 import { extractHandle, RE_MULTI_AT } from '../../lib/substack';
 import styles from './modals.module.css';
 
-// Also strips Substack URLs to @handle before storing
+// Collapses an explicit @handle or Substack URL down to @handle before storing.
+// Does NOT guess that a bare word (e.g. a plain first name like "Maria") is a
+// handle — only extractHandle's confirmed patterns count, otherwise a signed
+// name gets mistaken for an unverified Substack profile link downstream.
 const normalizeHandle = (name) => {
   if (!name) return name;
-  const handle = extractHandle(name.trim());
+  const trimmed = name.trim();
+  const handle = extractHandle(trimmed);
   if (handle) return '@' + handle;
-  const t = name.trim().replace(RE_MULTI_AT, '@');
-  return /^[A-Za-z0-9_.-]+$/.test(t) ? '@' + t : t;
+  return trimmed.replace(RE_MULTI_AT, '@');
 };
 
 // Falls back to initials when a Substack profile has no photo, so avatar-less
@@ -271,7 +274,7 @@ export function GiveModal({ idx, onClose, onGive }) {
         )}
         {!profileLoading && candidatesNone && (
           <div className={styles.hint}>
-            If you know their <b>@handle</b>, try searching with that instead.
+            If you know their <b>Substack @handle</b>, try searching with that instead.
           </div>
         )}
         {profile && (

@@ -1,12 +1,21 @@
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { CONFIG } from '../config';
 import styles from './Privacy.module.css';
 
 export default function Privacy() {
+  const navigate = useNavigate();
+
+  const handleBack = (e) => {
+    if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0) return;
+    e.preventDefault();
+    if (window.history.state?.idx > 0) navigate(-1);
+    else navigate('/');
+  };
+
   return (
     <div className={styles.page}>
       <div className={styles.wrap}>
-        <Link to="/" className={styles.back}>&larr; back to the table</Link>
+        <Link to="/" className={styles.back} onClick={handleBack}>&larr; take me back</Link>
         <h1 className={styles.title}>Privacy Policy</h1>
         <p className={styles.updated}>Last updated: June 2026</p>
 
@@ -15,7 +24,7 @@ export default function Privacy() {
           <p>
             This is a small, community-focused app for leaving appreciative notes
             on a virtual cake. It&rsquo;s made for readers and writers of{' '}
-            <a href={CONFIG.substackUrl} target="_blank" rel="noopener noreferrer">{CONFIG.newsletter}</a>.
+            <a href={CONFIG.newsletterURL} target="_blank" rel="noopener noreferrer">{CONFIG.newsletter}</a>.
             This page explains what data is collected, why, and what control you have over it.
           </p>
         </section>
@@ -104,7 +113,7 @@ export default function Privacy() {
       </div>
 
       <footer className={styles.footer}>
-        <Link to="/" className={styles.back}>&larr; back to the table</Link>
+        <Link to="/" className={styles.back} onClick={handleBack}>&larr; take me back</Link>
       </footer>
     </div>
   );
