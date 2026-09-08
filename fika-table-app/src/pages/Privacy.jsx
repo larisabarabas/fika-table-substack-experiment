@@ -6,6 +6,7 @@ export default function Privacy() {
   const navigate = useNavigate();
 
   const handleBack = (e) => {
+    if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0) return;
     e.preventDefault();
     if (window.history.state?.idx > 0) navigate(-1);
     else navigate('/');
