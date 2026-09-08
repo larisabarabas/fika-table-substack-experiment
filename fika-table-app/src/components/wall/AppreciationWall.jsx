@@ -64,7 +64,7 @@ export function AppreciationWall({ slices, filter, onFilter, onRead, initialSear
             <input
               className={styles.searchInput}
               type="text"
-              placeholder="Search by @handle"
+              placeholder="Search slices given to @handle"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               aria-label="Search slices by handle"

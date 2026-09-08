@@ -91,7 +91,7 @@
   font-size: 13.5px;
   color: var(--ink);
   background: var(--panel);
-  width: 180px;
+  width: 250px;
   transition: border-color 0.15s, width 0.2s;
 }
 

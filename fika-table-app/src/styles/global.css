@@ -33,6 +33,7 @@ button {
 .btn-solid {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 6px;
   padding: 11px 20px;
   border-radius: var(--radius-pill);
