@@ -128,25 +128,30 @@ export default function Welcome() {
 
   return (
     <div className={styles.page} ref={pageRef}>
+      {/* Sits outside .wrap so it always sits flush against the page top —
+          nested inside .wrap's vertically-centered flex column, it would
+          leave a gap above it on tall viewports where .page's own (slightly
+          darker) background shows through, seaming visibly against .hero's
+          lighter one right where the gap ends. */}
+      <header className={styles.hero}>
+        <div className={styles.heroInner}>
+          <img
+            src="/illustrations/Fika_logo_text.svg"
+            alt="Fika"
+            className={`${styles.logo} ${styles.revealCopy}`}
+            data-reveal-copy="0"
+          />
+          <p className={`eyebrow ${styles.revealCopy}`} data-reveal-copy="0">{CONFIG.welcomeEyebrow}</p>
+          <h1 className={`${styles.headline} ${styles.revealCopy}`} data-reveal-copy="1">
+            <span>{CONFIG.welcomeHeadline[0]}</span>
+            <span className={styles.headlineScript}>{CONFIG.welcomeHeadline[1]}</span>
+          </h1>
+        </div>
+
+        {FIKA_TABLE}
+      </header>
+
       <main className={styles.wrap}>
-        <header className={styles.hero}>
-          <div className={styles.heroInner}>
-            <img
-              src="/illustrations/Fika_logo_text.svg"
-              alt="Fika"
-              className={`${styles.logo} ${styles.revealCopy}`}
-              data-reveal-copy="0"
-            />
-            <p className={`eyebrow ${styles.revealCopy}`} data-reveal-copy="0">{CONFIG.welcomeEyebrow}</p>
-            <h1 className={`${styles.headline} ${styles.revealCopy}`} data-reveal-copy="1">
-              <span>{CONFIG.welcomeHeadline[0]}</span>
-              <span className={styles.headlineScript}>{CONFIG.welcomeHeadline[1]}</span>
-            </h1>
-          </div>
-
-          {FIKA_TABLE}
-        </header>
-
         <p className={`${styles.poetic} ${styles.revealCopy}`} data-reveal-copy="2">{CONFIG.welcomePoetic}</p>
         <p className={`${styles.mechanic} ${styles.revealCopy}`} data-reveal-copy="3">
           {CONFIG.welcomeMechanic.map((part, i) =>
