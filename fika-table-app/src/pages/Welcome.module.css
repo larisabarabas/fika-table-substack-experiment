@@ -67,6 +67,10 @@
   width: 100%;
   max-width: 620px;
   margin: 32px 0 0;
+  /* Contains the items' z-index below so it can't leak into the root
+     stacking context and outrank the modal overlay (z-index: 50). */
+  position: relative;
+  isolation: isolate;
 }
 
 /* Wrapper is the flex item (carries size/overlap/z-index + the entrance
@@ -85,9 +89,9 @@
 
 .fikaTableTarta   { height: 210px; margin: 0 -10px;    position: relative; z-index: 1; }
 .fikaTableFlag    { height: 190px; margin: 0 7px 0 0; }
-.fikaTableCup     { height: 70px;  margin: 0 -12px;    z-index: 999; }
+.fikaTableCup     { height: 70px;  margin: 0 -12px;    position: relative; z-index: 2; }
 .fikaTableBulle   { height: 58px;  margin: 0 -10px; }
-.fikaTableChoklad { height: 60px;  margin: 0 -14px;    z-index: 999; }
+.fikaTableChoklad { height: 60px;  margin: 0 -14px;    position: relative; z-index: 2; }
 .fikaTablePeppar  { height: 70px;  margin: 0 0 0 4px; }
 
 @keyframes bob {
