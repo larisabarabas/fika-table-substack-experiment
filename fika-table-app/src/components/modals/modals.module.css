@@ -27,8 +27,8 @@
 /* Close button */
 .closeBtn {
   flex-shrink: 0;
-  width: 32px;
-  height: 32px;
+  width: 44px;
+  height: 44px;
   border-radius: 50%;
   background: rgba(52,48,42,0.08);
   color: var(--ink);
@@ -104,13 +104,6 @@
   justify-content: space-between;
   gap: 12px;
   margin-bottom: 10px;
-}
-
-.kicker {
-  font-size: var(--t1);
-  font-weight: 600;
-  color: var(--accent);
-  margin-bottom: 6px;
 }
 
 .giveTitle {
@@ -240,28 +233,16 @@
   margin: 0;
 }
 
-.giveRow {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 16px;
-  margin-top: 4px;
-}
-
-.giveCol {
-  display: flex;
-  flex-direction: column;
-}
-
 .frostPick {
   display: flex;
   flex-wrap: wrap;
-  gap: 7px;
-  margin-top: 8px;
+  gap: 10px;
+  margin-top: 10px;
 }
 
 .frostDot {
-  width: 26px;
-  height: 26px;
+  width: 34px;
+  height: 34px;
   border-radius: 50%;
   border: 2px solid transparent;
   cursor: pointer;
@@ -272,8 +253,8 @@
   transform: scale(1.15);
 }
 
-.frostDotOn {
-  border-color: var(--ink) !important;
+.frostDot.frostDotOn {
+  border-color: var(--ink);
   transform: scale(1.15);
 }
 
@@ -491,14 +472,73 @@
     grid-template-columns: 1fr;
   }
 
-  .giveRow {
-    grid-template-columns: 1fr;
-  }
-
   /* Flex's `gap` sets row-gap too, which is too tight once the two names
      wrap onto separate lines. Fall back to normal inline flow so wrapped
      lines get real line-height spacing and the literal spaces render. */
   .bandNames {
     display: inline;
   }
+}
+
+/* Recipient and color summaries — collapsed by default so the message comes first */
+.toRow,
+.colorRow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 6px;
+  min-height: 44px;
+}
+
+.toValue {
+  font-weight: 600;
+  color: var(--ink);
+  font-size: var(--t3);
+}
+
+.colorText {
+  color: var(--sub);
+  font-size: var(--t2);
+}
+
+.colorSwatch {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  border: 1px solid var(--edge);
+  flex-shrink: 0;
+}
+
+.linkBtn {
+  margin-left: auto;
+  min-height: 44px;
+  padding: 0 4px;
+  color: var(--accent);
+  font-size: var(--t2);
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.linkBtn:focus-visible,
+.frostDot:focus-visible,
+.typeBtn:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.typeSet {
+  border: 0;
+  margin: 0;
+  padding: 0;
+  min-width: 0;
+}
+
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
 }

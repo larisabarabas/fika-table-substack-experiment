@@ -1,4 +1,4 @@
-import { Overlay } from './Overlay';
+import { Overlay, CloseIcon } from './Overlay';
 import { NameLink } from '../NameLink';
 import { PASTELS, TYPE_LABEL } from '../../config';
 import { ShareSheet } from '../share/ShareSheet';
@@ -13,7 +13,7 @@ export function ReadModal({ slice, onClose }) {
           {' '}<span className={styles.arrow}>to</span>{' '}
           <NameLink name={slice.toName} fallback="" />
         </span>
-        <button className={styles.closeBtn} onClick={onClose} aria-label="Close">✕</button>
+        <button className={styles.closeBtn} onClick={onClose} aria-label="Close"><CloseIcon /></button>
       </div>
       <div className={styles.readBody}>
         <p className={styles.readMsg}>{slice.message}</p>

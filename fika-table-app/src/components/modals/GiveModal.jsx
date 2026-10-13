@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Overlay } from './Overlay';
+import { Overlay, CloseIcon } from './Overlay';
 import { PASTELS, TO_NAME_FALLBACK, TYPE_LABEL, CONFIG } from '../../config';
 import { extractHandle, RE_MULTI_AT } from '../../lib/substack';
 import styles from './modals.module.css';
@@ -44,6 +44,8 @@ export function GiveModal({ idx, onClose, onGive }) {
   const [website,         setWebsite]         = useState(''); // honeypot — should stay empty
   const [submitting,      setSubmitting]      = useState(false);
   const [submitError,     setSubmitError]     = useState(null);
+  const [showTypes,       setShowTypes]       = useState(false); // recipient-type picker is collapsed until asked for
+  const [showColors,      setShowColors]      = useState(false); // icing color is auto-assigned; picker is opt-in
   const [profile,         setProfile]         = useState(null);  // { name, image, description, handle }
   const [candidates,      setCandidates]      = useState([]);    // same-name matches awaiting a pick
   const [candidatesNone,  setCandidatesNone]  = useState(false); // user picked "None of these"
@@ -184,39 +186,69 @@ export function GiveModal({ idx, onClose, onGive }) {
 
         <div className={styles.giveHead}>
           <div>
-            <div className={styles.kicker}>
-              {isNote ? 'A kind word' : `This week · slice #${idx + 1}`}
-            </div>
             <h3 className={styles.giveTitle}>Pour a coffee, take a slice</h3>
             <p className={styles.giveSub}>{CONFIG.giveModalSub}</p>
           </div>
-          <button className={styles.closeBtn} onClick={onClose} aria-label="Close">✕</button>
+          <button className={styles.closeBtn} onClick={onClose} aria-label="Close"><CloseIcon /></button>
         </div>
 
-        <label className={styles.fieldLabel}>Who's this slice for?</label>
-        <div className={styles.typeGrid}>
-          {TYPE_OPTS.map((o) => (
-            <button
-              key={o.value}
-              type="button"
-              aria-pressed={toType === o.value}
-              className={`${styles.typeBtn} ${o.full ? styles.typeFull : ''} ${toType === o.value ? styles.typeBtnOn : ''}`}
-              onClick={() => {
-                setToType(o.value);
-                // "Leave it on the table" is anonymous — clear any recipient name
-                // and any profile already resolved for the old name
-                if (o.value === 'anyone') { setToName(''); clearProfile(); }
-              }}
-            >
-              {o.label}
-            </button>
-          ))}
+        <label htmlFor="give-message" className={styles.fieldLabel}>{cur.msgLabel}</label>
+        <textarea
+          id="give-message"
+          className={`${styles.input} ${styles.textarea}`}
+          value={message}
+          rows={3}
+          placeholder="Even a short thank-you counts"
+          onChange={(e) => setMessage(e.target.value)}
+        />
+        <div className={styles.charRow}>
+          <p className={styles.charError}>{message.length > 1000 ? 'Your message is too long — please trim it to 1000 characters.' : ''}</p>
+          <span className={`${styles.charCount} ${message.length > 1000 ? styles.charCountOver : ''}`}>
+            {message.length} / 1000
+          </span>
         </div>
 
-        <label className={styles.fieldLabel}>
+        <div className={styles.toRow}>
+          <span className={styles.toValue}>{cur.label}</span>
+          <button
+            type="button"
+            className={styles.linkBtn}
+            aria-expanded={showTypes}
+            onClick={() => setShowTypes((v) => !v)}
+          >
+            {showTypes ? 'Done' : 'Change'}
+          </button>
+        </div>
+        {showTypes && (
+          <fieldset className={styles.typeSet}>
+            <legend className={styles.srOnly}>Who's this slice for?</legend>
+            <div className={styles.typeGrid}>
+              {TYPE_OPTS.map((o) => (
+                <button
+                  key={o.value}
+                  type="button"
+                  aria-pressed={toType === o.value}
+                  className={`${styles.typeBtn} ${o.full ? styles.typeFull : ''} ${toType === o.value ? styles.typeBtnOn : ''}`}
+                  onClick={() => {
+                    setToType(o.value);
+                    setShowTypes(false);
+                    // "Leave it on the table" is anonymous — clear any recipient name
+                    // and any profile already resolved for the old name
+                    if (o.value === 'anyone') { setToName(''); clearProfile(); }
+                  }}
+                >
+                  {o.label}
+                </button>
+              ))}
+            </div>
+          </fieldset>
+        )}
+
+        <label htmlFor="give-to" className={styles.fieldLabel}>
           Their name or Substack @handle <span className={styles.opt}>optional</span>
         </label>
         <input
+          id="give-to"
           className={styles.input}
           value={toName}
           placeholder={cur.ph}
@@ -302,51 +334,45 @@ export function GiveModal({ idx, onClose, onGive }) {
           </div>
         )}
 
-        <label className={styles.fieldLabel}>{cur.msgLabel}</label>
-        <textarea
-          className={`${styles.input} ${styles.textarea}`}
-          value={message}
-          rows={3}
-          placeholder="Write something kind…"
-          onChange={(e) => setMessage(e.target.value)}
+        <label htmlFor="give-from" className={styles.fieldLabel}>
+          Signed <span className={styles.opt}>optional</span>
+        </label>
+        <input
+          id="give-from"
+          className={styles.input}
+          value={fromName}
+          placeholder="your name or @handle"
+          maxLength={100}
+          onChange={(e) => setFromName(e.target.value)}
         />
-        <div className={styles.charRow}>
-          <p className={styles.charError}>{message.length > 1000 ? 'Your message is too long — please trim it to 1000 characters.' : ''}</p>
-          <span className={`${styles.charCount} ${message.length > 1000 ? styles.charCountOver : ''}`}>
-            {message.length} / 1000
-          </span>
-        </div>
 
-        <div className={styles.giveRow}>
-          <div className={styles.giveCol}>
-            <label className={styles.fieldLabel}>
-              Signed <span className={styles.opt}>optional</span>
-            </label>
-            <input
-              className={styles.input}
-              value={fromName}
-              placeholder="your name or @handle"
-              maxLength={100}
-              onChange={(e) => setFromName(e.target.value)}
-            />
-          </div>
-          <div className={styles.giveCol}>
-            <label className={styles.fieldLabel}>Pick your color</label>
-            <div className={styles.hint}>shows up on your card at the table</div>
-            <div className={styles.frostPick}>
-              {PASTELS.map((c, i) => (
-                <button
-                  key={i}
-                  type="button"
-                  aria-label={`Foam colour ${i + 1}`}
-                  className={`${styles.frostDot} ${color === i ? styles.frostDotOn : ''}`}
-                  style={{ background: c }}
-                  onClick={() => setColor(i)}
-                />
-              ))}
-            </div>
-          </div>
+        <div className={styles.colorRow}>
+          <span className={styles.colorSwatch} style={{ background: PASTELS[color % PASTELS.length] }} aria-hidden="true" />
+          <span className={styles.colorText}>Icing color for your card</span>
+          <button
+            type="button"
+            className={styles.linkBtn}
+            aria-expanded={showColors}
+            onClick={() => setShowColors((v) => !v)}
+          >
+            {showColors ? 'Done' : 'Change color'}
+          </button>
         </div>
+        {showColors && (
+          <div className={styles.frostPick} role="group" aria-label="Icing color">
+            {PASTELS.map((c, i) => (
+              <button
+                key={i}
+                type="button"
+                aria-label={`Icing color ${i + 1}`}
+                aria-pressed={color === i}
+                className={`${styles.frostDot} ${color === i ? styles.frostDotOn : ''}`}
+                style={{ background: c }}
+                onClick={() => setColor(i)}
+              />
+            ))}
+          </div>
+        )}
 
         {showPreview && (
           <div className={styles.previewWrap}>
