@@ -123,114 +123,107 @@ export default function Welcome() {
   }, []);
 
   const wordsThisRound = slices.filter((s) => s.round === currentRound && s.message);
-  const featured = wordsThisRound[0];
-  const moreWords = wordsThisRound.slice(1, 1 + PROOF_COUNT);
+  const proofWords = wordsThisRound.slice(0, PROOF_COUNT);
   const slicesLeft = Math.max(roundSize - takenThisRound, 0);
 
   return (
     <div className={styles.page} ref={pageRef}>
-      <div className={styles.top}>
-        <img
-          src="/illustrations/Fika_logo_text.svg"
-          alt="Fika"
-          className={`${styles.logo} ${styles.revealCopy}`}
-          data-reveal-copy="0"
-        />
-      </div>
-
+      {/* Sits outside .wrap so it always sits flush against the page top —
+          nested inside .wrap's vertically-centered flex column, it would
+          leave a gap above it on tall viewports where .page's own (slightly
+          darker) background shows through, seaming visibly against .hero's
+          lighter one right where the gap ends. */}
       <header className={styles.hero}>
-        <div className={styles.copy}>
+        <div className={styles.heroInner}>
+          <img
+            src="/illustrations/Fika_logo_text.svg"
+            alt="Fika"
+            className={`${styles.logo} ${styles.revealCopy}`}
+            data-reveal-copy="0"
+          />
+          <p className={`eyebrow ${styles.revealCopy}`} data-reveal-copy="0">{CONFIG.welcomeEyebrow}</p>
           <h1 className={`${styles.headline} ${styles.revealCopy}`} data-reveal-copy="1">
             <span>{CONFIG.welcomeHeadline[0]}</span>
-            <span>{CONFIG.welcomeHeadline[1]}</span>
+            <span className={styles.headlineScript}>{CONFIG.welcomeHeadline[1]}</span>
           </h1>
-          <p className={`${styles.lede} ${styles.revealCopy}`} data-reveal-copy="2">
-            {CONFIG.welcomeMechanic.map((part, i) =>
-              part.bold ? <b key={i}>{part.text}</b> : <span key={i}>{part.text}</span>
-            )}
-          </p>
-          <div className={`${styles.actions} ${styles.revealCopy}`} data-reveal-copy="3">
-            <Link to="/table?give=1" className="btn-solid">{CONFIG.welcomeCTA}</Link>
-            <Link to="/table" className={styles.browse}>{CONFIG.welcomeGhostCTA}</Link>
-          </div>
-          <p
-            className={`${styles.status} ${error ? styles.statusUnknown : ''} ${styles.revealCopy}`}
-            data-reveal-copy="4"
-          >
-            <span className={styles.dot} aria-hidden="true" />
-            {loading ? (
-              <span className={styles.pillSkeleton} aria-hidden="true" />
-            ) : error ? (
-              <span>{CONFIG.welcomePillError}</span>
-            ) : slicesLeft > 0 ? (
-              <span><b>{slicesLeft} slice{slicesLeft === 1 ? '' : 's'}</b> left on this week&rsquo;s cake</span>
-            ) : (
-              <span>This week&rsquo;s cake is all gone. A new one comes next week.</span>
-            )}
-          </p>
         </div>
 
-        <div className={styles.scene}>
-          {FIKA_TABLE}
-          {featured && (
-            <button
-              className={`${styles.placeCard} ${styles.revealCopy}`}
-              data-reveal-copy="5"
-              onClick={() => setReading(featured)}
-            >
-              <span className="frosting" style={{ '--frost': PASTELS[featured.color % 8] }} />
-              <span className={styles.placeIn}>
-                <span className={styles.placeTo}>
-                  For <NameSpan name={featured.toName} fallback={TO_NAME_FALLBACK[featured.toType] ?? 'the table'} />
-                </span>
-                <span className={styles.placeMsg}>{clip(featured.message, 110)}</span>
-                <span className={styles.placeFrom}>
-                  from <NameSpan name={featured.fromName} fallback="a guest" />
-                </span>
-              </span>
-            </button>
-          )}
-        </div>
+        {FIKA_TABLE}
       </header>
 
-      <main className={styles.below}>
-        <p className={`${styles.poetic} ${styles.revealCopy}`} data-reveal-copy="6">{CONFIG.welcomePoetic}</p>
+      <main className={styles.wrap}>
+        <p className={`${styles.mechanic} ${styles.revealCopy}`} data-reveal-copy="3">
+          {CONFIG.welcomeMechanic.map((part, i) =>
+            part.bold ? <b key={i}>{part.text}</b> : <span key={i}>{part.text}</span>
+          )}
+        </p>
+
+        <div className={`${styles.actions} ${styles.revealCopy}`} data-reveal-copy="4">
+          <Link to="/table?give=1" className="btn-solid">
+            {CONFIG.welcomeCTA}
+          </Link>
+          <Link to="/table" className={styles.browse}>
+            {CONFIG.welcomeGhostCTA}
+          </Link>
+        </div>
+
+        <p
+          className={`${styles.status} ${error ? styles.statusUnknown : ''} ${styles.revealCopy}`}
+          data-reveal-copy="5"
+        >
+          <span className={styles.dot} aria-hidden="true" />
+          {loading ? (
+            <span className={styles.pillSkeleton} aria-hidden="true" />
+          ) : error ? (
+            <span>{CONFIG.welcomePillError}</span>
+          ) : slicesLeft > 0 ? (
+            <span><b>{slicesLeft} slice{slicesLeft === 1 ? '' : 's'}</b> left on this week&rsquo;s cake</span>
+          ) : (
+            <span>This week&rsquo;s cake is all gone. A new one comes next week.</span>
+          )}
+        </p>
 
         {loading ? (
-          <div className={`${styles.proof} ${styles.revealCopy}`} data-reveal-copy="7">
-            <h2 className={styles.proofHead}>More from the table</h2>
+          <div className={`${styles.proof} ${styles.revealCopy}`} data-reveal-copy="6">
+            <div className={styles.proofHead}>Already on the table this week</div>
             <div className={styles.spinner} role="status" aria-label="Loading" />
           </div>
-        ) : moreWords.length > 0 && (
-          <div className={`${styles.proof} ${styles.revealCopy}`} data-reveal-copy="7">
-            <h2 className={styles.proofHead}>More from the table</h2>
-            <div className={styles.words} style={{ '--card-count': moreWords.length }}>
-              {moreWords.map((w) => (
+        ) : proofWords.length > 0 && (
+          <div className={`${styles.proof} ${styles.revealCopy}`} data-reveal-copy="6">
+            <div className={styles.proofHead}>Already on the table this week</div>
+            <div className={styles.words} style={{ '--card-count': proofWords.length }}>
+              {proofWords.map((w) => (
                 <button key={w.id} className={styles.word} onClick={() => setReading(w)}>
                   <span className="frosting" style={{ '--frost': PASTELS[w.color % 8] }} />
-                  <span className={styles.wordIn}>
-                    <span className={styles.wordTo}>
+                  <div className={styles.wordIn}>
+                    <div className={styles.wordTo}>
                       For <NameSpan name={w.toName} fallback={TO_NAME_FALLBACK[w.toType] ?? 'the table'} />
-                    </span>
-                    <span className={styles.wordMsg}>{clip(w.message, 120)}</span>
-                    <span className={styles.wordFrom}>
+                    </div>
+                    <p className={styles.wordMsg}>{clip(w.message, 120)}</p>
+                    <div className={styles.wordFrom}>
+                      <span className={styles.wordTag}>{w.toType || 'writer'}</span>
                       from <NameSpan name={w.fromName} fallback="a guest" />
-                    </span>
-                  </span>
+                    </div>
+                  </div>
                 </button>
               ))}
             </div>
             <p className={styles.micro}>
-              <b>{takenThisRound} kind word{takenThisRound === 1 ? '' : 's'}</b> shared so far this week.
+              {proofWords.length < takenThisRound ? (
+                <><b>{takenThisRound} kind words</b> shared so far &middot; a few pinned above &middot; fresh cake every week</>
+              ) : (
+                <><b>{takenThisRound} kind word{takenThisRound === 1 ? '' : 's'}</b> shared so far &middot; fresh cake every week</>
+              )}
             </p>
           </div>
         )}
+        <p className={`${styles.poetic} ${styles.revealCopy}`} data-reveal-copy="7">{CONFIG.welcomePoetic}</p>
       </main>
 
       <Footer
         className={`${styles.footerLayer} ${styles.revealCopy}`}
         scriptClassName={styles.footerScriptLg}
-        data-reveal-copy="8"
+        data-reveal-copy="7"
       >
         <p className={styles.footerSub}>
           <span>created by</span>
