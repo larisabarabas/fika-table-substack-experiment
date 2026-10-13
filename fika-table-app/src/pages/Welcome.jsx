@@ -208,11 +208,7 @@ export default function Welcome() {
               ))}
             </div>
             <p className={styles.micro}>
-              {proofWords.length < takenThisRound ? (
-                <><b>{takenThisRound} kind words</b> shared so far &middot; a few pinned above &middot; fresh cake every week</>
-              ) : (
-                <><b>{takenThisRound} kind word{takenThisRound === 1 ? '' : 's'}</b> shared so far &middot; fresh cake every week</>
-              )}
+              <b>{takenThisRound} kind word{takenThisRound === 1 ? '' : 's'}</b> shared this week
             </p>
           </div>
         )}

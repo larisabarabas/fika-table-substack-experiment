@@ -10,19 +10,15 @@ export function SharePoster({ slice }) {
 
   return (
     <div className={styles.poster}>
-      <div className={shareStyles.brand}>
-        <span className={shareStyles.brandMark}>Substack FIKA</span>
-        <span className={shareStyles.brandPub}>
-          for <span className={shareStyles.brandPubNm}>{CONFIG.newsletter}</span>
-        </span>
+      <div className={styles.brand}>
+        <img src="/illustrations/Fika_logo_text.svg" alt="" className={styles.logo} />
+        <span className={styles.brandPub}>for {CONFIG.newsletter}</span>
       </div>
 
       <div className={styles.cardWrap}>
         <ShareCard slice={slice}>
           <div className={shareStyles.actions}>
-            <span className={shareStyles.cta}>
-              Pass a slice to someone <span className={shareStyles.ctaArr}>&rarr;</span>
-            </span>
+            <span className={shareStyles.cta}>Pass a slice to someone</span>
             {subUrl && (
               <span className={shareStyles.subscribe}>
                 Subscribe to <span className={shareStyles.subscribeNm}>{displayName}</span>
@@ -33,9 +29,9 @@ export function SharePoster({ slice }) {
         </ShareCard>
       </div>
 
-      <div className={shareStyles.footer}>
-        <span className={shareStyles.footerScript}>{CONFIG.footerScript}</span>
-        <span className={shareStyles.footerSub}>{CONFIG.footerSub}</span>
+      <div className={styles.footer}>
+        <span className={styles.footerScript}>{CONFIG.footerScript}</span>
+        <span className={styles.footerSub}>{CONFIG.footerSub}</span>
       </div>
     </div>
   );

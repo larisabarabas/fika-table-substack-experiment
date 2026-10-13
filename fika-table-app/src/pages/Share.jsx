@@ -112,18 +112,18 @@ export default function Share() {
                   onClick={handleShareOnSubstack}
                   className={`${styles.cta} ${styles.reveal} ${styles.d3}`}
                 >
-                  Copy note &amp; open Substack <span className={styles.ctaArr}>&rarr;</span>
+                  Copy note &amp; open Substack
                 </button>
                 <p className={`${styles.ctaHint} ${styles.reveal} ${styles.d3}`} aria-live="polite">
                   {substackCopied
-                    ? 'Copied to your clipboard — paste it into the new Note.'
-                    : "We'll copy your note — just paste it into the new Note."}
+                    ? 'Copied. Paste it into the new Note.'
+                    : "We'll copy your note. Paste it into the new Note."}
                 </p>
                 <Link
                   to="/table?give=1"
                   className={`${styles.subscribe} ${styles.reveal} ${styles.d4}`}
                 >
-                  Pass a slice to someone <span className={styles.ctaArr}>&rarr;</span>
+                  Pass a slice to someone
                 </Link>
                 {subUrl && (
                   <a
@@ -150,10 +150,10 @@ export default function Share() {
           </svg>
           <h2 className={styles.errorHead}>This slice has gone cold.</h2>
           <p className={styles.errorBody}>
-            We couldn&rsquo;t find that note &mdash; but the table&rsquo;s still set. Pull up a chair.
+            We couldn&rsquo;t find that note, but the table&rsquo;s still set. Pull up a chair.
           </p>
           <Link to="/table?give=1" className={styles.errorCta}>
-            Take a fresh slice <span className={styles.ctaArr}>&rarr;</span>
+            Take a fresh slice
           </Link>
         </div>
       </div>
