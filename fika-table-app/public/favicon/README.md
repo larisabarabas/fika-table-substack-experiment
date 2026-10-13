@@ -1,6 +1,6 @@
 # Fika — favicon / app-icon files
 
-The Cup Tile mark, terracotta colorway. Drop the files into your app's
+The Cup Tile mark, marzipan-green colorway. Drop the files into your app's
 public/static root and paste the tags below into your `<head>`.
 
 ## Files
@@ -33,5 +33,5 @@ public/static root and paste the tags below into your `<head>`.
 ```
 
 ## Colorway
-Tile `#c9756e` (terracotta accent), artwork `#f3e7cf` (cream).
-Want espresso (`#5a3826`) or inverted cream instead? Ask and I'll regenerate the set.
+Tile `#1f6b43` (deep marzipan, same as the wordmark), artwork `#f4f7f0` (paper).
+`apple-touch-icon.png` is full-bleed square (iOS rounds the corners itself); every other size keeps the rounded tile.
