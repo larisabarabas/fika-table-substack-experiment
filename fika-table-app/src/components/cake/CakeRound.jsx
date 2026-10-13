@@ -45,21 +45,32 @@ function CakeRound({ count, filled, sharedCount }) {
             const a1  = (i + 1) * step - 0.7;
             const s   = filled[i];
             const mid = (i + 0.5) * step;
-            const fill = s ? PASTELS[s.color % 8] : 'rgba(52,48,42,0.035)';
             const [lx, ly] = polar(CX, CY, RO * 0.72, mid);
+            const [cx2, cy2] = polar(CX, CY, RO * 0.58, mid + step * 0.18);
 
-            return (
+            // Slices still on the cake are cake; a taken slice leaves its outline
+            // on the plate and a crumb in the giver's foam colour.
+            return s ? (
               <g key={i}>
                 <path
                   d={wedgePath(RO, a0, a1)}
-                  fill={fill}
+                  fill="none"
+                  stroke="var(--edge)"
+                  strokeWidth="2"
+                  strokeDasharray="2 6"
+                />
+                <circle cx={lx} cy={ly} r="14" fill={PASTELS[s.color % 8]} />
+                <circle cx={cx2} cy={cy2} r="6" fill={PASTELS[s.color % 8]} />
+              </g>
+            ) : (
+              <g key={i}>
+                <path
+                  d={wedgePath(RO, a0, a1)}
+                  fill="var(--accent-fill)"
                   stroke="var(--paper)"
                   strokeWidth="3.5"
-                  strokeDasharray={s ? 'none' : '2 5'}
                 />
-                {s !== undefined && s !== null && (
-                  <circle cx={lx} cy={ly} r="6.5" fill="var(--paper)" opacity="0.85" />
-                )}
+                <circle cx={lx} cy={ly} r="6.5" fill="var(--accent)" opacity="0.7" />
               </g>
             );
           })}

@@ -355,7 +355,7 @@ export function GiveModal({ idx, onClose, onGive }) {
               <div className={styles.previewBand} style={{ background: PASTELS[color % PASTELS.length] }}>
                 <span className={styles.previewNames}>
                   <b>{displayFromName}</b>
-                  {' '}<i className={styles.arrow}>→</i>{' '}
+                  {' '}<span className={styles.arrow}>to</span>{' '}
                   {displayToName}
                 </span>
               </div>

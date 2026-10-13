@@ -35,7 +35,7 @@
 }
 
 .medSub {
-  font-size: 15px;
+  font-size: var(--t3);
   line-height: 1;
   color: var(--sub);
   font-variant-numeric: tabular-nums;

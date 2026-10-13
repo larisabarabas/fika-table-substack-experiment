@@ -10,6 +10,7 @@
 .footerScript {
   margin: 0;
   font-family: var(--f-script);
+  font-style: italic;
   font-size: 1.5em;
   color: var(--accent);
 }

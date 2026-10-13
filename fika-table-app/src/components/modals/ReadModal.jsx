@@ -10,7 +10,7 @@ export function ReadModal({ slice, onClose }) {
       <div className={styles.frostBand} style={{ background: PASTELS[slice.color % 8] }}>
         <span className={styles.bandNames}>
           <b><NameLink name={slice.fromName} fallback="a guest" /></b>
-          {' '}<i className={styles.arrow}>→</i>{' '}
+          {' '}<span className={styles.arrow}>to</span>{' '}
           <NameLink name={slice.toName} fallback="" />
         </span>
         <button className={styles.closeBtn} onClick={onClose} aria-label="Close">✕</button>

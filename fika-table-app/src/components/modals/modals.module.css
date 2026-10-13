@@ -32,7 +32,7 @@
   border-radius: 50%;
   background: rgba(52,48,42,0.08);
   color: var(--ink);
-  font-size: 14px;
+  font-size: var(--t2);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -68,7 +68,7 @@
 .arrow {
   font-style: normal;
   color: var(--sub);
-  font-size: 15px;
+  font-size: var(--t3);
 }
 
 .readBody {
@@ -84,10 +84,8 @@
 }
 
 .readTag {
-  font-size: 11px;
+  font-size: var(--t1);
   font-weight: 600;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
   color: var(--accent);
   margin-bottom: 16px;
 }
@@ -109,10 +107,8 @@
 }
 
 .kicker {
-  font-size: 11px;
+  font-size: var(--t1);
   font-weight: 600;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
   color: var(--accent);
   margin-bottom: 6px;
 }
@@ -126,14 +122,14 @@
 }
 
 .giveSub {
-  font-size: 14.5px;
+  font-size: var(--t3);
   color: var(--sub);
   line-height: 1.55;
   margin: 0;
 }
 
 .fieldLabel {
-  font-size: 13px;
+  font-size: var(--t2);
   font-weight: 600;
   color: var(--ink);
   margin-top: 10px;
@@ -160,7 +156,7 @@
   padding: 9px 12px;
   border-radius: 10px;
   border: 1px solid var(--edge);
-  font-size: 13.5px;
+  font-size: var(--t2);
   font-weight: 500;
   color: var(--ink);
   cursor: pointer;
@@ -172,10 +168,10 @@
   background: var(--paper);
 }
 
-.typeBtnOn {
-  background: var(--accent) !important;
-  color: var(--accent-ink) !important;
-  border-color: var(--accent) !important;
+.typeBtn.typeBtnOn {
+  background: var(--accent-fill);
+  color: var(--accent-ink);
+  border-color: var(--accent);
 }
 
 .input {
@@ -186,7 +182,7 @@
   border: 1px solid var(--edge);
   background: var(--paper);
   color: var(--ink);
-  font-size: 14px;
+  font-size: var(--t2);
   outline: none;
   transition: border-color 0.15s;
   box-sizing: border-box;
@@ -204,7 +200,7 @@
 }
 
 .hint {
-  font-size: 12.5px;
+  font-size: var(--t1);
   color: var(--sub);
   margin-top: 4px;
 }
@@ -228,7 +224,7 @@
 }
 
 .charCount {
-  font-size: 12px;
+  font-size: var(--t1);
   color: var(--sub);
   flex-shrink: 0;
 }
@@ -239,7 +235,7 @@
 }
 
 .charError {
-  font-size: 12.5px;
+  font-size: var(--t1);
   color: var(--error);
   margin: 0;
 }
@@ -289,7 +285,7 @@
 }
 
 .submitError {
-  font-size: 13.5px;
+  font-size: var(--t2);
   color: var(--error);
   margin: 8px 0 0;
 }
@@ -338,7 +334,7 @@
   justify-content: center;
   background: var(--edge);
   color: var(--sub);
-  font-size: 13px;
+  font-size: var(--t2);
   font-weight: 600;
 }
 
@@ -351,7 +347,7 @@
 }
 
 .profileName {
-  font-size: 13.5px;
+  font-size: var(--t2);
   font-weight: 600;
   color: var(--ink);
   white-space: nowrap;
@@ -360,7 +356,7 @@
 }
 
 .profileDesc {
-  font-size: 12px;
+  font-size: var(--t1);
   color: var(--sub);
   line-height: 1.4;
   display: -webkit-box;
@@ -373,7 +369,7 @@
   background: none;
   border: none;
   color: var(--sub);
-  font-size: 11px;
+  font-size: var(--t1);
   cursor: pointer;
   padding: 0 0 0 4px;
   flex-shrink: 0;
@@ -419,7 +415,7 @@
   background: none;
   border: none;
   color: var(--sub);
-  font-size: 12.5px;
+  font-size: var(--t1);
   cursor: pointer;
   padding: 0;
 }
@@ -434,10 +430,8 @@
 }
 
 .previewLabel {
-  font-size: 11px;
+  font-size: var(--t1);
   font-weight: 600;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
   color: var(--sub);
   display: block;
   margin-bottom: 6px;
@@ -473,7 +467,7 @@
 
 .previewMsg {
   font-family: var(--f-display);
-  font-size: 15px;
+  font-size: var(--t3);
   line-height: 1.55;
   color: var(--ink);
   margin: 0 0 10px;

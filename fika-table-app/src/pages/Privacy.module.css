@@ -14,7 +14,7 @@
 
 .back {
   display: inline-block;
-  font-size: 14px;
+  font-size: var(--t2);
   color: var(--accent);
   text-decoration: none;
   font-weight: 500;
@@ -35,7 +35,7 @@
 }
 
 .updated {
-  font-size: 13px;
+  font-size: var(--t2);
   color: var(--sub);
   margin-top: 8px;
   margin-bottom: 36px;
@@ -53,7 +53,7 @@ section h2 {
 }
 
 section p {
-  font-size: 15.5px;
+  font-size: var(--t3);
   line-height: 1.6;
   color: var(--sub);
   margin: 0 0 10px;
@@ -65,7 +65,7 @@ section ul {
 }
 
 section li {
-  font-size: 15.5px;
+  font-size: var(--t3);
   line-height: 1.6;
   color: var(--sub);
   margin-bottom: 4px;

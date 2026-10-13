@@ -17,7 +17,7 @@
 }
 
 .wallLede {
-  font-size: 15.5px;
+  font-size: var(--t3);
   color: var(--sub);
   margin: 0;
 }
@@ -57,7 +57,7 @@
   padding: 7px 16px;
   border-radius: var(--radius-pill);
   border: 1px solid var(--edge);
-  font-size: 13.5px;
+  font-size: var(--t2);
   font-weight: 500;
   color: var(--sub);
   cursor: pointer;
@@ -69,10 +69,10 @@
   color: var(--ink);
 }
 
-.chipOn {
-  background: var(--ink) !important;
-  color: var(--paper) !important;
-  border-color: var(--ink) !important;
+.chip.chipOn {
+  background: var(--ink);
+  color: var(--paper);
+  border-color: var(--ink);
 }
 
 .searchWrap {
@@ -84,7 +84,7 @@
   padding: 7px 32px 7px 12px;
   border-radius: var(--radius-pill);
   border: 1px solid var(--edge);
-  font-size: 13.5px;
+  font-size: var(--t2);
   color: var(--ink);
   background: var(--panel);
   width: 250px;
@@ -106,7 +106,7 @@
   right: 10px;
   top: 50%;
   transform: translateY(-50%);
-  font-size: 11px;
+  font-size: var(--t1);
   color: var(--sub);
   cursor: pointer;
   padding: 2px;
@@ -118,7 +118,7 @@
 
 .empty {
   color: var(--sub);
-  font-size: 15px;
+  font-size: var(--t3);
   margin-top: 16px;
 }
 
@@ -145,31 +145,21 @@
   align-items: flex-start;
   gap: 8px;
   width: 100%;
-  padding: 0 0 14px;
+  padding: 0 0 16px;
   margin-bottom: 16px;
   border-radius: var(--radius-card);
   background: var(--panel);
   border: 1px solid var(--edge);
-  box-shadow: 0 8px 24px rgba(0,0,0,0.08);
   overflow: hidden;
   cursor: pointer;
   text-align: left;
-  transition: transform 0.15s, box-shadow 0.15s;
+  transition: border-color 0.15s;
   content-visibility: auto;
   contain-intrinsic-size: 0 140px;
 }
 
 .card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 12px 28px rgba(0,0,0,0.11);
-}
-
-.frost {
-  display: block;
-  width: 46px;
-  height: 7px;
-  border-radius: 0 0 4px 4px;
-  margin-left: 14px;
+  border-color: var(--accent);
 }
 
 .names {
@@ -187,23 +177,14 @@
 .arrow {
   font-style: normal;
   color: var(--sub);
-  font-size: 13px;
+  font-size: var(--t2);
 }
 
 .message {
-  font-size: 13.5px;
+  font-size: var(--t2);
   color: var(--sub);
   padding: 0 14px;
   line-height: 1.55;
-}
-
-.tag {
-  font-size: 11px;
-  font-weight: 600;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: var(--accent);
-  padding: 0 14px;
 }
 
 /* The rail sits directly above the wall below 900px, so the wall no longer

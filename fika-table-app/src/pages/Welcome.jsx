@@ -178,7 +178,7 @@ export default function Welcome() {
 
         <div className={`${styles.actions} ${styles.revealCopy}`} data-reveal-copy="4">
           <Link to="/table?give=1" className="btn-solid">
-            {CONFIG.welcomeCTA} <span className={styles.arrow} aria-hidden="true">→</span>
+            {CONFIG.welcomeCTA}
           </Link>
           <Link to="/table" className="btn-ghost">
             {CONFIG.welcomeGhostCTA}
@@ -196,7 +196,7 @@ export default function Welcome() {
             <div className={styles.words} style={{ '--card-count': proofWords.length }}>
               {proofWords.map((w) => (
                 <button key={w.id} className={styles.word} onClick={() => setReading(w)}>
-                  <span className={styles.wordFrost} style={{ background: PASTELS[w.color % 8] }} />
+                  <span className="frosting" style={{ '--frost': PASTELS[w.color % 8] }} />
                   <div className={styles.wordIn}>
                     <div className={styles.wordTo}>
                       For <NameSpan name={w.toName} fallback={TO_NAME_FALLBACK[w.toType] ?? 'the table'} />

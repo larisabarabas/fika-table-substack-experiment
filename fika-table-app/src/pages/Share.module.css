@@ -78,7 +78,7 @@
   aspect-ratio: 5 / 4;
   border-radius: 22px;
   background: var(--panel);
-  box-shadow: 0 24px 60px -26px rgba(201,117,110,0.3);
+  box-shadow: 0 24px 60px -26px rgba(31,107,67,0.3);
   position: relative;
   overflow: hidden;
   padding: 34px 30px;
@@ -182,22 +182,21 @@
   justify-content: center;
   gap: 8px;
   width: 100%;
-  background: var(--accent);
+  background: var(--accent-fill);
   color: var(--accent-ink);
   border: none;
   border-radius: 999px;
   padding: 15px 22px;
-  font-size: 15.5px;
+  font-size: var(--t3);
   font-weight: 600;
   letter-spacing: 0.005em;
   text-decoration: none;
-  box-shadow: 0 10px 22px -12px rgba(201,117,110,0.9);
+  box-shadow: 0 10px 22px -12px rgba(31,107,67,0.9);
   transition: transform 0.12s ease, filter 0.15s ease;
 }
 
 .cta:hover {
   filter: brightness(1.04);
-  transform: translateY(-1px);
 }
 
 .cta:active {
@@ -214,7 +213,7 @@
 
 .ctaHint {
   margin: 8px 0 0;
-  font-size: 12.5px;
+  font-size: var(--t1);
   color: var(--sub);
   text-align: center;
 }
@@ -231,7 +230,7 @@
   border: 1px solid var(--edge);
   border-radius: 999px;
   padding: 13px 22px;
-  font-size: 14.5px;
+  font-size: var(--t3);
   font-weight: 600;
   text-decoration: none;
   transition: border-color 0.15s ease, color 0.15s ease;
@@ -323,7 +322,7 @@
 
 .errorBody {
   color: var(--sub);
-  font-size: 15px;
+  font-size: var(--t3);
   margin: 4px 0 20px;
   max-width: 30ch;
   line-height: 1.55;
@@ -335,22 +334,21 @@
   justify-content: center;
   gap: 8px;
   max-width: 280px;
-  background: var(--accent);
+  background: var(--accent-fill);
   color: var(--accent-ink);
   border: none;
   border-radius: 999px;
   padding: 15px 22px;
-  font-size: 15.5px;
+  font-size: var(--t3);
   font-weight: 600;
   letter-spacing: 0.005em;
   text-decoration: none;
-  box-shadow: 0 10px 22px -12px rgba(201,117,110,0.9);
+  box-shadow: 0 10px 22px -12px rgba(31,107,67,0.9);
   transition: transform 0.12s ease, filter 0.15s ease;
 }
 
 .errorCta:hover {
   filter: brightness(1.04);
-  transform: translateY(-1px);
 }
 
 /* ── Footer ── */

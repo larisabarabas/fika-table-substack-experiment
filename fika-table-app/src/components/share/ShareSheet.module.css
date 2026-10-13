@@ -4,10 +4,8 @@
 }
 
 .label {
-  font-size: 12px;
+  font-size: var(--t1);
   font-weight: 600;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
   color: var(--sub);
   margin: 0 0 10px;
 }
@@ -29,7 +27,7 @@
   padding: 8px 14px;
   border-radius: var(--radius-pill);
   border: 1px solid var(--edge);
-  font-size: 13.5px;
+  font-size: var(--t2);
   font-weight: 500;
   color: var(--ink);
   text-decoration: none;
@@ -39,7 +37,6 @@
 
 .action:hover {
   background: var(--paper);
-  transform: translateY(-1px);
 }
 
 .action:disabled {

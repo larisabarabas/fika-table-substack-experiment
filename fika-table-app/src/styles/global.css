@@ -1,6 +1,6 @@
 @import './tokens.css';
 
-@import url('https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400;1,6..72,500&family=Hanken+Grotesk:wght@400;500;600;700&family=Caveat:wght@500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;0,9..144,700;1,9..144,400;1,9..144,600&family=Figtree:wght@400;500;600;700&display=swap');
 
 *, *::before, *::after { box-sizing: border-box; }
 
@@ -37,17 +37,16 @@ button {
   gap: 6px;
   padding: 11px 20px;
   border-radius: var(--radius-pill);
-  background: var(--accent);
+  background: var(--accent-fill);
   color: var(--accent-ink);
   font-weight: 600;
-  font-size: 14.5px;
+  font-size: var(--t3);
   text-decoration: none;
   transition: background 0.12s, transform 0.12s;
 }
 
 .btn-solid:hover {
   background: var(--accent-hover);
-  transform: translateY(-1px);
 }
 
 .btn-solid:disabled {
@@ -63,7 +62,7 @@ button {
 
 .btn-solid-sm {
   padding: 9px 16px;
-  font-size: 13.5px;
+  font-size: var(--t2);
 }
 
 .btn-ghost {
@@ -74,23 +73,20 @@ button {
   border: 1px solid var(--edge);
   color: var(--ink);
   font-weight: 600;
-  font-size: 14.5px;
+  font-size: var(--t3);
   text-decoration: none;
   transition: background 0.12s, transform 0.12s;
 }
 
 .btn-ghost:hover {
   background: var(--panel);
-  transform: translateY(-1px);
 }
 
 /* Eyebrow label */
 .eyebrow {
   margin: 0;
-  font-size: 13px;
+  font-size: var(--t2);
   font-weight: 600;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
   color: var(--accent);
 }
 
@@ -104,7 +100,7 @@ button {
   background: var(--panel);
   font-family: var(--f-display);
   font-style: italic;
-  font-size: 15.5px;
+  font-size: var(--t3);
   white-space: nowrap;
 }
 
@@ -175,4 +171,22 @@ button {
 
 @keyframes page-loader-spin {
   to { transform: rotate(360deg); }
+}
+
+/* Frosting drip — the giver's foam color as an icing edge. Colour comes from
+   --frost; the mask cuts a scalloped lower edge out of a flat band. */
+.frosting {
+  display: block;
+  width: 100%;
+  height: 20px;
+  flex-shrink: 0;
+  background: var(--frost);
+  -webkit-mask:
+    linear-gradient(#000 0 0) top / 100% 9px no-repeat,
+    radial-gradient(circle 9px at 13px 9px, #000 98%, #0000) 0 0 / 26px 20px repeat-x,
+    radial-gradient(circle 6px at 17px 9px, #000 98%, #0000) 0 0 / 43px 20px repeat-x;
+  mask:
+    linear-gradient(#000 0 0) top / 100% 9px no-repeat,
+    radial-gradient(circle 9px at 13px 9px, #000 98%, #0000) 0 0 / 26px 20px repeat-x,
+    radial-gradient(circle 6px at 17px 9px, #000 98%, #0000) 0 0 / 43px 20px repeat-x;
 }

@@ -1,15 +1,16 @@
-/* Design tokens — Soft pastel theme (baked in, no switcher) */
+/* Design tokens — konditori palette: marzipan green from the princess cake, cocoa text */
 :root {
-  --paper:      #f6f0e6;
-  --panel:      #fffdf8;
-  --ink:        #34302a;
-  --sub:        #665c4e;
-  --accent:     #c9756e;
-  --accent-strong: #8f423b;
-  --accent-hover:  #96473f;
-  --accent-soft:   #f2d9d3;
-  --accent-ink: #fffaf6;
-  --edge:       rgba(52, 48, 42, 0.10);
+  --paper:      #f4f7f0;
+  --panel:      #fdfefb;
+  --ink:        #33241b;
+  --sub:        #65574c;
+  --accent:     #1f6b43;          /* deep marzipan: text, borders, spinners */
+  --accent-fill: #8fd9a8;          /* marzipan: button and selected fills */
+  --accent-strong: #17543a;
+  --accent-hover:  #79c996;
+  --accent-soft:   #d5eddc;
+  --accent-ink: #26180f;
+  --edge:       rgba(51, 36, 27, 0.12);
   --error:      #b91c1c;
   --error-bg:   #fff3f3;
   --error-edge: #f5c6c6;
@@ -27,10 +28,10 @@
   --pastel-7: oklch(0.86 0.052 342);
 
   /* Typography */
-  --f-display: 'Newsreader', Georgia, serif;
-  --f-body:    'Hanken Grotesk', system-ui, sans-serif;
-  --f-script:  'Caveat', cursive;
-  --f-display-weight: 500;
+  --f-display: 'Fraunces', Georgia, serif;
+  --f-body:    'Figtree', system-ui, sans-serif;
+  --f-script:  'Fraunces', Georgia, serif;
+  --f-display-weight: 600;
 
   /* Spacing & shape */
   --radius-pill:  999px;
