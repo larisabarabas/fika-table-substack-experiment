@@ -201,7 +201,6 @@ export default function Welcome() {
                     </div>
                     <p className={styles.wordMsg}>{clip(w.message, 120)}</p>
                     <div className={styles.wordFrom}>
-                      <span className={styles.wordTag}>{w.toType || 'writer'}</span>
                       from <NameSpan name={w.fromName} fallback="a guest" />
                     </div>
                   </div>
