@@ -11,7 +11,7 @@ const FILTERS = [
 
 const stripAt = (s) => s.replace(/^@+/, '').toLowerCase();
 
-export function AppreciationWall({ slices, filter, onFilter, onRead, initialSearch }) {
+export function AppreciationWall({ slices, filter, onFilter, onRead, initialSearch, landedId }) {
   const [, startTransition] = useTransition();
   const [search, setSearch] = useState(initialSearch ?? '');
 
@@ -84,7 +84,7 @@ export function AppreciationWall({ slices, filter, onFilter, onRead, initialSear
           {columns.map((column, i) => (
             <div className={styles.gridColumn} key={i}>
               {column.map((s) => (
-                <WallCard key={s.id} slice={s} onRead={onRead} />
+                <WallCard key={s.id} slice={s} onRead={onRead} landed={s.id === landedId} />
               ))}
             </div>
           ))}

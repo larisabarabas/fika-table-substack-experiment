@@ -19,7 +19,7 @@ function wedgePath(r, a0, a1) {
 // A status glyph, not a picker — too small at rail/mobile widths for reliable
 // wedge taps, so it's decorative only; "Take a slice" (the button beside it)
 // and the wall cards are the real take/read affordances.
-function CakeRound({ count, filled, sharedCount }) {
+function CakeRound({ count, filled, sharedCount, holdIdx, liftIdx }) {
   const step = 360 / count;
 
   return (
@@ -43,10 +43,21 @@ function CakeRound({ count, filled, sharedCount }) {
           {Array.from({ length: count }).map((_, i) => {
             const a0  = i * step + 0.7;
             const a1  = (i + 1) * step - 0.7;
-            const s   = filled[i];
+            // holdIdx: a slice just given whose modal is still open stays on the cake
+            const s   = holdIdx === i ? undefined : filled[i];
             const mid = (i + 0.5) * step;
             const [lx, ly] = polar(CX, CY, RO * 0.72, mid);
             const [cx2, cy2] = polar(CX, CY, RO * 0.58, mid + step * 0.18);
+            const lifting = s && liftIdx === i;
+            const [dx, dy] = polar(0, 0, 70, mid);
+            const wedge = (
+              <path
+                d={wedgePath(RO, a0, a1)}
+                fill="var(--accent-fill)"
+                stroke="var(--paper)"
+                strokeWidth="3.5"
+              />
+            );
 
             // Slices still on the cake are cake; a taken slice leaves its outline
             // on the plate and a crumb in the giver's foam colour.
@@ -59,17 +70,19 @@ function CakeRound({ count, filled, sharedCount }) {
                   strokeWidth="2"
                   strokeDasharray="2 6"
                 />
-                <circle cx={lx} cy={ly} r="14" fill={PASTELS[s.color % 8]} />
-                <circle cx={cx2} cy={cy2} r="6" fill={PASTELS[s.color % 8]} />
+                <g className={lifting ? styles.crumbs : undefined}>
+                  <circle cx={lx} cy={ly} r="14" fill={PASTELS[s.color % 8]} />
+                  <circle cx={cx2} cy={cy2} r="6" fill={PASTELS[s.color % 8]} />
+                </g>
+                {lifting && (
+                  <g className={styles.lift} style={{ '--dx': `${dx}px`, '--dy': `${dy}px` }}>
+                    {wedge}
+                  </g>
+                )}
               </g>
             ) : (
               <g key={i}>
-                <path
-                  d={wedgePath(RO, a0, a1)}
-                  fill="var(--accent-fill)"
-                  stroke="var(--paper)"
-                  strokeWidth="3.5"
-                />
+                {wedge}
                 <circle cx={lx} cy={ly} r="6.5" fill="var(--accent)" opacity="0.7" />
               </g>
             );

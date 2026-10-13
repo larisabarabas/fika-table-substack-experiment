@@ -15,6 +15,10 @@ export default function Table() {
   const [filter,      setFilter]      = useState('all');
   const [reading,     setReading]     = useState(null);
   const [giving,      setGiving]      = useState(null);
+  // The slice just given: held back from the cake and wall until its read
+  // modal closes, then celebrated once so the motion isn't hidden behind it.
+  const [pending,     setPending]     = useState(null);
+  const [celebrate,   setCelebrate]   = useState(null);
   const [, startTransition]   = useTransition();
   const giveHandled           = useRef(false);
   const [searchParams, setSearchParams] = useSearchParams();
@@ -56,10 +60,20 @@ export default function Table() {
     if (!result?.error && result?.data) {
       setGiving(null);
       setReading(result.data);
+      setPending({ id: result.data.id, idx: result.data.idx });
       setTimeout(fireConfetti, 60);
     }
     return result;
   }, [insertSlice, nextFreeIdx]);
+
+  const closeReading = useCallback(() => {
+    if (pending && reading?.id === pending.id) {
+      setCelebrate(pending);
+      setPending(null);
+      setTimeout(() => setCelebrate(null), 1600);
+    }
+    setReading(null);
+  }, [pending, reading]);
 
   const slicesLeft = Math.max(roundSize - sharedCount, 0);
 
@@ -97,7 +111,13 @@ export default function Table() {
                 {loading ? (
                   <div className={styles.loadingPlate} role="status" aria-label="Loading" />
                 ) : (
-                  <CakeRound count={roundSize} filled={filled} sharedCount={sharedCount} />
+                  <CakeRound
+                    count={roundSize}
+                    filled={filled}
+                    sharedCount={sharedCount}
+                    holdIdx={pending?.idx}
+                    liftIdx={celebrate?.idx}
+                  />
                 )}
               </div>
               <button className={`btn-solid ${styles.railCta}`} onClick={openGive} disabled={isFull}>
@@ -123,6 +143,7 @@ export default function Table() {
               filter={filter}
               onFilter={setFilter}
               onRead={setReading}
+              landedId={celebrate?.id}
               initialSearch={mentions}
             />
           </div>
@@ -133,7 +154,7 @@ export default function Table() {
 
       {/* Modals */}
       {reading ? (
-        <ReadModal slice={reading} onClose={() => setReading(null)} />
+        <ReadModal slice={reading} onClose={closeReading} />
       ) : null}
       {giving !== null ? (
         <GiveModal

@@ -45,3 +45,27 @@
   font-weight: 700;
   color: var(--ink);
 }
+
+/* The slice you just took lifts off the cake and leaves a crumb behind */
+@media (prefers-reduced-motion: no-preference) {
+  .lift {
+    pointer-events: none;
+    animation: lift 0.7s cubic-bezier(0.3, 0.6, 0.3, 1) both;
+  }
+
+  .crumbs {
+    transform-box: fill-box;
+    transform-origin: center;
+    animation: crumbs 0.5s 0.45s cubic-bezier(0.2, 0.9, 0.3, 1.3) both;
+  }
+
+  @keyframes lift {
+    from { transform: translate(0, 0); opacity: 1; }
+    to   { transform: translate(var(--dx), var(--dy)); opacity: 0; }
+  }
+
+  @keyframes crumbs {
+    from { transform: scale(0); opacity: 0; }
+    to   { transform: scale(1); opacity: 1; }
+  }
+}
