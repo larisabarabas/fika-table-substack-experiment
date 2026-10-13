@@ -5,58 +5,334 @@
   position: relative;
   overflow-x: hidden;
   background:
-    radial-gradient(65% 55% at 50% 0%, rgba(255, 255, 255, 0.35), transparent 70%),
-    color-mix(in srgb, var(--paper) 82%, #dcebd9 40%);
-}
-
-.wrap {
-  position: relative;
-  z-index: 1;
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-  padding: 0 var(--px) 40px;
-  max-width: 760px;
-  margin: 0 auto;
-  width: 100%;
-  gap: 0;
-}
-
-/* Full-bleed cream hero — breaks out of .wrap's centered column to
-   span the viewport, independent of scroll position/content height. */
-.hero {
-  width: 100vw;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  text-align: center;
-  background:
-    radial-gradient(58% 70% at 50% 15%, rgba(232, 161, 58, 0.14), transparent 70%),
+    radial-gradient(55% 60% at 78% 28%, rgba(143, 217, 168, 0.30), transparent 72%),
     var(--paper);
-  padding: 56px var(--px) 40px;
 }
 
-.heroInner {
+.top {
+  width: 100%;
+  max-width: var(--container);
+  margin: 0 auto;
+  padding: var(--s5) var(--px) 0;
+}
+
+.logo {
+  display: block;
+  height: 48px;
+  width: auto;
+}
+
+/* Hero: copy on the left, the illustrated table and one real kind word on the right */
+.hero {
+  width: 100%;
+  max-width: var(--container);
+  margin: 0 auto;
+  padding: var(--s7) var(--px) var(--s7);
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr);
+  gap: var(--s7);
+  align-items: center;
+}
+
+.copy {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  width: 100%;
-  max-width: 760px;
+  align-items: flex-start;
+  gap: var(--s5);
+  text-align: left;
 }
 
-.heroInner :global(.eyebrow) {
+.headline {
+  margin: 0;
+  font-family: var(--f-display);
+  font-weight: 700;
+  font-size: clamp(40px, 6.4vw, 72px);
+  letter-spacing: -0.022em;
+  line-height: 1.02;
   text-wrap: balance;
 }
 
-/* Wordmark */
-.logo {
+.headline span {
   display: block;
-  height: 54px;
-  width: auto;
-  margin: 4px 0 18px;
+}
+
+.headline span + span {
+  font-style: italic;
+  font-weight: 600;
+}
+
+.lede {
+  margin: 0;
+  max-width: 44ch;
+  font-size: var(--t5);
+  line-height: 1.55;
+  color: var(--ink);
+  text-wrap: pretty;
+}
+
+.lede b {
+  font-weight: 700;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--s3) var(--s5);
+}
+
+.actions :global(.btn-solid) {
+  padding: 14px 28px;
+  font-size: var(--t4);
+}
+
+.browse {
+  color: var(--ink);
+  font-weight: 600;
+  font-size: var(--t3);
+  text-underline-offset: 4px;
+  padding: var(--s2) 0;
+}
+
+.browse:hover {
+  color: var(--accent);
+}
+
+.browse:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 4px;
+}
+
+/* Live count — one quiet line instead of a pill */
+.status {
+  display: flex;
+  align-items: center;
+  gap: var(--s2);
+  margin: 0;
+  font-size: var(--t2);
+  color: var(--sub);
+}
+
+.dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--accent-fill);
+  box-shadow: 0 0 0 4px rgba(143, 217, 168, 0.3);
+  flex-shrink: 0;
+}
+
+.statusUnknown .dot {
+  background: var(--sub);
+  box-shadow: 0 0 0 4px rgba(101, 87, 76, 0.16);
+}
+
+.pillSkeleton {
+  display: inline-block;
+  width: 150px;
+  height: 13px;
+  border-radius: var(--radius-pill);
+  background: var(--edge);
+  animation: shimmer 1.3s ease-in-out infinite;
+}
+
+@keyframes shimmer {
+  0%, 100% { opacity: 0.5; }
+  50%      { opacity: 1; }
+}
+
+/* Scene */
+.scene {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 0;
+}
+
+/* A folded place card, as set out at a dinner table, holding one real kind word */
+.placeCard {
+  position: relative;
+  z-index: 3;
+  align-self: flex-start;
+  width: min(330px, 100%);
+  margin-top: var(--s4);
+  text-align: left;
+  background: var(--panel);
+  border: 1px solid var(--edge);
+  border-radius: 6px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  transition: border-color 0.15s ease;
+}
+
+.placeCard:hover {
+  border-color: var(--accent);
+}
+
+.placeCard:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+
+.placeIn {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s2);
+  padding: var(--s3) var(--s4) var(--s4);
+  /* the fold: a slightly darker lower band with a crease above it */
+  background: linear-gradient(to bottom, transparent calc(100% - 34px), rgba(51, 36, 27, 0.05) calc(100% - 34px));
+  border-bottom: 0;
+}
+
+.placeTo {
+  font-family: var(--f-display);
+  font-size: var(--t5);
+  font-weight: 600;
+}
+
+.placeMsg {
+  margin: 0;
+  font-family: var(--f-display);
+  font-size: var(--t3);
+  line-height: 1.5;
+  color: var(--ink);
+}
+
+.placeFrom {
+  font-size: var(--t1);
+  color: var(--sub);
+}
+
+/* Fika explainer + more words */
+.below {
+  width: 100%;
+  max-width: var(--container);
+  margin: 0 auto;
+  padding: 0 var(--px) var(--s7);
+  display: flex;
+  flex-direction: column;
+  gap: var(--s7);
+}
+
+.poetic {
+  margin: 0;
+  max-width: 56ch;
+  font-family: var(--f-display);
+  font-style: italic;
+  font-size: var(--t5);
+  line-height: 1.6;
+  color: var(--sub);
+  text-wrap: pretty;
+}
+
+/* ── More kind words ─────────────────────────────────────── */
+.proof {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+}
+
+.proofHead {
+  margin: 0;
+  font-family: var(--f-display);
+  font-weight: 600;
+  font-size: 24px;
+}
+
+.words {
+  display: grid;
+  grid-template-columns: repeat(var(--card-count, 3), minmax(0, 1fr));
+  gap: var(--s4);
+  margin-top: var(--s4);
+}
+
+.word {
+  text-align: left;
+  background: var(--panel);
+  border: 1px solid var(--edge);
+  border-radius: var(--radius-card);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  transition: border-color 0.15s ease;
+}
+
+.word:hover {
+  border-color: var(--accent);
+}
+
+.word:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.spinner {
+  width: 28px;
+  height: 28px;
+  margin-top: var(--s4);
+  border-radius: 50%;
+  border: 3px solid var(--edge);
+  border-top-color: var(--accent);
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.wordIn {
+  padding: var(--s3) 18px var(--s4);
+  display: flex;
+  flex-direction: column;
+  gap: var(--s2);
+  height: 100%;
+}
+
+.wordTo {
+  font-family: var(--f-display);
+  font-size: var(--t5);
+  font-weight: 600;
+}
+
+.wordMsg {
+  margin: 0;
+  flex: 1;
+  font-family: var(--f-display);
+  font-size: var(--t3);
+  line-height: 1.5;
+}
+
+.wordFrom {
+  font-size: var(--t1);
+  color: var(--sub);
+}
+
+.micro {
+  margin: var(--s4) 0 0;
+  font-size: var(--t2);
+  color: var(--sub);
+}
+
+.micro b {
+  color: var(--ink);
+}
+
+@media (max-width: 900px) {
+  .hero {
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--s6);
+    padding-top: var(--s6);
+  }
+  .placeCard {
+    align-self: center;
+  }
+}
+
+@media (max-width: 680px) {
+  .words {
+    grid-template-columns: 1fr;
+  }
 }
 
 /* ── Fika table — illustrated treats below the headline ─ */
@@ -66,7 +342,7 @@
   justify-content: center;
   width: 100%;
   max-width: 620px;
-  margin: 32px 0 0;
+  margin: 0;
   /* Contains the items' z-index below so it can't leak into the root
      stacking context and outrank the modal overlay (z-index: 50). */
   position: relative;
@@ -113,256 +389,6 @@
   .fikaTableBulle   { height: 36px; }
   .fikaTableChoklad { height: 36px; }
   .fikaTablePeppar  { height: 40px; }
-}
-
-/* Headline */
-.headline {
-  font-family: var(--f-display);
-  font-weight: var(--f-display-weight);
-  font-size: clamp(34px, 8.6vw, 74px);
-  letter-spacing: -0.024em;
-  line-height: 1.0;
-  margin: var(--s5) 0 0;
-  max-width: 100%;
-  text-wrap: balance;
-}
-
-.headlineScript {
-  display: block;
-  font-family: var(--f-script);
-  font-style: italic;
-  font-size: clamp(28px, 6.6vw, 56px);
-  line-height: 1;
-  color: var(--accent);
-  margin-top: var(--s1);
-}
-
-/* Poetic supporting line */
-.poetic {
-  font-family: var(--f-display);
-  font-style: italic;
-  color: var(--sub);
-  font-size: clamp(16px, 2vw, 19px);
-  line-height: 1.55;
-  max-width: 480px;
-  margin: 20px auto 0;
-  text-wrap: pretty;
-}
-
-/* Mechanic — how it works */
-.mechanic {
-  font-size: var(--t3);
-  line-height: 1.6;
-  color: var(--ink);
-  max-width: 480px;
-  margin: 14px auto 0;
-  text-wrap: pretty;
-}
-
-.mechanic b {
-  font-weight: 700;
-  color: var(--accent);
-}
-
-/* Live status pill */
-.datepill {
-  display: inline-flex;
-  align-items: center;
-  gap: 9px;
-  margin-top: 22px;
-  padding: 9px 18px;
-  border-radius: var(--radius-pill);
-  border: 1px solid var(--edge);
-  background: var(--panel);
-  font-family: var(--f-display);
-  font-style: italic;
-  font-size: var(--t3);
-  white-space: nowrap;
-}
-
-.dot {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: #4f9d69;
-  box-shadow: 0 0 0 4px rgba(79, 157, 105, 0.18);
-}
-
-.pillSkeleton {
-  display: inline-block;
-  width: 150px;
-  height: 13px;
-  border-radius: var(--radius-pill);
-  background: var(--edge);
-  animation: shimmer 1.3s ease-in-out infinite;
-}
-
-@keyframes shimmer {
-  0%, 100% { opacity: 0.5; }
-  50%      { opacity: 1; }
-}
-
-.datepillUnknown .dot {
-  background: var(--sub);
-  box-shadow: 0 0 0 4px rgba(102, 92, 78, 0.16);
-}
-
-/* Actions */
-.actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 12px;
-  justify-content: center;
-  align-items: center;
-  margin-top: 36px;
-}
-
-.actions :global(.btn-solid),
-.actions :global(.btn-ghost) {
-  padding: 13px 26px;
-  gap: 8px;
-}
-
-.arrow {
-  font-size: 1.05em;
-}
-
-.actions :global(.btn-ghost):hover {
-  border-color: var(--accent);
-  color: var(--accent-strong);
-  background: transparent;
-}
-
-/* Override global tagline-pill margin to match design spacing */
-.wrap :global(.tagline-pill) {
-  margin-top: 24px;
-}
-
-/* ── Live word cards (social proof) ─────────────────────── */
-.proof {
-  position: relative;
-  z-index: 1;
-  margin-top: 40px;
-  width: 100%;
-}
-
-.proofHead {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
-  color: var(--sub);
-  font-size: var(--t1);
-  font-weight: 600;
-}
-
-.proofHead::before,
-.proofHead::after {
-  content: '';
-  height: 1px;
-  width: 54px;
-  background: var(--edge);
-}
-
-.words {
-  display: grid;
-  grid-template-columns: repeat(var(--card-count, 3), minmax(140px, 240px));
-  justify-content: center;
-  gap: 14px;
-  margin-top: 20px;
-}
-
-.word {
-  text-align: left;
-  background: var(--panel);
-  border: 1px solid var(--edge);
-  border-radius: var(--radius-card);
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
-  transition: border-color 0.15s ease;
-}
-
-.word:hover {
-  border-color: var(--accent);
-}
-
-.word:focus-visible {
-  outline: 2px solid var(--accent);
-  outline-offset: 2px;
-}
-
-.spinner {
-  width: 28px;
-  height: 28px;
-  margin: 24px auto 0;
-  border-radius: 50%;
-  border: 3px solid var(--edge);
-  border-top-color: var(--accent);
-  animation: spin 0.8s linear infinite;
-}
-
-@keyframes spin {
-  to { transform: rotate(360deg); }
-}
-
-.wordIn {
-  padding: var(--s4) 18px;
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-}
-
-.wordTo {
-  font-family: var(--f-display);
-  font-size: var(--t4);
-  font-weight: 500;
-  letter-spacing: -0.01em;
-}
-
-.wordMsg {
-  font-size: var(--t2);
-  line-height: 1.5;
-  color: var(--ink);
-  margin: 8px 0 12px;
-  flex: 1;
-  text-wrap: pretty;
-}
-
-.wordFrom {
-  font-size: var(--t1);
-  color: var(--sub);
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.wordTag {
-  font-size: var(--t1);
-  font-weight: 700;
-  color: var(--accent);
-  border: 1px solid var(--accent-soft);
-  border-radius: var(--radius-pill);
-  padding: 2px 8px;
-}
-
-.micro {
-  color: var(--sub);
-  font-size: var(--t2);
-  line-height: 1.5;
-  margin-top: 16px;
-  text-align: center;
-}
-
-.micro b {
-  color: var(--ink);
-  font-weight: 600;
-}
-
-@media (max-width: 680px) {
-  .words {
-    grid-template-columns: 1fr;
-  }
 }
 
 /* Footer */
