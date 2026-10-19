@@ -57,7 +57,7 @@ export default function Note() {
             <h1 className={styles.heading}>{heading}</h1>
             <ShareCard slice={slice} />
             <div className={styles.actions}>
-              <Link to="/table?give=1" className="btn-solid">Send your kind word</Link>
+              <Link to="/table?give=1" className="btn-solid">Write your own kind word</Link>
               {giver && named && (
                 <Link
                   to={`/table?give=1&to=${encodeURIComponent(slice.fromName)}`}

@@ -26,13 +26,14 @@ MVP is feature-complete. Remaining launch tasks:
 Done on the branch (9 commits before this note, not pushed or merged): marzipan/cocoa palette, Fraunces + Figtree, sentence-case labels, frosting-drip cards (wall, welcome, share), cake ring where available slices are cake, message-first give form, centered welcome with one primary button, share page and poster restyle, "slice lifts off the cake" motion, green favicons and a new `og-image.jpg`. Plan page: https://claude.ai/artifact/HfRpQQrZ5MQWNb7F76VUhj
 
 **Open work**
+- Done on the release-gate pass: poster shows plain text (the site address) instead of fake buttons; read modal and give-form preview use the icing edge and drop the type line; footer line has no dash; the privacy page has a new "Looking people up on Substack" section (text to review, since it is policy wording) and an updated date.
 - [x] Social tags (`og:url`, `og:image`) point to the live address `fika.stefaniabarabas.com`. After release, re-check a pasted link's preview, since Substack and others cache old previews.
 - [ ] Open a PR for the branch, then deploy. The new `og-image.jpg` only shows once deployed, and Substack/LinkedIn cache old previews, so re-scrape the link after deploy.
-- [ ] Poster PNG: the solid "Pass a slice to someone" button does nothing in an image. Replace it with a plain line of text (for example the site URL) or remove it.
-- [ ] `/privacy` page: not reviewed against the new palette and fonts. It inherits the tokens but nobody has looked at it.
-- [ ] Read modal: the colored band at the top is still a flat block and it still shows "for a writer" under the message. Give it the frosting edge and decide whether the type line stays.
+- [x] Poster PNG: the solid "Pass a slice to someone" button does nothing in an image. Replace it with a plain line of text (for example the site URL) or remove it. (done)
+- [x] `/privacy` page: not reviewed against the new palette and fonts. It inherits the tokens but nobody has looked at it. (done)
+- [x] Read modal: the colored band at the top is still a flat block and it still shows "for a writer" under the message. Give it the frosting edge and decide whether the type line stays. (done)
 - [ ] Welcome headline: "Take a slice." is still a different color from the first line (the single-word-accent habit the plan called out). Decide: same color, or keep.
-- [ ] Footer copy in `config.js` (`footerSub`) still has a dash: "Pull up a chair whenever you like — there's always more coffee."
+- [x] Footer copy in `config.js` (`footerSub`) still has a dash: "Pull up a chair whenever you like — there's always more coffee." (done)
 - [ ] Docs are stale: `docs/design_handoff_*` and `favicon/README.md` context still describe the rose/Newsreader look. Mark them as superseded or update.
 - [ ] Slices from other people arrive on the wall with no animation (`ux-product-gap.md` #8). The new motion only plays for your own slice.
 

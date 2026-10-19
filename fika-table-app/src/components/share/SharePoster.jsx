@@ -1,7 +1,6 @@
 import { parseSubstackUrl, RE_MULTI_AT } from '../../lib/substack';
 import { CONFIG } from '../../config';
 import { ShareCard } from './ShareCard';
-import shareStyles from '../../pages/Share.module.css';
 import styles from './SharePoster.module.css';
 
 export function SharePoster({ slice }) {
@@ -16,17 +15,15 @@ export function SharePoster({ slice }) {
       </div>
 
       <div className={styles.cardWrap}>
-        <ShareCard slice={slice}>
-          <div className={shareStyles.actions}>
-            <span className={shareStyles.cta}>Send your kind word</span>
-            {subUrl && (
-              <span className={shareStyles.subscribe}>
-                Subscribe to <span className={shareStyles.subscribeNm}>{displayName}</span>
-                <span className={shareStyles.subscribeArr}>&#8599;</span>
-              </span>
-            )}
-          </div>
-        </ShareCard>
+        <ShareCard slice={slice} />
+      </div>
+
+      {/* An image can't be clicked, so these are plain lines, not buttons */}
+      <div className={styles.pitch}>
+        <p className={styles.pitchMain}>
+          Send a kind word at <b>{CONFIG.siteHost}</b>
+        </p>
+        {subUrl && <p className={styles.pitchSub}>Find {displayName} on Substack</p>}
       </div>
 
       <div className={styles.footer}>

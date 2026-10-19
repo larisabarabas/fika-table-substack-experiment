@@ -17,7 +17,7 @@ export default function Privacy() {
       <div className={styles.wrap}>
         <Link to="/" className={styles.back} onClick={handleBack}>&larr; take me back</Link>
         <h1 className={styles.title}>Privacy Policy</h1>
-        <p className={styles.updated}>Last updated: June 2026</p>
+        <p className={styles.updated}>Last updated: October 2026</p>
 
         <section>
           <h2>What this is</h2>
@@ -44,6 +44,22 @@ export default function Privacy() {
             All of this is stored in our database and displayed publicly on the
             cake and appreciation wall. <strong>Do not share sensitive personal
             information.</strong>
+          </p>
+        </section>
+
+        <section>
+          <h2>Looking people up on Substack</h2>
+          <p>
+            When you type who a kind word is for, our server looks that name or
+            @handle up on Substack&rsquo;s public pages, so we can show you who it
+            matches and link to their profile. The text you typed is sent to
+            Substack for this. We do not store the result beyond the handle you
+            confirm.
+          </p>
+          <p>
+            If you choose to tell someone on Substack, the Note is copied to your
+            clipboard and Substack Notes opens in a new tab. We do not post
+            anything for you.
           </p>
         </section>
 

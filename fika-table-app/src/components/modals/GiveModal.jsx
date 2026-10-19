@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Overlay, CloseIcon } from './Overlay';
-import { PASTELS, TO_NAME_FALLBACK, TYPE_LABEL, CONFIG } from '../../config';
+import { PASTELS, TO_NAME_FALLBACK, CONFIG } from '../../config';
 import { extractHandle, RE_MULTI_AT } from '../../lib/substack';
 import {
   LOOKUP, idleLookup, searchingLookup, classifyInput, lookupFromResult, linkTo, recipientToSave,
@@ -363,7 +363,8 @@ export function GiveModal({ idx, onClose, onGive, initialTo = '' }) {
           <div className={styles.previewWrap}>
             <span className={styles.previewLabel}>Preview</span>
             <div className={styles.previewCard}>
-              <div className={styles.previewBand} style={{ background: PASTELS[color % PASTELS.length] }}>
+              <span className="frosting" style={{ '--frost': PASTELS[color % PASTELS.length] }} />
+              <div className={styles.previewHead}>
                 <span className={styles.previewNames}>
                   <b>{displayFromName}</b>
                   {' '}<span className={styles.arrow}>to</span>{' '}
@@ -372,7 +373,6 @@ export function GiveModal({ idx, onClose, onGive, initialTo = '' }) {
               </div>
               <div className={styles.previewBody}>
                 <p className={styles.previewMsg}>{message}</p>
-                <div className={styles.readTag}>{TYPE_LABEL[toType]}</div>
               </div>
             </div>
           </div>

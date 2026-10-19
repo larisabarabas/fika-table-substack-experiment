@@ -46,13 +46,14 @@
 }
 
 /* ── Read modal ── */
-.frostBand {
-  height: 80px;
-  border-radius: var(--radius-modal) var(--radius-modal) 0 0;
+/* Read modal header: the icing edge sits above it, so the names and the close button
+   share one row on the panel */
+.readHead {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 12px 24px 12px;
+  gap: 12px;
+  padding: var(--s2) var(--s5) 0;
 }
 
 .bandNames {
@@ -72,7 +73,7 @@
 }
 
 .readBody {
-  padding: 20px 24px 28px;
+  padding: var(--s3) var(--s5) var(--s5);
 }
 
 .readMsg {
@@ -81,13 +82,6 @@
   line-height: 1.6;
   color: var(--ink);
   margin: 0 0 16px;
-}
-
-.readTag {
-  font-size: var(--t1);
-  font-weight: 600;
-  color: var(--accent);
-  margin-bottom: 16px;
 }
 
 /* ── Give modal ── */
@@ -409,11 +403,9 @@
   border: 1px solid var(--edge);
 }
 
-.previewBand {
-  height: 56px;
-  padding: 0 16px 10px;
-  display: flex;
-  align-items: flex-end;
+/* Names row under the icing edge, matching the real card */
+.previewHead {
+  padding: var(--s2) var(--s4) 0;
 }
 
 .previewNames {

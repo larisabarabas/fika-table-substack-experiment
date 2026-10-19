@@ -63,3 +63,39 @@
   font-size: var(--t2);
   color: var(--sub);
 }
+
+.pitch {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--s1);
+  margin-bottom: var(--s4);
+}
+
+.pitchMain {
+  margin: 0;
+  font-size: var(--t5);
+  color: var(--ink);
+}
+
+.pitchMain b {
+  color: var(--accent);
+  font-weight: 700;
+}
+
+.pitchSub {
+  margin: 0;
+  font-size: var(--t3);
+  color: var(--sub);
+}
+
+/* The image capture copies each element's measured width. One-line texts must never
+   wrap, or a rounding difference of a pixel breaks the layout. */
+.brandPub,
+.pitchMain,
+.pitchSub,
+.footerScript,
+.footerSub {
+  white-space: nowrap;
+}

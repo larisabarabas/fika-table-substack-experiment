@@ -101,7 +101,7 @@ export default function Share() {
                   to="/table?give=1"
                   className={`${styles.cta} ${styles.reveal} ${styles.d3}`}
                 >
-                  Send your kind word
+                  Write your own kind word
                 </Link>
                 {subUrl && (
                   <a
