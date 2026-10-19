@@ -1,50 +1,10 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Overlay, CloseIcon } from './Overlay';
 import { PASTELS, TO_NAME_FALLBACK, CONFIG } from '../../config';
-import { extractHandle, RE_MULTI_AT } from '../../lib/substack';
-import {
-  LOOKUP, idleLookup, searchingLookup, classifyInput, lookupFromResult, linkTo, recipientToSave,
-} from '../../lib/recipient.js';
+import { LOOKUP, recipientToSave } from '../../lib/recipient.js';
+import { useProfileLookup } from '../../hooks/useProfileLookup.js';
+import { LookupArea } from './LookupArea';
 import styles from './modals.module.css';
-
-// Collapses an explicit @handle or Substack URL down to @handle before storing.
-// Does NOT guess that a bare word (e.g. a plain first name like "Maria") is a
-// handle — only extractHandle's confirmed patterns count, otherwise a signed
-// name gets mistaken for an unverified Substack profile link downstream.
-const normalizeHandle = (name) => {
-  if (!name) return name;
-  const trimmed = name.trim();
-  const handle = extractHandle(trimmed);
-  if (handle) return '@' + handle;
-  return trimmed.replace(RE_MULTI_AT, '@');
-};
-
-// Falls back to initials when a Substack profile has no photo, so avatar-less
-// results don't leave a blank gap in the profile card / candidate list
-const getInitials = (name) =>
-  (name || '?').trim().split(/\s+/).slice(0, 2).map((w) => w[0]).join('').toUpperCase();
-
-const Avatar = ({ image, name }) =>
-  image
-    ? <img className={styles.profileAvatar} src={image} alt="" />
-    : <div className={styles.profileAvatarFallback} aria-hidden="true">{getInitials(name)}</div>;
-
-// Picture, name, handle and bio. A real link, so the giver can check who it is on Substack.
-const ProfileBody = ({ profile }) => (
-  <a
-    className={styles.profileLink}
-    href={`https://substack.com/@${profile.handle}`}
-    target="_blank"
-    rel="noopener noreferrer"
-  >
-    <Avatar image={profile.image} name={profile.name} />
-    <div className={styles.profileInfo}>
-      <span className={styles.profileName}>{profile.name}</span>
-      <span className={styles.profileDesc}>@{profile.handle}</span>
-      {profile.description && <span className={styles.profileDesc}>{profile.description}</span>}
-    </div>
-  </a>
-);
 
 const TYPE_OPTS = [
   { value: 'writer', label: 'For a writer',          ph: 'a name or Substack @handle', msgLabel: 'What do you appreciate about their writing?' },
@@ -66,52 +26,17 @@ export function GiveModal({ idx, onClose, onGive, initialTo = '' }) {
   const [submitError,     setSubmitError]     = useState(null);
   const [showTypes,       setShowTypes]       = useState(false); // recipient-type picker is collapsed until asked for
   const [showColors,      setShowColors]      = useState(false); // icing color is auto-assigned; picker is opt-in
-  // see lib/recipient.js. A name passed in is looked up on open, so submitting waits for it.
-  const [lookup,          setLookup]          = useState(classifyInput(initialTo).kind === 'none' ? idleLookup : searchingLookup);
-  const [retry,           setRetry]           = useState(0);
+  // One Substack lookup per field. The signature only looks up handles and profile links.
+  const toLookup   = useProfileLookup(toName, { initial: initialTo });
+  const fromLookup = useProfileLookup(fromName, { names: false });
 
   const cur    = TYPE_OPTS.find((o) => o.value === toType);
   const msgLen = message.trim().length;
   const valid  = msgLen > 1 && msgLen <= 1000;
 
-  // Look the typed name up on Substack once the giver pauses. Typing puts the field in
-  // "searching" straight away (see onChange), so a submit can't slip in before the answer.
-  useEffect(() => {
-    const input = classifyInput(toName);
-    let cancelled = false;
-    const controller = new AbortController();
-    const timer = setTimeout(async () => {
-      if (cancelled) return;
-      if (input.kind === 'none') { setLookup(idleLookup); return; }
-      setLookup(searchingLookup);
-      const giveUp = setTimeout(() => controller.abort(), 8000);
-      try {
-        const param = input.kind === 'handle' ? `handle=${encodeURIComponent(input.handle)}` : `query=${encodeURIComponent(input.query)}`;
-        const res = await fetch(`/api/substack-profile?${param}`, { signal: controller.signal });
-        const next = res.ok
-          ? lookupFromResult(input.kind, { ok: true, data: await res.json() })
-          : lookupFromResult(input.kind, { ok: false, status: res.status });
-        if (!cancelled) setLookup(next);
-      } catch {
-        if (!cancelled) setLookup(lookupFromResult(input.kind, { network: true }));
-      } finally {
-        clearTimeout(giveUp);
-      }
-    }, input.kind === 'none' ? 0 : 600);
-    return () => { cancelled = true; clearTimeout(timer); controller.abort(); };
-  }, [toName, retry]);
-
-  const onToNameChange = (value) => {
-    setToName(value);
-    setLookup(classifyInput(value).kind === 'none' ? idleLookup : searchingLookup);
-  };
-  // "Not them" on a loose match means none of the matches; on a confirmed one it just drops the link
-  const rejectMatch = () => setLookup({
-    ...idleLookup,
-    status: lookup.status === LOOKUP.LINKED ? LOOKUP.DISMISSED : LOOKUP.NONE,
-  });
-
-  const recipient = recipientToSave({ typed: toName, lookup });
+  const recipient = recipientToSave({ typed: toName, lookup: toLookup.lookup });
+  const signer    = recipientToSave({ typed: fromName, lookup: fromLookup.lookup });
+  const lookingUp = toLookup.lookup.status === LOOKUP.SEARCHING || fromLookup.lookup.status === LOOKUP.SEARCHING;
 
   const submit = async () => {
     if (!valid || website || submitting) return;
@@ -119,7 +44,7 @@ export function GiveModal({ idx, onClose, onGive, initialTo = '' }) {
     setSubmitError(null);
     const result = await onGive({
       idx,
-      fromName: normalizeHandle(fromName.trim()),
+      fromName: signer.toName,
       toName:   recipient.toName || TO_NAME_FALLBACK[toType],
       toType,
       message:  message.trim(),
@@ -132,7 +57,7 @@ export function GiveModal({ idx, onClose, onGive, initialTo = '' }) {
   };
 
   const displayToName   = recipient.toName || TO_NAME_FALLBACK[toType];
-  const displayFromName = fromName.trim() || 'you';
+  const displayFromName = signer.toName || 'you';
   const showPreview     = msgLen > 1;
 
   return (
@@ -203,7 +128,7 @@ export function GiveModal({ idx, onClose, onGive, initialTo = '' }) {
                     setShowTypes(false);
                     // "Leave it on the table" is anonymous — clear any recipient name
                     // and any profile already resolved for the old name
-                    if (o.value === 'anyone') { setToName(''); setLookup(idleLookup); }
+                    if (o.value === 'anyone') { setToName(''); toLookup.reset(); }
                   }}
                 >
                   {o.label}
@@ -222,102 +147,17 @@ export function GiveModal({ idx, onClose, onGive, initialTo = '' }) {
           value={toName}
           placeholder={cur.ph}
           maxLength={100}
-          onChange={(e) => onToNameChange(e.target.value)}
+          onChange={(e) => { setToName(e.target.value); toLookup.onTyping(e.target.value); }}
         />
-        <div className={styles.lookupArea} role="status" aria-live="polite">
-          {lookup.status === LOOKUP.IDLE && (
-            <div className={styles.hint}>
-              A Substack <b>@handle</b> (or profile link) becomes a link to their profile.
-            </div>
-          )}
-          {lookup.status === LOOKUP.SEARCHING && <div className={styles.hint}>Looking up profile…</div>}
-
-          {lookup.status === LOOKUP.LINKED && (
-            <div className={styles.profileCard}>
-              <ProfileBody profile={lookup.profile} />
-              <div className={styles.profileStatus}>
-                <span className={styles.profileOk}>&#10003; {lookup.profile.name} on Substack</span>
-                <button type="button" className={styles.linkBtn} onClick={rejectMatch}>Not them</button>
-              </div>
-            </div>
-          )}
-
-          {lookup.status === LOOKUP.CONFIRM && (
-            <div className={styles.profileCard}>
-              <ProfileBody profile={lookup.profile} />
-              <p className={styles.confirmQ}>Is this who you mean?</p>
-              <div className={styles.confirmRow}>
-                <button type="button" className="btn-solid btn-solid-sm" onClick={() => setLookup(linkTo(lookup.profile))}>
-                  Yes, that&rsquo;s them
-                </button>
-                <button type="button" className={`btn-ghost ${styles.btnSm}`} onClick={rejectMatch}>Not them</button>
-              </div>
-              <div className={styles.hint}>Until you confirm, their name won&rsquo;t link to Substack.</div>
-            </div>
-          )}
-
-          {lookup.status === LOOKUP.CHOOSE && (
-            <div className={styles.candidateList}>
-              <div className={styles.hint}>A few people go by this name. Who did you mean?</div>
-              {lookup.candidates.map((c) => (
-                <button
-                  key={c.handle}
-                  type="button"
-                  className={styles.candidateItem}
-                  onClick={() => setLookup(linkTo(c))}
-                >
-                  <Avatar image={c.image} name={c.name} />
-                  <div className={styles.profileInfo}>
-                    <span className={styles.profileName}>{c.name}</span>
-                    {c.description && <span className={styles.profileDesc}>{c.description}</span>}
-                  </div>
-                </button>
-              ))}
-              <button type="button" className={styles.candidateNone} onClick={rejectMatch}>None of these</button>
-            </div>
-          )}
-
-          {lookup.status === LOOKUP.NONE && (
-            <div className={styles.hint}>
-              Their name won&rsquo;t link to Substack. If you know their <b>@handle</b>, type that instead.
-            </div>
-          )}
-
-          {lookup.status === LOOKUP.DISMISSED && (
-            <div className={styles.hint}>Their name won&rsquo;t link to Substack.</div>
-          )}
-
-          {lookup.status === LOOKUP.NOT_FOUND && (
-            <div className={styles.lookupWarn}>
-              <b>We couldn&rsquo;t find {toName.trim()} on Substack.</b> Your kind word will still name them,
-              without a link. Check the spelling if you meant a Substack profile.{' '}
-              <a
-                href={`https://substack.com/search/${encodeURIComponent(toName.trim().replace(/^@+/, ''))}?searching=profile`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className={styles.hintLink}
-              >
-                Search on Substack &#8599;
-              </a>
-            </div>
-          )}
-
-          {lookup.status === LOOKUP.UNREACHABLE && (
-            <div className={styles.lookupWarn}>
-              <b>Couldn&rsquo;t reach Substack right now.</b> Your kind word isn&rsquo;t lost. Try again, or keep the name without a link.
-              <div className={styles.confirmRow}>
-                <button type="button" className="btn-solid btn-solid-sm" onClick={() => setRetry((n) => n + 1)}>Try again</button>
-                <button
-                  type="button"
-                  className={`btn-ghost ${styles.btnSm}`}
-                  onClick={() => setLookup({ ...idleLookup, status: LOOKUP.DISMISSED })}
-                >
-                  Keep without a link
-                </button>
-              </div>
-            </div>
-          )}
-        </div>
+        <LookupArea
+          lookup={toLookup}
+          typed={toName}
+          who="them"
+          onConfirm={toLookup.confirm}
+          onReject={toLookup.reject}
+          onRetry={toLookup.retry}
+          onKeep={toLookup.keepPlain}
+        />
 
         <label htmlFor="give-from" className={styles.fieldLabel}>
           Signed <span className={styles.opt}>optional</span>
@@ -328,7 +168,16 @@ export function GiveModal({ idx, onClose, onGive, initialTo = '' }) {
           value={fromName}
           placeholder="your name or @handle"
           maxLength={100}
-          onChange={(e) => setFromName(e.target.value)}
+          onChange={(e) => { setFromName(e.target.value); fromLookup.onTyping(e.target.value); }}
+        />
+        <LookupArea
+          lookup={fromLookup}
+          typed={fromName}
+          who="you"
+          onConfirm={fromLookup.confirm}
+          onReject={fromLookup.reject}
+          onRetry={fromLookup.retry}
+          onKeep={fromLookup.keepPlain}
         />
 
         <div className={styles.colorRow}>
@@ -383,7 +232,7 @@ export function GiveModal({ idx, onClose, onGive, initialTo = '' }) {
         )}
         <div className={styles.giveActions}>
           <button className="btn-ghost" onClick={onClose} disabled={submitting}>Maybe later</button>
-          <button className="btn-solid" disabled={!valid || submitting || lookup.status === LOOKUP.SEARCHING} onClick={submit}>
+          <button className="btn-solid" disabled={!valid || submitting || lookingUp} onClick={submit}>
             {submitting ? 'Taking the slice…' : 'Take the slice'}
           </button>
         </div>

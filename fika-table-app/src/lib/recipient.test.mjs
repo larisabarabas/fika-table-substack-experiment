@@ -94,3 +94,19 @@ test('shortName: first word of a name, the handle when there is no name, long on
   assert.ok(long.endsWith('…'));
   assert.equal(shortName(null), '');
 });
+
+test('classifyInput with names: false only looks up handles and profile links', () => {
+  const opts = { names: false };
+  assert.equal(classifyInput('@marcos', opts).kind, 'handle');
+  assert.equal(classifyInput('https://substack.com/@marcos', opts).kind, 'handle');
+  assert.equal(classifyInput('Marcos', opts).kind, 'none');
+  assert.equal(classifyInput('Marcos Lindqvist', opts).kind, 'none');
+  assert.equal(classifyInput('', opts).kind, 'none');
+});
+
+test('a signature is saved like a recipient: verified handle linked, anything else plain', () => {
+  const marcos = { name: 'Marcos Lindqvist', handle: 'marcos' };
+  assert.equal(recipientToSave({ typed: 'marcs', lookup: linkTo(marcos) }).toName, '@marcos');
+  assert.equal(recipientToSave({ typed: '@marcs', lookup: { ...idleLookup, status: LOOKUP.NOT_FOUND } }).toName, 'marcs');
+  assert.equal(recipientToSave({ typed: 'Marcos', lookup: idleLookup }).toName, 'Marcos');
+});

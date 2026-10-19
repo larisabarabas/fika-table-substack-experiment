@@ -83,7 +83,8 @@ Done on the branch (9 commits before this note, not pushed or merged): marzipan/
 **Build plan:** https://claude.ai/artifact/5VoEPsTChzQZ8uddJUTz65 (steps: typing-time verification, success screen, recipient page `/note/:id`, then measure; the site-address step was dropped).
 
 **Known gaps after step 2 (typing-time verification)**
-- The Signed field is not verified: a typo'd own handle still becomes a link on the wall.
+- The Signed field is now verified like the recipient (handles and profile links only). A verified handle proves the account exists, not that it belongs to the giver, so someone can still sign with another person's real handle. There is no login to prevent that.
+- Existing slices saved before this change may still hold mistyped signed handles. They are fixed by hand today.
 - A publication address typed in full (`x.substack.com`) still links as typed; publications are not looked up.
 - The lookup scrapes Substack pages, so it can break or be rate-limited. "Couldn't reach Substack" never blocks giving.
 
