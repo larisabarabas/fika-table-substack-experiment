@@ -74,6 +74,8 @@ Done on the branch (9 commits before this note, not pushed or merged): marzipan/
 - Recipient page on its own address (`/for/:id`), no confetti, "Pass a slice back" only when the giver signed.
 - No takedown or "ask us to remove this" button on the recipient page for now. Removal goes through the Privacy page, which already says to email the support address.
 
+**Release rule:** nothing merges to main until the redesign and the tell-them flow are both ready. Everything lands on `design/konditori-foundation`, then one release PR. Needs a preview deployment for the Substack tests (and a separate database, or manual cleanup, so test slices don't reach the live wall).
+
 **Build plan:** https://claude.ai/artifact/5VoEPsTChzQZ8uddJUTz65 (five steps: site address, typing-time verification, success screen, recipient page `/for/:id`, then measure).
 
 **Takedown trigger (build only when one of these happens)**
