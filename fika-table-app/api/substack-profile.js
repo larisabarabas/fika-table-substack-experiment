@@ -3,8 +3,9 @@
 // from Substack's own search response, since that's still untrusted input to us
 const RE_HANDLE = /^[A-Za-z0-9_.-]+$/;
 
-// Matches a person's display name: letters (incl. accented), digits, spaces, and common name punctuation
-const RE_NAME_QUERY = /^[\p{L}\p{N} '.-]{1,100}$/u;
+// Matches a person's display name: letters (accents written as separate marks too), digits,
+// emoji, spaces, and common name punctuation. The query is URL-encoded before it is sent on.
+const RE_NAME_QUERY = /^[\p{L}\p{M}\p{N}\p{Extended_Pictographic} '\u2019.,()&/_-]{1,100}$/u;
 
 // Vercel serverless function — fetches Substack profile data server-side to avoid CORS.
 // No Access-Control-Allow-Origin header: the frontend only ever calls this via a

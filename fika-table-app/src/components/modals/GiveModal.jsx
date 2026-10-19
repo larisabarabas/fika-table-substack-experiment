@@ -137,26 +137,31 @@ export function GiveModal({ idx, onClose, onGive, initialTo = '' }) {
           </fieldset>
         )}
 
-        <label htmlFor="give-to" className={styles.fieldLabel}>
-          Their name or Substack @handle <span className={styles.opt}>optional</span>
-        </label>
-        <input
-          id="give-to"
-          className={styles.input}
-          value={toName}
-          placeholder={cur.ph}
-          maxLength={100}
-          onChange={(e) => { setToName(e.target.value); toLookup.onTyping(e.target.value); }}
-        />
-        <LookupArea
-          lookup={toLookup}
-          typed={toName}
-          who="them"
-          onConfirm={toLookup.confirm}
-          onReject={toLookup.reject}
-          onRetry={toLookup.retry}
-          onKeep={toLookup.keepPlain}
-        />
+        {/* A word left on the table is for everyone, so there is no one to name */}
+        {toType !== 'anyone' && (
+          <>
+          <label htmlFor="give-to" className={styles.fieldLabel}>
+            Their name or Substack @handle <span className={styles.opt}>optional</span>
+          </label>
+          <input
+            id="give-to"
+            className={styles.input}
+            value={toName}
+            placeholder={cur.ph}
+            maxLength={100}
+            onChange={(e) => { setToName(e.target.value); toLookup.onTyping(e.target.value); }}
+          />
+          <LookupArea
+            lookup={toLookup}
+            typed={toName}
+            who="them"
+            onConfirm={toLookup.confirm}
+            onReject={toLookup.reject}
+            onRetry={toLookup.retry}
+            onKeep={toLookup.keepPlain}
+          />
+          </>
+        )}
 
         <label htmlFor="give-from" className={styles.fieldLabel}>
           Signed <span className={styles.opt}>optional</span>

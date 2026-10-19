@@ -52,8 +52,9 @@ export function SuccessModal({ slice, recipient, onClose }) {
   };
 
   const copyLink = () => {
-    navigator.clipboard?.writeText(getShareUrl(slice.id))
-      .then(() => setLinkCopied('yes'))
+    const copy = navigator.clipboard?.writeText(getShareUrl(slice.id));
+    Promise.resolve(copy)
+      .then(() => setLinkCopied(copy ? 'yes' : 'failed'))
       .catch(() => setLinkCopied('failed'));
   };
 

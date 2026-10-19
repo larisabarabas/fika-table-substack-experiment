@@ -34,13 +34,16 @@ test('lookupFromResult: server errors, rate limits and network failures are unre
   assert.equal(lookupFromResult('name', { network: true }).status, LOOKUP.UNREACHABLE);
 });
 
-test('lookupFromResult: one exact name match is linked, one partial match must be confirmed', () => {
-  const exact = lookupFromResult('name', { ok: true, data: { candidates: [{ ...elena, match: 'exact' }] } });
-  assert.equal(exact.status, LOOKUP.LINKED);
-  const partial = lookupFromResult('name', { ok: true, data: { candidates: [{ ...elena, match: 'partial' }] } });
-  assert.equal(partial.status, LOOKUP.CONFIRM);
-  const unknown = lookupFromResult('name', { ok: true, data: { candidates: [elena] } });
-  assert.equal(unknown.status, LOOKUP.CONFIRM, 'a candidate with no match flag is treated as partial');
+test('lookupFromResult: a single name match always has to be confirmed, exact or partial', () => {
+  for (const match of ['exact', 'partial', undefined]) {
+    const s = lookupFromResult('name', { ok: true, data: { candidates: [{ ...elena, match }] } });
+    assert.equal(s.status, LOOKUP.CONFIRM, `match: ${match}`);
+    assert.equal(s.profile.handle, 'elenavoss');
+  }
+});
+
+test('lookupFromResult: a handle or profile link still links on its own', () => {
+  assert.equal(lookupFromResult('handle', { ok: true, data: elena }).status, LOOKUP.LINKED);
 });
 
 test('lookupFromResult: several people share the name, or nobody matches', () => {

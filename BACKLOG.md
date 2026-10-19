@@ -84,6 +84,8 @@ Done on the branch (9 commits before this note, not pushed or merged): marzipan/
 
 **Build plan:** https://claude.ai/artifact/5VoEPsTChzQZ8uddJUTz65 (steps: typing-time verification, success screen, recipient page `/note/:id`, then measure; the site-address step was dropped).
 
+**Review decisions:** a typed name always asks "Is this who you mean?" (only a handle or a profile link links on its own, because common names have more than one owner). "Leave it on the table" has no recipient field, only the signature.
+
 **Known gaps after step 2 (typing-time verification)**
 - The Signed field is now verified like the recipient (handles and profile links only). A verified handle proves the account exists, not that it belongs to the giver, so someone can still sign with another person's real handle. There is no login to prevent that.
 - Existing slices saved before this change may still hold mistyped signed handles. Decided: leave them as they are (no cleanup script).

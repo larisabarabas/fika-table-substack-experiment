@@ -39,6 +39,11 @@ function burstConfetti() {
 
 export default function Share() {
   const { id } = useParams();
+  // A new id gets a fresh page, so the previous card never shows while the next one loads
+  return <ShareContent key={id} id={id} />;
+}
+
+function ShareContent({ id }) {
   const [slice, setSlice] = useState(null);
   const [state, setState] = useState(STATES.LOADING);
   const burstFired = useRef(false);

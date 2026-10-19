@@ -51,10 +51,9 @@ export function lookupFromResult(kind, result) {
   const found = Array.isArray(data.candidates) ? data.candidates : [];
   if (data.error || found.length === 0) return notFound;
   if (found.length > 1) return { status: LOOKUP.CHOOSE, profile: null, candidates: found };
-  // Only an exact name match is trusted on its own; a partial match must be confirmed
-  return found[0].match === 'exact'
-    ? { status: LOOKUP.LINKED, profile: found[0], candidates: [] }
-    : { status: LOOKUP.CONFIRM, profile: found[0], candidates: [] };
+  // A name is never trusted on its own, exact or not: common names have more than one owner.
+  // Only a handle or a profile link (above) links without asking.
+  return { status: LOOKUP.CONFIRM, profile: found[0], candidates: [] };
 }
 
 export function linkTo(profile) {

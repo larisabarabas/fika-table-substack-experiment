@@ -44,7 +44,7 @@ export function useProfileLookup(value, { names = true, initial = '' } = {}) {
     [names],
   );
   const reset = useCallback(() => setLookup(idleLookup), []);
-  const retry = useCallback(() => setAttempt((n) => n + 1), []);
+  const retry = useCallback(() => { setLookup(searchingLookup); setAttempt((n) => n + 1); }, []);
   // "Not them" on a loose match means none of the matches; on a confirmed one it just drops the link
   const reject = useCallback(
     () => setLookup((cur) => ({ ...idleLookup, status: cur.status === LOOKUP.LINKED ? LOOKUP.DISMISSED : LOOKUP.NONE })),
