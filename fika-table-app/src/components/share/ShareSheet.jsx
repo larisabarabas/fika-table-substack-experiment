@@ -1,17 +1,18 @@
 import { useState, useCallback, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { SharePoster } from './SharePoster';
-import { getShareUrl, getShareText } from '../../lib/shareText';
+import { getShareUrl, getNoteUrl, getShareText } from '../../lib/shareText';
 import styles from './ShareSheet.module.css';
 
 // compact: one flat row of actions with no group labels (the success screen).
 // omit: action names to leave out, e.g. ['copyLink'] when a button above already does it.
-export function ShareSheet({ slice, compact = false, omit = [] }) {
+// page: which page the link points at. 'note' is the page made for the person the word is for.
+export function ShareSheet({ slice, compact = false, omit = [], page = 'share' }) {
   const [copiedField, setCopiedField] = useState(null);
   const [downloading, setDownloading] = useState(false);
   const cardRef = useRef(null);
-  const url = getShareUrl(slice.id);
-  const text = getShareText(slice);
+  const url = page === 'note' ? getNoteUrl(slice.id) : getShareUrl(slice.id);
+  const text = getShareText(slice, url);
 
   const handleNativeShare = useCallback(() => {
     navigator.share({ title: 'Pull up a chair', text, url })
@@ -56,7 +57,7 @@ export function ShareSheet({ slice, compact = false, omit = [] }) {
       <div className={styles.actions}>
         <Link
           className={`${styles.action} ${styles.actPreview}`}
-          to={`/share/${slice.id}`}
+          to={`/${page}/${slice.id}`}
           target="_blank"
           rel="noopener noreferrer"
         >

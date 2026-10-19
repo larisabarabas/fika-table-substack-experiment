@@ -87,7 +87,7 @@ Done on the branch (9 commits before this note, not pushed or merged): marzipan/
 **Steps 3 and 4 status (success screen and recipient page, built)**
 - Success screen is behind `CONFIG.tellThemEnabled` in `config.js`; set it to `false` to bring back the plain read modal after giving.
 - The copied Note links to `/note/:id`, the recipient page (step 4).
-- Open question: "Copy link" and "Copy link to share" still copy the existing `/share/:id` address. Should they copy `/note/:id` when a person was verified?
+- Decided: for a verified person, Copy link, Copy text and Preview link use `/note/:id`; with nobody to tag they still use `/share/:id`.
 - Decide: the share page (`/share/:id`) still has the giver-oriented "Copy note & open Substack" button, which the success screen now covers. Remove it, or keep it for people who open a shared link?
 - Not done: per-slice link preview image. `/note/:id` and `/share/:id` still use the one static `og-image.jpg`.
 

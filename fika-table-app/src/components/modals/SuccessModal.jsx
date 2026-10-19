@@ -140,7 +140,12 @@ export function SuccessModal({ slice, recipient, onClose }) {
         <div className={styles.moreGroup}>
           <p className={styles.moreCaption}>Other ways to share</p>
           {/* Always mounted: the share sheet carries the hidden poster that Download captures */}
-          <ShareSheet slice={slice} compact omit={kind === 'person' ? [] : ['copyLink']} />
+          <ShareSheet
+            slice={slice}
+            compact
+            page={kind === 'person' ? 'note' : 'share'}
+            omit={kind === 'person' ? [] : ['copyLink']}
+          />
         </div>
 
         <div className={styles.successActions}>

@@ -13,7 +13,7 @@ export function buildTellNote({ profileUrl, message, noteUrl }) {
   return `A kind word for ${profileUrl} on Fika:\n"${message}"\n${noteUrl}`;
 }
 
-export function getShareText(slice) {
+export function getShareText(slice, url = getShareUrl(slice.id)) {
   const to = (slice.toName || 'the table').replace(/^@{2,}/, '@');
-  return `A kind word for ${to} on Fika for Substack:\n"${slice.message}"\n${getShareUrl(slice.id)}`;
+  return `A kind word for ${to} on Fika for Substack:\n"${slice.message}"\n${url}`;
 }

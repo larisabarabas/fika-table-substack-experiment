@@ -645,12 +645,14 @@ button.btnDone:disabled {
   color: var(--sub);
 }
 
-/* Same footer as the give form: actions on the right */
+/* Footer: a rule, then the way out, centered */
 .successActions {
   display: flex;
   flex-wrap: wrap;
-  justify-content: flex-end;
+  justify-content: center;
   gap: var(--s2);
+  padding-top: var(--s5);
+  border-top: 1px solid var(--edge);
 }
 
 .noteBox {
