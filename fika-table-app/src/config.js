@@ -5,6 +5,9 @@ export const CONFIG = {
   hostHandle:    '@stefanialarisa',
   creatorSite:   'https://stefaniabarabas.com',
   newsletterURL: 'https://stefsdevnotes.substack.com',
+  // Public address of the live site. Links we hand out (share links, Notes) use this
+  // when the app is running somewhere Substack can't reach, such as localhost.
+  siteUrl:       'https://fika-for-substack.vercel.app',
   supportEmail:  'stefsdevnotes@gmail.com',
   sliceCapacity: 12,
   dateRange:     'Fresh cake every week · oven\'s always on',
