@@ -28,7 +28,6 @@ export function SuccessModal({ slice, recipient, onClose }) {
   const [view, setView] = useState('done');   // 'done' | 'note'
   const [copied, setCopied] = useState(null); // null | 'yes' | 'failed'
   const [linkCopied, setLinkCopied] = useState(false);
-  const [more, setMore] = useState(false);
 
   const kind = kindOf(slice, recipient);
   const first = kind === 'person' ? shortName(recipient.profile) : '';
@@ -54,8 +53,8 @@ export function SuccessModal({ slice, recipient, onClose }) {
 
   const copyLink = () => {
     navigator.clipboard?.writeText(getShareUrl(slice.id))
-      .then(() => setLinkCopied(true))
-      .catch(() => setMore(true));
+      .then(() => setLinkCopied('yes'))
+      .catch(() => setLinkCopied('failed'));
   };
 
   const close = (
@@ -82,28 +81,29 @@ export function SuccessModal({ slice, recipient, onClose }) {
             </div>
           )}
 
-          <button
-            className={`btn-solid ${styles.fullBtn} ${copied === 'yes' ? styles.btnDone : ''}`}
-            disabled={copied === 'yes'}
-            onClick={copyAndOpen}
-          >
-            {copied === 'yes' ? '✓ Copied' : 'Copy and open Substack'}
-          </button>
-          <p className={styles.hint} aria-live="polite">
-            {copied === 'yes' && <>Copied. Paste it into your Note, then check that {first} turned into a link.</>}
-            {copied === 'failed' && <>We couldn&rsquo;t copy it automatically. Select the text above and copy it, then paste it into your Note.</>}
-            {!copied && <>We copy first, then open Substack in the same tap.</>}
-          </p>
+          <div className={styles.tellGroup}>
+            <button
+              className={`btn-solid ${styles.fullBtn} ${copied === 'yes' ? styles.btnDone : ''}`}
+              disabled={copied === 'yes'}
+              onClick={copyAndOpen}
+            >
+              {copied === 'yes' ? '\u2713 Copied' : 'Copy and open Substack'}
+            </button>
+            <p className={styles.hint} aria-live="polite">
+              {copied === 'yes' && <>Copied. Paste it into your Note, then check that {first} turned into a link.</>}
+              {copied === 'failed' && <>We couldn&rsquo;t copy it automatically. Select the text above and copy it, then paste it into your Note.</>}
+              {!copied && <>We copy first, then open Substack in the same tap.</>}
+            </p>
+          </div>
 
-          {copied && (
-            <div className={styles.confirmRow}>
-              <button type="button" className={`btn-ghost ${styles.btnSm}`} onClick={openNotes}>Open Substack again</button>
-              <button type="button" className={`btn-ghost ${styles.btnSm}`} onClick={onClose}>Back to the table</button>
-            </div>
-          )}
-          {!copied && (
-            <button type="button" className={styles.linkBtn} onClick={() => setView('done')}>Back</button>
-          )}
+          <div className={styles.successActions}>
+            {copied
+              ? <button type="button" className="btn-ghost" onClick={openNotes}>Open Substack again</button>
+              : null}
+            {copied
+              ? <button type="button" className="btn-ghost" onClick={onClose}>Back to the table</button>
+              : <button type="button" className="btn-ghost" onClick={() => setView('done')}>Back</button>}
+          </div>
         </div>
       </Overlay>
     );
@@ -119,35 +119,33 @@ export function SuccessModal({ slice, recipient, onClose }) {
 
         <ShareCard slice={slice} />
 
-        {kind === 'person' ? (
-          <button className={`btn-solid ${styles.fullBtn}`} onClick={() => setView('note')}>
-            Tell {first} on Substack
-          </button>
-        ) : (
-          <button className={`btn-solid ${styles.fullBtn}`} onClick={copyLink}>
-            {linkCopied ? 'Link copied' : 'Copy link to share'}
-          </button>
-        )}
-        <p className={styles.hint} aria-live="polite">
-          {kind === 'person'
-            ? <>{first} doesn&rsquo;t know yet. We&rsquo;ll copy a ready-made Note and open Substack.</>
-            : linkCopied ? 'Copied. Paste it wherever you want to share it.' : HINTS[kind]}
-        </p>
-
-        <div className={styles.moreWrap}>
-          <button
-            type="button"
-            className={styles.linkBtn}
-            aria-expanded={more}
-            onClick={() => setMore((v) => !v)}
-          >
-            Other ways to share
-          </button>
-          {/* Mounted only when open: the share sheet carries the hidden poster that Download captures */}
-          {more && <ShareSheet slice={slice} />}
+        <div className={styles.tellGroup}>
+          {kind === 'person' ? (
+            <button className={`btn-solid ${styles.fullBtn}`} onClick={() => setView('note')}>
+              Tell {first} on Substack
+            </button>
+          ) : (
+            <button className={`btn-solid ${styles.fullBtn}`} onClick={copyLink}>
+              {linkCopied === 'yes' ? 'Link copied' : 'Copy link to share'}
+            </button>
+          )}
+          <p className={styles.hint} aria-live="polite">
+            {kind === 'person' && <>{first} doesn&rsquo;t know yet. We&rsquo;ll copy a ready-made Note and open Substack.</>}
+            {kind !== 'person' && linkCopied === 'yes' && 'Copied. Paste it wherever you want to share it.'}
+            {kind !== 'person' && linkCopied === 'failed' && <>We couldn&rsquo;t copy it automatically. Use Share or Copy text below.</>}
+            {kind !== 'person' && !linkCopied && HINTS[kind]}
+          </p>
         </div>
 
-        <button type="button" className={styles.linkBtn} onClick={onClose}>Back to the table</button>
+        <div className={styles.moreGroup}>
+          <p className={styles.moreCaption}>Other ways to share</p>
+          {/* Always mounted: the share sheet carries the hidden poster that Download captures */}
+          <ShareSheet slice={slice} compact omit={kind === 'person' ? [] : ['copyLink']} />
+        </div>
+
+        <div className={styles.successActions}>
+          <button type="button" className="btn-ghost" onClick={onClose}>Back to the table</button>
+        </div>
       </div>
     </Overlay>
   );

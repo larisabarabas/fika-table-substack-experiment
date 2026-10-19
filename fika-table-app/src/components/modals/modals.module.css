@@ -587,19 +587,32 @@
   text-decoration: underline;
 }
 
-/* ── Success screen ("Tell them") ── */
+/* ── Success screen ("Tell them") ──
+   One left edge for everything. Four groups, one gap between them (--s5);
+   inside a group, items sit close (--s2). Nothing here is indented. */
 .success {
-  padding: 24px 24px 20px;
+  padding: var(--s5);
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: var(--s5);
 }
 
 .success .giveHead {
   margin-bottom: 0;
+  align-items: center;
 }
 
-.success .hint {
+.success .giveTitle {
+  margin: 0;
+}
+
+.tellGroup {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s2);
+}
+
+.tellGroup .hint {
   margin: 0;
   font-size: var(--t2);
 }
@@ -616,23 +629,28 @@ button.btnDone:disabled {
   color: var(--accent-strong);
 }
 
-.moreWrap {
+/* The alternatives: a rule that says what the row is, then the row */
+.moreGroup {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s3);
+  padding-top: var(--s4);
   border-top: 1px solid var(--edge);
-  padding-top: 4px;
 }
 
-.moreWrap .linkBtn {
-  margin-left: 0;
+.moreCaption {
+  margin: 0;
+  font-size: var(--t2);
+  font-weight: 600;
+  color: var(--sub);
 }
 
-.moreWrap > div {
-  border-top: 0;
-  padding: 4px 0 8px;
-}
-
-.success > .linkBtn {
-  margin-left: 0;
-  align-self: flex-start;
+/* Same footer as the give form: actions on the right */
+.successActions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: var(--s2);
 }
 
 .noteBox {
