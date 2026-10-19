@@ -40,7 +40,7 @@ export function LookupArea({ lookup: l, typed, who = 'them', onConfirm, onReject
     <div className={styles.lookupArea} role="status" aria-live="polite">
       {lookup.status === LOOKUP.IDLE && (
         <div className={styles.hint}>
-          A Substack <b>@handle</b> (or profile link) becomes a link to {mine ? 'your' : 'their'} profile.
+          A Substack <b>@handle</b>, profile link or name becomes a link to {mine ? 'your' : 'their'} profile.
         </div>
       )}
       {lookup.status === LOOKUP.SEARCHING && <div className={styles.hint}>Looking up profile…</div>}
@@ -58,20 +58,20 @@ export function LookupArea({ lookup: l, typed, who = 'them', onConfirm, onReject
       {lookup.status === LOOKUP.CONFIRM && (
         <div className={styles.profileCard}>
           <ProfileBody profile={lookup.profile} />
-          <p className={styles.confirmQ}>Is this who you mean?</p>
+          <p className={styles.confirmQ}>{mine ? 'Is this you?' : 'Is this who you mean?'}</p>
           <div className={styles.confirmRow}>
             <button type="button" className="btn-solid btn-solid-sm" onClick={() => onConfirm(lookup.profile)}>
-              Yes, that&rsquo;s them
+              {mine ? 'Yes, that\u2019s me' : 'Yes, that\u2019s them'}
             </button>
-            <button type="button" className={`btn-ghost ${styles.btnSm}`} onClick={onReject}>Not them</button>
+            <button type="button" className={`btn-ghost ${styles.btnSm}`} onClick={onReject}>{mine ? 'Not me' : 'Not them'}</button>
           </div>
-          <div className={styles.hint}>Until you confirm, their name won&rsquo;t link to Substack.</div>
+          <div className={styles.hint}>Until you confirm, {mine ? 'your' : 'their'} name won&rsquo;t link to Substack.</div>
         </div>
       )}
 
       {lookup.status === LOOKUP.CHOOSE && (
         <div className={styles.candidateList}>
-          <div className={styles.hint}>A few people go by this name. Who did you mean?</div>
+          <div className={styles.hint}>A few people go by this name. {mine ? 'Which one is you?' : 'Who did you mean?'}</div>
           {lookup.candidates.map((c) => (
             <button key={c.handle} type="button" className={styles.candidateItem} onClick={() => onConfirm(c)}>
               <Avatar image={c.image} name={c.name} />
@@ -87,7 +87,7 @@ export function LookupArea({ lookup: l, typed, who = 'them', onConfirm, onReject
 
       {lookup.status === LOOKUP.NONE && (
         <div className={styles.hint}>
-          {noLink} If you know their <b>@handle</b>, type that instead.
+          {noLink} If you know {mine ? 'your' : 'their'} <b>@handle</b>, type that instead.
         </div>
       )}
 

@@ -4,18 +4,18 @@ import {
 } from '../lib/recipient.js';
 
 // Runs the Substack lookup for one text field and keeps its state (see lib/recipient.js).
-//   names: false  only handles and profile links are looked up (used for the signature)
-//   initial       a value already in the field when the form opens; it is looked up straight away
-export function useProfileLookup(value, { names = true, initial = '' } = {}) {
+// The recipient and the signature use it the same way.
+//   initial  a value already in the field when the form opens; it is looked up straight away
+export function useProfileLookup(value, { initial = '' } = {}) {
   const [lookup, setLookup] = useState(
-    () => (classifyInput(initial, { names }).kind === 'none' ? idleLookup : searchingLookup),
+    () => (classifyInput(initial).kind === 'none' ? idleLookup : searchingLookup),
   );
   const [attempt, setAttempt] = useState(0);
 
   // Look the value up once the person pauses. onTyping puts the field in "searching"
   // straight away, so a submit can't slip in before the answer.
   useEffect(() => {
-    const input = classifyInput(value, { names });
+    const input = classifyInput(value);
     let cancelled = false;
     const controller = new AbortController();
     const timer = setTimeout(async () => {
@@ -37,11 +37,11 @@ export function useProfileLookup(value, { names = true, initial = '' } = {}) {
       }
     }, input.kind === 'none' ? 0 : 600);
     return () => { cancelled = true; clearTimeout(timer); controller.abort(); };
-  }, [value, names, attempt]);
+  }, [value, attempt]);
 
   const onTyping = useCallback(
-    (next) => setLookup(classifyInput(next, { names }).kind === 'none' ? idleLookup : searchingLookup),
-    [names],
+    (next) => setLookup(classifyInput(next).kind === 'none' ? idleLookup : searchingLookup),
+    [],
   );
   const reset = useCallback(() => setLookup(idleLookup), []);
   const retry = useCallback(() => { setLookup(searchingLookup); setAttempt((n) => n + 1); }, []);

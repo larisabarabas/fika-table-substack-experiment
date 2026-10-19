@@ -17,16 +17,15 @@ export const LOOKUP = {
 export const idleLookup = { status: LOOKUP.IDLE, profile: null, candidates: [] };
 export const searchingLookup = { status: LOOKUP.SEARCHING, profile: null, candidates: [] };
 
-// What kind of lookup a typed value needs, if any. With names: false only a handle or a
-// profile link is looked up; a plain name is left alone (a signature is usually just a first name).
-export function classifyInput(raw, { names = true } = {}) {
+// What kind of lookup a typed value needs, if any. The recipient and the signature use the same rule.
+export function classifyInput(raw) {
   const typed = (raw || '').trim();
   if (!typed) return { kind: 'none', typed };
   const handle = extractHandle(typed);
   if (handle) return { kind: 'handle', handle, typed };
   // Plain text with no '@' is a display name to search for. Anything containing '@'
   // that isn't a valid handle or profile URL (a stray "@", say) is left alone.
-  if (names && !typed.includes('@')) return { kind: 'name', query: typed, typed };
+  if (!typed.includes('@')) return { kind: 'name', query: typed, typed };
   return { kind: 'none', typed };
 }
 

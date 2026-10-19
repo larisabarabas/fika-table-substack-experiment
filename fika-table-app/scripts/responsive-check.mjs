@@ -141,6 +141,8 @@ const SCENARIOS = {
   'give-notfound': async (p) => { await table(p); await giveWith(p, { to: '@nobody123' }); },
   'give-unreachable': async (p) => { await table(p); await giveWith(p, { to: '@boom' }); },
   'give-signed': async (p) => { await table(p); await giveWith(p, { to: '@elenavoss', from: '@marcos' }); },
+  'give-signed-name': async (p) => { await table(p); await giveWith(p, { to: '@elenavoss', from: 'Alex Moreau' }); },
+  'give-signed-choose': async (p) => { await table(p); await giveWith(p, { to: 'Maria', from: 'Sam Lee' }); },
   'give-signed-typo': async (p) => { await table(p); await giveWith(p, { to: '@longname', from: '@marcs' }); },
   'give-long': async (p) => { await table(p); await giveWith(p, { to: LONG_WORD, from: LONG_NAME, message: LONG_MSG.slice(0, 1000) }); },
   'read-modal': async (p) => { await table(p); await p.locator('[class*="_card_"]').first().click(); await p.waitForSelector('[role=dialog]'); await p.waitForTimeout(400); },

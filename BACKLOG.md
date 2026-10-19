@@ -87,7 +87,7 @@ Done on the branch (9 commits before this note, not pushed or merged): marzipan/
 **Review decisions:** a typed name always asks "Is this who you mean?" (only a handle or a profile link links on its own, because common names have more than one owner). "Leave it on the table" has no recipient field, only the signature.
 
 **Known gaps after step 2 (typing-time verification)**
-- The Signed field is now verified like the recipient (handles and profile links only). A verified handle proves the account exists, not that it belongs to the giver, so someone can still sign with another person's real handle. There is no login to prevent that.
+- The Signed field is verified exactly like the recipient (handle, profile link or name, same states and rules). A verified handle proves the account exists, not that it belongs to the giver, so someone can still sign with another person's real handle. There is no login to prevent that.
 - Existing slices saved before this change may still hold mistyped signed handles. Decided: leave them as they are (no cleanup script).
 - A publication address typed in full (`x.substack.com`) still links as typed; publications are not looked up.
 - The lookup scrapes Substack pages, so it can break or be rate-limited. "Couldn't reach Substack" never blocks giving.

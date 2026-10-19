@@ -26,9 +26,9 @@ export function GiveModal({ idx, onClose, onGive, initialTo = '' }) {
   const [submitError,     setSubmitError]     = useState(null);
   const [showTypes,       setShowTypes]       = useState(false); // recipient-type picker is collapsed until asked for
   const [showColors,      setShowColors]      = useState(false); // icing color is auto-assigned; picker is opt-in
-  // One Substack lookup per field. The signature only looks up handles and profile links.
+  // One Substack lookup per field, and both behave the same way
   const toLookup   = useProfileLookup(toName, { initial: initialTo });
-  const fromLookup = useProfileLookup(fromName, { names: false });
+  const fromLookup = useProfileLookup(fromName);
 
   const cur    = TYPE_OPTS.find((o) => o.value === toType);
   const msgLen = message.trim().length;
