@@ -72,3 +72,13 @@ export function recipientToSave({ typed, lookup }) {
   const plain = (handle ?? text).replace(/^@+/, '');
   return { toName: plain, verified: false, profile: null };
 }
+
+const MAX_SHORT_NAME = 20;
+
+// Name for a button ("Tell Elena on Substack"): a person's first word, the whole
+// name when it is a single word, the @handle when there is no name. Long ones are cut.
+export function shortName(profile) {
+  const name = (profile?.name || '').trim();
+  const base = name ? name.split(/\s+/)[0] : (profile?.handle ? '@' + profile.handle : '');
+  return base.length > MAX_SHORT_NAME ? base.slice(0, MAX_SHORT_NAME - 1) + '…' : base;
+}

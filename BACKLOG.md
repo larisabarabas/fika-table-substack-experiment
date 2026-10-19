@@ -84,6 +84,11 @@ Done on the branch (9 commits before this note, not pushed or merged): marzipan/
 - A publication address typed in full (`x.substack.com`) still links as typed; publications are not looked up.
 - The lookup scrapes Substack pages, so it can break or be rate-limited. "Couldn't reach Substack" never blocks giving.
 
+**Step 3 status (success screen, built)**
+- Behind `CONFIG.tellThemEnabled` in `config.js`; set it to `false` to bring back the plain read modal after giving.
+- The copied Note links to `/note/:id`, which does not exist until step 4. Do not release step 3 without step 4, or turn the switch off.
+- "Copy link" and "Copy link to share" still copy the existing `/share/:id` address. Open question: should they copy `/note/:id` when a person was verified?
+
 **Takedown trigger (build only when one of these happens)**
 - [ ] Someone asks to have a card removed, or
 - [ ] The "tell them" step is used for a message that isn't kind.

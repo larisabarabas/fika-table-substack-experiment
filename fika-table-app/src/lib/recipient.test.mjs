@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {
-  LOOKUP, idleLookup, classifyInput, lookupFromResult, linkTo, recipientToSave,
+  LOOKUP, idleLookup, classifyInput, lookupFromResult, linkTo, recipientToSave, shortName,
 } from './recipient.js';
 
 const elena = { name: 'Elena Voss', image: null, description: 'Writes', handle: 'elenavoss' };
@@ -81,4 +81,16 @@ test('recipientToSave: plain names and blanks are left alone', () => {
   assert.equal(recipientToSave({ typed: '  Maria  ', lookup: idleLookup }).toName, 'Maria');
   assert.equal(recipientToSave({ typed: '', lookup: idleLookup }).toName, '');
   assert.equal(recipientToSave({ typed: undefined, lookup: idleLookup }).toName, '');
+});
+
+test('shortName: first word of a name, the handle when there is no name, long ones cut', () => {
+  assert.equal(shortName({ name: 'Elena Voss', handle: 'elenavoss' }), 'Elena');
+  assert.equal(shortName({ name: 'Madonna', handle: 'madonna' }), 'Madonna');
+  assert.equal(shortName({ name: '', handle: 'elenavoss' }), '@elenavoss');
+  assert.equal(shortName({ name: null, handle: 'elenavoss' }), '@elenavoss');
+  assert.equal(shortName({ name: '  Alexandrina Wilhelmina Voss ', handle: 'x' }), 'Alexandrina');
+  const long = shortName({ name: 'Supercalifragilisticexpialidocious Smith', handle: 'x' });
+  assert.equal(long.length, 20);
+  assert.ok(long.endsWith('…'));
+  assert.equal(shortName(null), '');
 });

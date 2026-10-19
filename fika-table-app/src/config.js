@@ -6,6 +6,8 @@ export const CONFIG = {
   creatorSite:   'https://stefaniabarabas.com',
   newsletterURL: 'https://stefsdevnotes.substack.com',
   supportEmail:  'stefsdevnotes@gmail.com',
+  // After giving: true shows the "Tell them" screen, false brings back the plain read modal
+  tellThemEnabled: true,
   sliceCapacity: 12,
   dateRange:     'Fresh cake every week · oven\'s always on',
 
