@@ -74,6 +74,8 @@ Done on the branch (9 commits before this note, not pushed or merged): marzipan/
 - Recipient page on its own address (`/for/:id`), no confetti, "Pass a slice back" only when the giver signed.
 - No takedown or "ask us to remove this" button on the recipient page for now. Removal goes through the Privacy page, which already says to email the support address.
 
+**Build plan:** https://claude.ai/artifact/5VoEPsTChzQZ8uddJUTz65 (five steps: site address, typing-time verification, success screen, recipient page `/for/:id`, then measure).
+
 **Takedown trigger (build only when one of these happens)**
 - [ ] Someone asks to have a card removed, or
 - [ ] The "tell them" step is used for a message that isn't kind.
