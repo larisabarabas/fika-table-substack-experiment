@@ -26,6 +26,7 @@ MVP is feature-complete. Remaining launch tasks:
 Done on the branch (9 commits before this note, not pushed or merged): marzipan/cocoa palette, Fraunces + Figtree, sentence-case labels, frosting-drip cards (wall, welcome, share), cake ring where available slices are cake, message-first give form, centered welcome with one primary button, share page and poster restyle, "slice lifts off the cake" motion, green favicons and a new `og-image.jpg`. Plan page: https://claude.ai/artifact/HfRpQQrZ5MQWNb7F76VUhj
 
 **Open work**
+- [ ] Confirm the live address: the site is at `fika.stefaniabarabas.com`, but the social tags in `index.html` (`og:url`, `og:image`) still name `fika-for-substack.vercel.app`. Make them match the real one before release.
 - [ ] Open a PR for the branch, then deploy. The new `og-image.jpg` only shows once deployed, and Substack/LinkedIn cache old previews, so re-scrape the link after deploy.
 - [ ] Poster PNG: the solid "Pass a slice to someone" button does nothing in an image. Replace it with a plain line of text (for example the site URL) or remove it.
 - [ ] `/privacy` page: not reviewed against the new palette and fonts. It inherits the tokens but nobody has looked at it.
@@ -76,7 +77,7 @@ Done on the branch (9 commits before this note, not pushed or merged): marzipan/
 
 **Release rule:** nothing merges to main until the redesign and the tell-them flow are both ready. Everything lands on `design/konditori-foundation`, then one release PR. Needs a preview deployment for the Substack tests (and a separate database, or manual cleanup, so test slices don't reach the live wall).
 
-**Build plan:** https://claude.ai/artifact/5VoEPsTChzQZ8uddJUTz65 (five steps: site address, typing-time verification, success screen, recipient page `/note/:id`, then measure).
+**Build plan:** https://claude.ai/artifact/5VoEPsTChzQZ8uddJUTz65 (steps: typing-time verification, success screen, recipient page `/note/:id`, then measure; the site-address step was dropped).
 
 **Takedown trigger (build only when one of these happens)**
 - [ ] Someone asks to have a card removed, or
