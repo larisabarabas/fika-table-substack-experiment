@@ -203,13 +203,6 @@
   transform: translateY(0);
 }
 
-.ctaHint {
-  margin: 8px 0 0;
-  font-size: var(--t1);
-  color: var(--sub);
-  text-align: center;
-}
-
 .subscribe {
   display: flex;
   align-items: center;

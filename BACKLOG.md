@@ -88,7 +88,7 @@ Done on the branch (9 commits before this note, not pushed or merged): marzipan/
 - Success screen is behind `CONFIG.tellThemEnabled` in `config.js`; set it to `false` to bring back the plain read modal after giving.
 - The copied Note links to `/note/:id`, the recipient page (step 4).
 - Decided: for a verified person, Copy link, Copy text and Preview link use `/note/:id`; with nobody to tag they still use `/share/:id`.
-- Decide: the share page (`/share/:id`) still has the giver-oriented "Copy note & open Substack" button, which the success screen now covers. Remove it, or keep it for people who open a shared link?
+- Decided: keep both pages. `/note/:id` is for the person the word is for; `/share/:id` is for anyone who gets a forwarded link. The old "Copy note & open Substack" button is gone from the share page, whose one filled action is now "Send your kind word" (with "Subscribe to {them}" second when the profile is known). This replaces the FIKA-3 layout described under "Shipped last round".
 - Not done: per-slice link preview image. `/note/:id` and `/share/:id` still use the one static `og-image.jpg`.
 
 **Takedown trigger (build only when one of these happens)**

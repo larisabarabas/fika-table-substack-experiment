@@ -18,7 +18,7 @@ export function SharePoster({ slice }) {
       <div className={styles.cardWrap}>
         <ShareCard slice={slice}>
           <div className={shareStyles.actions}>
-            <span className={shareStyles.cta}>Pass a slice to someone</span>
+            <span className={shareStyles.cta}>Send your kind word</span>
             {subUrl && (
               <span className={shareStyles.subscribe}>
                 Subscribe to <span className={shareStyles.subscribeNm}>{displayName}</span>
