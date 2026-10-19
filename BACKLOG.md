@@ -79,6 +79,11 @@ Done on the branch (9 commits before this note, not pushed or merged): marzipan/
 
 **Build plan:** https://claude.ai/artifact/5VoEPsTChzQZ8uddJUTz65 (steps: typing-time verification, success screen, recipient page `/note/:id`, then measure; the site-address step was dropped).
 
+**Known gaps after step 2 (typing-time verification)**
+- The Signed field is not verified: a typo'd own handle still becomes a link on the wall.
+- A publication address typed in full (`x.substack.com`) still links as typed; publications are not looked up.
+- The lookup scrapes Substack pages, so it can break or be rate-limited. "Couldn't reach Substack" never blocks giving.
+
 **Takedown trigger (build only when one of these happens)**
 - [ ] Someone asks to have a card removed, or
 - [ ] The "tell them" step is used for a message that isn't kind.

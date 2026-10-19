@@ -11,6 +11,8 @@
   --accent-soft:   #d5eddc;
   --accent-ink: #26180f;
   --edge:       rgba(51, 36, 27, 0.12);
+  --caution-bg: #fbf1d9;
+  --caution-ink: #6b4a0a;
   --error:      #b91c1c;
   --error-bg:   #fff3f3;
   --error-edge: #f5c6c6;

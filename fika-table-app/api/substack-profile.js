@@ -67,6 +67,8 @@ async function fetchByName(query, res) {
 
     const exactMatches = validResults.filter((r) => (r.name || '').trim().toLowerCase() === q);
     let picks = exactMatches;
+    // Tell the caller how sure we are: only a name that matches exactly can be trusted on its own
+    const match = exactMatches.length > 0 ? 'exact' : 'partial';
     if (picks.length === 0) {
       const substringMatch = validResults.find((r) => (r.name || '').toLowerCase().includes(q));
       picks = substringMatch ? [substringMatch] : [];
@@ -79,6 +81,7 @@ async function fetchByName(query, res) {
       image: r.photo_url || null,
       description: r.bio || null,
       handle: r.handle,
+      match,
     }));
 
     res.setHeader('Cache-Control', 'public, s-maxage=3600, max-age=3600');

@@ -2,6 +2,9 @@ import { useState, useEffect } from 'react';
 import { Overlay, CloseIcon } from './Overlay';
 import { PASTELS, TO_NAME_FALLBACK, TYPE_LABEL, CONFIG } from '../../config';
 import { extractHandle, RE_MULTI_AT } from '../../lib/substack';
+import {
+  LOOKUP, idleLookup, searchingLookup, classifyInput, lookupFromResult, linkTo, recipientToSave,
+} from '../../lib/recipient.js';
 import styles from './modals.module.css';
 
 // Collapses an explicit @handle or Substack URL down to @handle before storing.
@@ -26,6 +29,23 @@ const Avatar = ({ image, name }) =>
     ? <img className={styles.profileAvatar} src={image} alt="" />
     : <div className={styles.profileAvatarFallback} aria-hidden="true">{getInitials(name)}</div>;
 
+// Picture, name, handle and bio. A real link, so the giver can check who it is on Substack.
+const ProfileBody = ({ profile }) => (
+  <a
+    className={styles.profileLink}
+    href={`https://substack.com/@${profile.handle}`}
+    target="_blank"
+    rel="noopener noreferrer"
+  >
+    <Avatar image={profile.image} name={profile.name} />
+    <div className={styles.profileInfo}>
+      <span className={styles.profileName}>{profile.name}</span>
+      <span className={styles.profileDesc}>@{profile.handle}</span>
+      {profile.description && <span className={styles.profileDesc}>{profile.description}</span>}
+    </div>
+  </a>
+);
+
 const TYPE_OPTS = [
   { value: 'writer', label: 'For a writer',          ph: 'a name or Substack @handle', msgLabel: 'What do you appreciate about their writing?' },
   { value: 'reader', label: 'For a reader',          ph: 'a name or Substack @handle', msgLabel: 'What do you appreciate about them?' },
@@ -46,123 +66,71 @@ export function GiveModal({ idx, onClose, onGive }) {
   const [submitError,     setSubmitError]     = useState(null);
   const [showTypes,       setShowTypes]       = useState(false); // recipient-type picker is collapsed until asked for
   const [showColors,      setShowColors]      = useState(false); // icing color is auto-assigned; picker is opt-in
-  const [profile,         setProfile]         = useState(null);  // { name, image, description, handle }
-  const [candidates,      setCandidates]      = useState([]);    // same-name matches awaiting a pick
-  const [candidatesNone,  setCandidatesNone]  = useState(false); // user picked "None of these"
-  const [profileLoading,  setProfileLoading]  = useState(false);
-  const [profileNotFound, setProfileNotFound] = useState(false);
-  const [profileError,    setProfileError]    = useState(false); // network / server error
+  const [lookup,          setLookup]          = useState(idleLookup); // see lib/recipient.js
+  const [retry,           setRetry]           = useState(0);
 
   const cur    = TYPE_OPTS.find((o) => o.value === toType);
   const msgLen = message.trim().length;
   const valid  = msgLen > 1 && msgLen <= 1000;
 
-  // Clears any resolved profile synchronously, so a submit (or blur) that
-  // lands before the 600ms debounce below has run can't reuse a match from
-  // the previous toName instead of the one currently on screen.
-  const clearProfile = () => {
-    setProfile(null);
-    setCandidates([]);
-    setCandidatesNone(false);
-    setProfileNotFound(false);
-    setProfileError(false);
-  };
-
-  // On blur: collapse a pasted Substack URL/handle, or a name resolved to a
-  // confirmed profile match, down to @handle so it's stored as a real link
-  const handleToNameBlur = () => {
-    const trimmed = toName.trim();
-    if (trimmed.startsWith('@')) return;
-    const handle = extractHandle(trimmed);
-    if (handle) { setToName('@' + handle); return; }
-    if (profile?.handle) setToName('@' + profile.handle);
-  };
-
-  // Debounced Substack profile preview fetch — all setState calls inside the callback (not sync in body)
+  // Look the typed name up on Substack once the giver pauses. Typing puts the field in
+  // "searching" straight away (see onChange), so a submit can't slip in before the answer.
   useEffect(() => {
-    const trimmed = toName.trim();
-    const handle = extractHandle(trimmed);
-    // Plain text with no '@' is treated as a display name to search for; anything
-    // containing '@' that isn't a valid handle/URL (e.g. a stray "@") is left alone
-    const nameQuery = !handle && trimmed && !trimmed.includes('@') ? trimmed : null;
+    const input = classifyInput(toName);
     let cancelled = false;
+    const controller = new AbortController();
     const timer = setTimeout(async () => {
       if (cancelled) return;
-      if (!handle && !nameQuery) {
-        setProfile(null); setCandidates([]); setCandidatesNone(false); setProfileNotFound(false); setProfileError(false); setProfileLoading(false);
-        return;
-      }
-      setProfileLoading(true);
-      setProfile(null);
-      setCandidates([]);
-      setCandidatesNone(false);
-      setProfileNotFound(false);
-      setProfileError(false);
+      if (input.kind === 'none') { setLookup(idleLookup); return; }
+      setLookup(searchingLookup);
+      const giveUp = setTimeout(() => controller.abort(), 8000);
       try {
-        const param = handle ? `handle=${encodeURIComponent(handle)}` : `query=${encodeURIComponent(nameQuery)}`;
-        const res = await fetch(`/api/substack-profile?${param}`);
-        if (cancelled) return;
-        if (!res.ok) {
-          const isServerError = res.status === 503 || res.status >= 500;
-          setProfile(null);
-          setProfileNotFound(!isServerError);
-          setProfileError(isServerError);
-          setProfileLoading(false);
-          return;
-        }
-        const data = await res.json();
-        if (cancelled) return;
-        if (handle) {
-          // Handle/URL lookup is an exact fetch — always a single profile
-          setProfile(data.error ? null : data);
-          setProfileNotFound(!!data.error);
-        } else {
-          // Name search may return several same-name matches to disambiguate
-          const found = data.candidates || [];
-          if (data.error || found.length === 0) {
-            setProfile(null);
-            setProfileNotFound(true);
-          } else if (found.length === 1) {
-            setProfile(found[0]);
-            setProfileNotFound(false);
-          } else {
-            setCandidates(found);
-            setProfileNotFound(false);
-          }
-        }
-        setProfileError(false);
-        setProfileLoading(false);
+        const param = input.kind === 'handle' ? `handle=${encodeURIComponent(input.handle)}` : `query=${encodeURIComponent(input.query)}`;
+        const res = await fetch(`/api/substack-profile?${param}`, { signal: controller.signal });
+        const next = res.ok
+          ? lookupFromResult(input.kind, { ok: true, data: await res.json() })
+          : lookupFromResult(input.kind, { ok: false, status: res.status });
+        if (!cancelled) setLookup(next);
       } catch {
-        if (!cancelled) { setProfile(null); setProfileNotFound(false); setProfileError(true); setProfileLoading(false); }
+        if (!cancelled) setLookup(lookupFromResult(input.kind, { network: true }));
+      } finally {
+        clearTimeout(giveUp);
       }
-    }, (handle || nameQuery) ? 600 : 0);
-    return () => { cancelled = true; clearTimeout(timer); };
-  }, [toName]);
+    }, input.kind === 'none' ? 0 : 600);
+    return () => { cancelled = true; clearTimeout(timer); controller.abort(); };
+  }, [toName, retry]);
+
+  const onToNameChange = (value) => {
+    setToName(value);
+    setLookup(classifyInput(value).kind === 'none' ? idleLookup : searchingLookup);
+  };
+  // "Not them" on a loose match means none of the matches; on a confirmed one it just drops the link
+  const rejectMatch = () => setLookup({
+    ...idleLookup,
+    status: lookup.status === LOOKUP.LINKED ? LOOKUP.DISMISSED : LOOKUP.NONE,
+  });
+
+  const recipient = recipientToSave({ typed: toName, lookup });
 
   const submit = async () => {
     if (!valid || website || submitting) return;
     setSubmitting(true);
     setSubmitError(null);
-    // Prefer a confirmed profile match's real handle over the raw typed name,
-    // independent of whether the field was blurred — a dismissed/no match
-    // falls through to the plain text as before.
-    const trimmedToName = toName.trim();
-    const resolvedToName = profile?.handle && !extractHandle(trimmedToName) ? '@' + profile.handle : trimmedToName;
     const result = await onGive({
       idx,
       fromName: normalizeHandle(fromName.trim()),
-      toName:   normalizeHandle(resolvedToName || TO_NAME_FALLBACK[toType]),
+      toName:   recipient.toName || TO_NAME_FALLBACK[toType],
       toType,
       message:  message.trim(),
       color,
-    });
+    }, { verified: recipient.verified, profile: recipient.profile });
     if (result?.error && result.error !== 'conflict') {
       setSubmitError('Something went wrong — please try again.');
       setSubmitting(false);
     }
   };
 
-  const displayToName   = toName.trim() || TO_NAME_FALLBACK[toType];
+  const displayToName   = recipient.toName || TO_NAME_FALLBACK[toType];
   const displayFromName = fromName.trim() || 'you';
   const showPreview     = msgLen > 1;
 
@@ -234,7 +202,7 @@ export function GiveModal({ idx, onClose, onGive }) {
                     setShowTypes(false);
                     // "Leave it on the table" is anonymous — clear any recipient name
                     // and any profile already resolved for the old name
-                    if (o.value === 'anyone') { setToName(''); clearProfile(); }
+                    if (o.value === 'anyone') { setToName(''); setLookup(idleLookup); }
                   }}
                 >
                   {o.label}
@@ -253,86 +221,102 @@ export function GiveModal({ idx, onClose, onGive }) {
           value={toName}
           placeholder={cur.ph}
           maxLength={100}
-          onChange={(e) => { setToName(e.target.value); clearProfile(); }}
-          onBlur={handleToNameBlur}
+          onChange={(e) => onToNameChange(e.target.value)}
         />
-        {!profileLoading && !profile && candidates.length === 0 && !candidatesNone && !profileNotFound && !profileError && (
-          <div className={styles.hint}>
-            A Substack <b>@handle</b> (or profile link) becomes a link to their profile.
-          </div>
-        )}
-        {profileLoading && <div className={styles.hint}>Looking up profile…</div>}
-        {!profileLoading && profileNotFound && (
-          <div className={styles.hint}>
-            No exact match —{' '}
-            <a
-              href={`https://substack.com/search/${encodeURIComponent(toName.trim().replace(/^@/, ''))}?searching=profile`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className={styles.hintLink}
-            >
-              search on Substack ↗
-            </a>
-          </div>
-        )}
-        {!profileLoading && profileError && (
-          <div className={styles.hint}>Couldn't reach Substack — try again.</div>
-        )}
-        {!profileLoading && candidates.length > 0 && (
-          <div className={styles.candidateList}>
-            <div className={styles.hint}>A few people go by this name — who did you mean?</div>
-            {candidates.map((c) => (
-              <button
-                key={c.handle}
-                type="button"
-                className={styles.candidateItem}
-                onClick={() => { setProfile(c); setCandidates([]); }}
-              >
-                <Avatar image={c.image} name={c.name} />
-                <div className={styles.profileInfo}>
-                  <span className={styles.profileName}>{c.name}</span>
-                  {c.description && <span className={styles.profileDesc}>{c.description}</span>}
-                </div>
-              </button>
-            ))}
-            <button
-              type="button"
-              className={styles.candidateNone}
-              onClick={() => { setCandidates([]); setCandidatesNone(true); }}
-            >
-              None of these
-            </button>
-          </div>
-        )}
-        {!profileLoading && candidatesNone && (
-          <div className={styles.hint}>
-            If you know their <b>Substack @handle</b>, try searching with that instead.
-          </div>
-        )}
-        {profile && (
-          <div className={styles.profileCard}>
-            <a
-              className={styles.profileLink}
-              href={`https://substack.com/@${profile.handle}`}
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              <Avatar image={profile.image} name={profile.name} />
-              <div className={styles.profileInfo}>
-                <span className={styles.profileName}>{profile.name}</span>
-                {profile.description && (
-                  <span className={styles.profileDesc}>{profile.description}</span>
-                )}
+        <div className={styles.lookupArea} role="status" aria-live="polite">
+          {lookup.status === LOOKUP.IDLE && (
+            <div className={styles.hint}>
+              A Substack <b>@handle</b> (or profile link) becomes a link to their profile.
+            </div>
+          )}
+          {lookup.status === LOOKUP.SEARCHING && <div className={styles.hint}>Looking up profile…</div>}
+
+          {lookup.status === LOOKUP.LINKED && (
+            <div className={styles.profileCard}>
+              <ProfileBody profile={lookup.profile} />
+              <div className={styles.profileStatus}>
+                <span className={styles.profileOk}>&#10003; {lookup.profile.name} on Substack</span>
+                <button type="button" className={styles.linkBtn} onClick={rejectMatch}>Not them</button>
               </div>
-            </a>
-            <button
-              type="button"
-              className={styles.profileDismiss}
-              onClick={() => setProfile(null)}
-              aria-label="Dismiss profile"
-            >✕</button>
-          </div>
-        )}
+            </div>
+          )}
+
+          {lookup.status === LOOKUP.CONFIRM && (
+            <div className={styles.profileCard}>
+              <ProfileBody profile={lookup.profile} />
+              <p className={styles.confirmQ}>Is this who you mean?</p>
+              <div className={styles.confirmRow}>
+                <button type="button" className="btn-solid btn-solid-sm" onClick={() => setLookup(linkTo(lookup.profile))}>
+                  Yes, that&rsquo;s them
+                </button>
+                <button type="button" className={`btn-ghost ${styles.btnSm}`} onClick={rejectMatch}>Not them</button>
+              </div>
+              <div className={styles.hint}>Until you confirm, their name won&rsquo;t link to Substack.</div>
+            </div>
+          )}
+
+          {lookup.status === LOOKUP.CHOOSE && (
+            <div className={styles.candidateList}>
+              <div className={styles.hint}>A few people go by this name. Who did you mean?</div>
+              {lookup.candidates.map((c) => (
+                <button
+                  key={c.handle}
+                  type="button"
+                  className={styles.candidateItem}
+                  onClick={() => setLookup(linkTo(c))}
+                >
+                  <Avatar image={c.image} name={c.name} />
+                  <div className={styles.profileInfo}>
+                    <span className={styles.profileName}>{c.name}</span>
+                    {c.description && <span className={styles.profileDesc}>{c.description}</span>}
+                  </div>
+                </button>
+              ))}
+              <button type="button" className={styles.candidateNone} onClick={rejectMatch}>None of these</button>
+            </div>
+          )}
+
+          {lookup.status === LOOKUP.NONE && (
+            <div className={styles.hint}>
+              Their name won&rsquo;t link to Substack. If you know their <b>@handle</b>, type that instead.
+            </div>
+          )}
+
+          {lookup.status === LOOKUP.DISMISSED && (
+            <div className={styles.hint}>Their name won&rsquo;t link to Substack.</div>
+          )}
+
+          {lookup.status === LOOKUP.NOT_FOUND && (
+            <div className={styles.lookupWarn}>
+              <b>We couldn&rsquo;t find {toName.trim()} on Substack.</b> Your kind word will still name them,
+              without a link. Check the spelling if you meant a Substack profile.{' '}
+              <a
+                href={`https://substack.com/search/${encodeURIComponent(toName.trim().replace(/^@+/, ''))}?searching=profile`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className={styles.hintLink}
+              >
+                Search on Substack &#8599;
+              </a>
+            </div>
+          )}
+
+          {lookup.status === LOOKUP.UNREACHABLE && (
+            <div className={styles.lookupWarn}>
+              <b>Couldn&rsquo;t reach Substack right now.</b> Your kind word isn&rsquo;t lost. Try again, or keep the name without a link.
+              <div className={styles.confirmRow}>
+                <button type="button" className="btn-solid btn-solid-sm" onClick={() => setRetry((n) => n + 1)}>Try again</button>
+                <button
+                  type="button"
+                  className={`btn-ghost ${styles.btnSm}`}
+                  onClick={() => setLookup({ ...idleLookup, status: LOOKUP.DISMISSED })}
+                >
+                  Keep without a link
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
 
         <label htmlFor="give-from" className={styles.fieldLabel}>
           Signed <span className={styles.opt}>optional</span>
@@ -398,7 +382,7 @@ export function GiveModal({ idx, onClose, onGive }) {
         )}
         <div className={styles.giveActions}>
           <button className="btn-ghost" onClick={onClose} disabled={submitting}>Maybe later</button>
-          <button className="btn-solid" disabled={!valid || submitting} onClick={submit}>
+          <button className="btn-solid" disabled={!valid || submitting || lookup.status === LOOKUP.SEARCHING} onClick={submit}>
             {submitting ? 'Taking the slice…' : 'Take the slice'}
           </button>
         </div>
