@@ -67,6 +67,19 @@ Done on the branch (9 commits before this note, not pushed or merged): marzipan/
 
 **What to decide tomorrow:** which one or two of these to test on Stef's readers first. Suggested order to discuss: 1 and 3 (small, no identity needed), then 2, then 5/6 only if the first signals are strong.
 
+**Decisions so far (flow draft: https://claude.ai/artifact/RWQtyJ2Mcv6VZwsSu3pbo5)**
+- Verify the person while typing. A handle that is not found, or a name match the giver has not confirmed, is saved as plain text and never becomes a link.
+- After giving, one primary button ("Tell {Name} on Substack") **replaces** the current share row. This is an experiment: Copy link, Download card and Preview link move under "Other ways to share".
+- The copied Note contains the profile link, not a typed @handle. The giver reads the exact text first; copy and open Substack happen in one tap.
+- Recipient page on its own address (`/for/:id`), no confetti, "Pass a slice back" only when the giver signed.
+- No takedown or "ask us to remove this" button on the recipient page for now. Removal goes through the Privacy page, which already says to email the support address.
+
+**Takedown trigger (build only when one of these happens)**
+- [ ] Someone asks to have a card removed, or
+- [ ] The "tell them" step is used for a message that isn't kind.
+
+If triggered: add an "Ask us to take this down" action on the recipient page, and a way for the host to hide a slice without editing the database by hand (a `hidden` flag the wall ignores).
+
 **Constraint:** keep the no-rankings rule. Nothing here should surface "most appreciated" writers.
 
 **Effort:** unscoped (brainstorm)
