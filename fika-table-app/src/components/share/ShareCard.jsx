@@ -1,5 +1,6 @@
 import { PASTELS, TO_NAME_FALLBACK } from '../../config';
 import { RE_MULTI_AT } from '../../lib/substack';
+import { formatDay } from '../../lib/dates.js';
 import styles from './ShareCard.module.css';
 
 export function ShareCard({
@@ -9,6 +10,7 @@ export function ShareCard({
   tagClassName = '',
   children,
 }) {
+  const day = formatDay(slice.createdAt);
   const toName = slice.toName?.replace(RE_MULTI_AT, '@') || TO_NAME_FALLBACK[slice.toType] || 'the table';
 
   return (
@@ -22,7 +24,7 @@ export function ShareCard({
           {slice.message}
         </p>
         <p className={`${styles.fromLine} ${fromLineClassName}`}>
-          from <span className={styles.fromLineNm}>{slice.fromName || 'a guest'}</span>, on this week&rsquo;s cake
+          from <span className={styles.fromLineNm}>{slice.fromName || 'a guest'}</span>{day && `, ${day}`}
         </p>
         {children}
       </div>
