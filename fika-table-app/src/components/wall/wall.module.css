@@ -103,13 +103,18 @@
 
 .searchClear {
   position: absolute;
-  right: 10px;
+  right: 4px;
   top: 50%;
   transform: translateY(-50%);
   font-size: var(--t1);
   color: var(--sub);
   cursor: pointer;
-  padding: 2px;
+  padding: 0;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .searchClear:hover {

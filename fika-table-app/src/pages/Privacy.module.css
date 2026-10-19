@@ -18,7 +18,8 @@
   color: var(--accent);
   text-decoration: none;
   font-weight: 500;
-  margin-bottom: 32px;
+  margin-bottom: 22px;
+  padding-block: 10px;
 }
 
 .back:hover {

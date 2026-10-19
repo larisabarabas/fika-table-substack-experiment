@@ -45,6 +45,7 @@
   flex-wrap: wrap;
   align-items: center;
   gap: var(--s3) var(--s5);
+  min-width: 0;
 }
 
 .actions :global(.btn-solid) {
@@ -58,6 +59,8 @@
   font-size: var(--t3);
   text-underline-offset: 4px;
   padding: var(--s2) 0;
+  overflow-wrap: anywhere;
+  min-width: 0;
 }
 
 .back:hover {

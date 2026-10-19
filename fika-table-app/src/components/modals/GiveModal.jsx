@@ -78,13 +78,12 @@ export function GiveModal({ idx, onClose, onGive, initialTo = '' }) {
           </label>
         </div>
 
+        {/* Only the title row sticks while a tall form scrolls, so the close button stays in reach */}
         <div className={styles.giveHead}>
-          <div>
-            <h3 className={styles.giveTitle}>Pour a coffee, take a slice</h3>
-            <p className={styles.giveSub}>{CONFIG.giveModalSub}</p>
-          </div>
+          <h3 className={styles.giveTitle}>Pour a coffee, take a slice</h3>
           <button className={styles.closeBtn} onClick={onClose} aria-label="Close"><CloseIcon /></button>
         </div>
+        <p className={styles.giveSub}>{CONFIG.giveModalSub}</p>
 
         <label htmlFor="give-message" className={styles.fieldLabel}>{cur.msgLabel}</label>
         <textarea

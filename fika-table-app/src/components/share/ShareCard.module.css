@@ -44,6 +44,7 @@
   margin: 0;
   font-size: var(--t2);
   color: var(--sub);
+  overflow-wrap: anywhere;
 }
 
 .fromLineNm {

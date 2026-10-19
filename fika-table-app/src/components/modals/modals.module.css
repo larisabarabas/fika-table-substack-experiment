@@ -54,6 +54,11 @@
   justify-content: space-between;
   gap: 12px;
   padding: var(--s2) var(--s5) 0;
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  background: var(--panel);
+  padding-bottom: var(--s2);
 }
 
 .bandNames {
@@ -64,6 +69,8 @@
   align-items: center;
   gap: 6px;
   flex-wrap: wrap;
+  min-width: 0;
+  overflow-wrap: anywhere;
 }
 
 .arrow {
@@ -82,6 +89,7 @@
   line-height: 1.6;
   color: var(--ink);
   margin: 0 0 16px;
+  overflow-wrap: anywhere;
 }
 
 /* ── Give modal ── */
@@ -98,6 +106,11 @@
   justify-content: space-between;
   gap: 12px;
   margin-bottom: 10px;
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  background: var(--panel);
+  padding-bottom: var(--s2);
 }
 
 .giveTitle {
@@ -112,7 +125,7 @@
   font-size: var(--t3);
   color: var(--sub);
   line-height: 1.55;
-  margin: 0;
+  margin: 0 0 var(--s2);
 }
 
 .fieldLabel {
@@ -377,7 +390,7 @@
   color: var(--sub);
   font-size: var(--t1);
   cursor: pointer;
-  padding: 0;
+  padding: var(--s3) 0;
 }
 
 .candidateNone:hover {
@@ -416,6 +429,8 @@
   align-items: center;
   gap: 5px;
   flex-wrap: wrap;
+  overflow-wrap: anywhere;
+  min-width: 0;
 }
 
 .previewBody {
@@ -657,4 +672,19 @@ button.btnDone:disabled {
   font-size: var(--t3);
   line-height: 1.5;
   user-select: all;
+}
+
+.previewNames > * {
+  min-width: 0;
+}
+
+/* A title that wraps to two lines must not push the close button down or make the stuck header tall */
+.giveHead .giveTitle {
+  margin: 0;
+}
+
+@media (max-width: 480px) {
+  .giveHead .giveTitle {
+    font-size: 22px;
+  }
 }

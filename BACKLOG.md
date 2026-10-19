@@ -76,6 +76,8 @@ Done on the branch (9 commits before this note, not pushed or merged): marzipan/
 - Recipient page on its own address (`/note/:id`), no confetti, "Pass a slice back" only when the giver signed.
 - No takedown or "ask us to remove this" button on the recipient page for now. Removal goes through the Privacy page, which already says to email the support address.
 
+**Responsive check:** `npm run check:responsive` (with `npm run dev -- --port 5185` running) drives 38 pages and states across 23 viewport widths, one pixel either side of every breakpoint, with long names and unbroken words, and reports overflow, clipped text or controls, overlapping controls, unreachable buttons and tiny tap targets. Last run: 874 of 874 clean. Info only: many controls are 36 to 43px tall on phones (inputs, small buttons); that passes WCAG 2.2 AA (24px) but not the 44px guideline.
+
 **Release checklist:** https://claude.ai/artifact/VCaySuTuffFpnHqjWsR59d (test database, preview deployment, Substack tests, release, rollback).
 
 **Release rule:** nothing merges to main until the redesign and the tell-them flow are both ready. Everything lands on `design/konditori-foundation`, then one release PR. Needs a preview deployment for the Substack tests (and a separate database, or manual cleanup, so test slices don't reach the live wall).

@@ -66,12 +66,10 @@ export function SuccessModal({ slice, recipient, onClose }) {
       <Overlay onClose={onClose} wide label="Your Note">
         <div className={styles.success}>
           <div className={styles.giveHead}>
-            <div>
-              <h3 className={styles.giveTitle}>Your Note</h3>
-              <p className={styles.giveSub}>This is exactly what we will copy.</p>
-            </div>
+            <h3 className={styles.giveTitle}>Your Note</h3>
             {close}
           </div>
+          <p className={styles.giveSub}>This is exactly what we will copy.</p>
 
           <div className={styles.noteBox} tabIndex={0} aria-label="The Note we will copy">{note}</div>
 
