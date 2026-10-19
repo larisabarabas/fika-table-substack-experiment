@@ -32,7 +32,7 @@ Done on the branch (9 commits before this note, not pushed or merged): marzipan/
 - [x] Poster PNG: the solid "Pass a slice to someone" button does nothing in an image. Replace it with a plain line of text (for example the site URL) or remove it. (done)
 - [x] `/privacy` page: not reviewed against the new palette and fonts. It inherits the tokens but nobody has looked at it. (done)
 - [x] Read modal: the colored band at the top is still a flat block and it still shows "for a writer" under the message. Give it the frosting edge and decide whether the type line stays. (done)
-- [ ] Welcome headline: "Take a slice." is still a different color from the first line (the single-word-accent habit the plan called out). Decide: same color, or keep.
+- [x] Welcome headline: decided to keep "Take a slice." green and italic (tried it dark, switched back) (done)
 - [x] Footer copy in `config.js` (`footerSub`) still has a dash: "Pull up a chair whenever you like — there's always more coffee." (done)
 - [ ] Docs are stale: `docs/design_handoff_*` and `favicon/README.md` context still describe the rose/Newsreader look. Mark them as superseded or update.
 - [ ] Slices from other people arrive on the wall with no animation (`ux-product-gap.md` #8). The new motion only plays for your own slice.
@@ -75,6 +75,8 @@ Done on the branch (9 commits before this note, not pushed or merged): marzipan/
 - The copied Note contains the profile link, not a typed @handle. The giver reads the exact text first; copy and open Substack happen in one tap.
 - Recipient page on its own address (`/note/:id`), no confetti, "Pass a slice back" only when the giver signed.
 - No takedown or "ask us to remove this" button on the recipient page for now. Removal goes through the Privacy page, which already says to email the support address.
+
+**Release checklist:** https://claude.ai/artifact/VCaySuTuffFpnHqjWsR59d (test database, preview deployment, Substack tests, release, rollback).
 
 **Release rule:** nothing merges to main until the redesign and the tell-them flow are both ready. Everything lands on `design/konditori-foundation`, then one release PR. Needs a preview deployment for the Substack tests (and a separate database, or manual cleanup, so test slices don't reach the live wall).
 
