@@ -54,10 +54,10 @@ const TYPE_OPTS = [
   { value: 'anyone', label: 'Leave it on the table', ph: 'you can leave this blank', full: true, msgLabel: "What's something good you want to leave for whoever needs it?" },
 ];
 
-export function GiveModal({ idx, onClose, onGive }) {
+export function GiveModal({ idx, onClose, onGive, initialTo = '' }) {
   const isNote = idx === null;
   const [toType,          setToType]          = useState('writer');
-  const [toName,          setToName]          = useState('');
+  const [toName,          setToName]          = useState(initialTo);
   const [message,         setMessage]         = useState('');
   const [fromName,        setFromName]        = useState('');
   const [color,           setColor]           = useState(isNote ? 0 : idx % 8);
@@ -66,7 +66,8 @@ export function GiveModal({ idx, onClose, onGive }) {
   const [submitError,     setSubmitError]     = useState(null);
   const [showTypes,       setShowTypes]       = useState(false); // recipient-type picker is collapsed until asked for
   const [showColors,      setShowColors]      = useState(false); // icing color is auto-assigned; picker is opt-in
-  const [lookup,          setLookup]          = useState(idleLookup); // see lib/recipient.js
+  // see lib/recipient.js. A name passed in is looked up on open, so submitting waits for it.
+  const [lookup,          setLookup]          = useState(classifyInput(initialTo).kind === 'none' ? idleLookup : searchingLookup);
   const [retry,           setRetry]           = useState(0);
 
   const cur    = TYPE_OPTS.find((o) => o.value === toType);

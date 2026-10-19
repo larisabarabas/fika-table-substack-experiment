@@ -39,10 +39,11 @@ export default function Table() {
     if (loading || error || giveHandled.current) return;
     giveHandled.current = true;
     if (!searchParams.has('give')) return;
+    const to = (searchParams.get('to') ?? '').slice(0, 100);
     setSearchParams({}, { replace: true });
     if (!isFull) {
       const free = nextFreeIdx();
-      if (free !== null) startTransition(() => setGiving({ idx: free }));
+      if (free !== null) startTransition(() => setGiving({ idx: free, to }));
     }
   }, [loading, error, isFull, nextFreeIdx, searchParams, setSearchParams]);
 
@@ -175,6 +176,7 @@ export default function Table() {
       {giving !== null ? (
         <GiveModal
           idx={giving.idx}
+          initialTo={giving.to}
           onClose={() => setGiving(null)}
           onGive={handleGive}
         />
