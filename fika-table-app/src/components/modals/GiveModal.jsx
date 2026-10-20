@@ -15,6 +15,12 @@ const TYPE_OPTS = [
   { value: 'anyone', label: 'Leave it on the table', ph: 'you can leave this blank', full: true, msgLabel: "What's something good you want to leave for whoever needs it?" },
 ];
 
+// Scroll an element into view, without animation for anyone who asked for less motion
+function bringIntoView(ref) {
+  const calm = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  ref.current?.scrollIntoView({ block: 'nearest', behavior: calm ? 'auto' : 'smooth' });
+}
+
 // The same form gives a kind word and, with `edit`, changes one you already gave: it opens
 // filled in, who it is for is fixed, and saving or deleting goes through onSave / onDelete.
 // Both return { error } on failure ('forbidden', 'window_closed' or anything else); on success the
@@ -81,13 +87,11 @@ export function GiveModal({ idx, onClose, onGive, initialTo = '', edit = null, o
     }
   };
 
-  const editNotice = (error) => (
-    error === 'forbidden'
-      ? { tone: 'error', text: 'Nothing was saved: this browser can’t change this kind word.' }
-      : error === 'window_closed'
-        ? { tone: 'caution', text: 'Your changes weren’t saved: the 24 hours to edit are up.' }
-        : { tone: 'error', text: 'That didn’t go through. Check your connection and try again. Your words are still here.' }
-  );
+  const editNotice = (error) => {
+    if (error === 'forbidden') return { tone: 'error', text: 'Nothing was saved: this browser can’t change this kind word.' };
+    if (error === 'window_closed') return { tone: 'caution', text: 'Your changes weren’t saved: the 24 hours to edit are up.' };
+    return { tone: 'error', text: 'That didn’t go through. Check your connection and try again. Your words are still here.' };
+  };
 
   const run = async (action) => {
     setSubmitting(true);
@@ -109,19 +113,15 @@ export function GiveModal({ idx, onClose, onGive, initialTo = '', edit = null, o
   // The notice sits at the top of the card; on a phone the button that caused it is far below,
   // so bring it into view without stealing focus from the field the person is in
   useEffect(() => {
-    if (!notice) return;
-    const calm = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    noticeRef.current?.scrollIntoView({ block: 'nearest', behavior: calm ? 'auto' : 'smooth' });
+    if (notice) bringIntoView(noticeRef);
   }, [notice]);
 
   // Asking "delete?" swaps the buttons for a taller box; keep it in view on a phone
   useEffect(() => {
-    if (!confirming) return;
-    const calm = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    confirmRef.current?.scrollIntoView({ block: 'nearest', behavior: calm ? 'auto' : 'smooth' });
+    if (confirming) bringIntoView(confirmRef);
   }, [confirming]);
 
-  const displayToName   = editing ? (editing.toName || TO_NAME_FALLBACK[toType]) : (recipient.toName || TO_NAME_FALLBACK[toType]);
+  const displayToName   = (editing ? editing.toName : recipient.toName) || TO_NAME_FALLBACK[toType];
   const displayFromName = signedAs || 'you';
   const timeLeft        = editing ? editTimeLeft(editing.createdAt) : null;
   const showPreview     = msgLen > 1;

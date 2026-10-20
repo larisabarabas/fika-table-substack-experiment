@@ -1,7 +1,10 @@
 import { supabase } from './supabase';
 import { editErrorFrom } from './editRules';
 
-function rowToSlice(row) {
+// The columns every read asks for, and the row shape the app uses
+export const SLICE_COLUMNS = 'id,idx,round,from_name,to_name,to_type,message,color,created_at,edited_at';
+
+export function rowToSlice(row) {
   return {
     id:        row.id,
     idx:       row.idx,
@@ -19,7 +22,7 @@ function rowToSlice(row) {
 export async function fetchSlice(id) {
   const { data, error } = await supabase
     .from('slices')
-    .select('id,idx,round,from_name,to_name,to_type,message,color,created_at,edited_at')
+    .select(SLICE_COLUMNS)
     .eq('id', id)
     .single();
   if (error) throw error;

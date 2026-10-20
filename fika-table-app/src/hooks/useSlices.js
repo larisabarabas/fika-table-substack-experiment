@@ -2,22 +2,7 @@ import { useState, useEffect, useCallback, useMemo } from 'react';
 import { supabase } from '../lib/supabase';
 import { CONFIG } from '../config';
 import { rememberSlice, forgetSlice } from '../lib/ownedSlices';
-import { updateSlice, deleteSlice } from '../lib/api';
-
-function rowToSlice(row) {
-  return {
-    id:        row.id,
-    idx:       row.idx,
-    round:     row.round ?? 0,
-    fromName:  row.from_name,
-    toName:    row.to_name,
-    toType:    row.to_type,
-    message:   row.message,
-    color:     row.color,
-    createdAt: row.created_at,
-    editedAt:  row.edited_at ?? null,
-  };
-}
+import { updateSlice, deleteSlice, rowToSlice, SLICE_COLUMNS } from '../lib/api';
 
 export function useSlices() {
   const [slices,       setSlices]       = useState([]);
@@ -48,7 +33,7 @@ export function useSlices() {
     Promise.all([
       supabase
         .from('slices')
-        .select('id,idx,round,from_name,to_name,to_type,message,color,created_at,edited_at')
+        .select(SLICE_COLUMNS)
         .order('created_at', { ascending: false }),
       supabase
         .from('cake_config')
@@ -128,7 +113,7 @@ export function useSlices() {
         // arrived over realtime yet. Ask the database what is taken this round.
         const { data: taken, error: takenErr } = await supabase
           .from('slices')
-          .select('id,idx,round,from_name,to_name,to_type,message,color,created_at,edited_at')
+          .select(SLICE_COLUMNS)
           .eq('round', currentRound);
         const takenIdx = new Set(takenErr ? [data.idx] : (taken ?? []).map(r => r.idx));
         if (!takenErr && taken?.length) {
