@@ -192,6 +192,17 @@
   line-height: 1.55;
 }
 
+/* Marks a slice this browser gave and can still edit or delete */
+.mine {
+  margin: 0 14px;
+  padding: 2px 10px;
+  border-radius: var(--radius-pill);
+  background: var(--accent-soft);
+  color: var(--accent-strong);
+  font-size: var(--t1);
+  font-weight: 600;
+}
+
 /* The rail sits directly above the wall below 900px, so the wall no longer
    needs the tall top padding that used to clear a full-height hero. */
 @media (max-width: 900px) {

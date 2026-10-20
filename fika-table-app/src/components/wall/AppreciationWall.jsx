@@ -11,29 +11,35 @@ const FILTERS = [
 
 const stripAt = (s) => s.replace(/^@+/, '').toLowerCase();
 
-export function AppreciationWall({ slices, filter, onFilter, onRead, initialSearch, landedId }) {
+export function AppreciationWall({ slices, filter, onFilter, onRead, initialSearch, landedId, ownedIds }) {
   const [, startTransition] = useTransition();
   const [search, setSearch] = useState(initialSearch ?? '');
 
   const searchTerm = stripAt(search.trim());
 
+  // "Yours" only appears while this browser has a slice on the wall that it can still edit
+  const hasMine = !!ownedIds && slices.some((s) => ownedIds.has(s.id));
+  const filters = hasMine ? [...FILTERS, { k: 'mine', label: 'Yours' }] : FILTERS;
+  const activeFilter = filter === 'mine' && !hasMine ? 'all' : filter;
+
   const visible = useMemo(() =>
     slices
       .filter((s) => {
-        if (filter === 'passed' && s.toType === 'anyone') return false;
-        if (filter === 'table'  && s.toType !== 'anyone') return false;
+        if (activeFilter === 'passed' && s.toType === 'anyone') return false;
+        if (activeFilter === 'table'  && s.toType !== 'anyone') return false;
+        if (activeFilter === 'mine'   && !ownedIds.has(s.id)) return false;
         if (searchTerm) return stripAt(s.toName ?? '').includes(searchTerm);
         return true;
       })
       .toSorted((a, b) =>
         new Date(b.createdAt) - new Date(a.createdAt) || (a.idx ?? Infinity) - (b.idx ?? Infinity)
       ),
-    [slices, filter, searchTerm]
+    [slices, activeFilter, searchTerm, ownedIds]
   );
 
   const emptyMessage = searchTerm
     ? `No slices for @${searchTerm} yet.`
-    : filter === 'all'
+    : activeFilter === 'all'
       ? 'No slices here yet. Be the first to take one.'
       : 'No slices match this filter yet.';
 
@@ -48,11 +54,11 @@ export function AppreciationWall({ slices, filter, onFilter, onRead, initialSear
 
       <div className={styles.filterBar}>
         <div className={styles.filterChips}>
-          {FILTERS.map((f) => (
+          {filters.map((f) => (
             <button
               key={f.k}
-              aria-pressed={filter === f.k}
-              className={`${styles.chip} ${filter === f.k ? styles.chipOn : ''}`}
+              aria-pressed={activeFilter === f.k}
+              className={`${styles.chip} ${activeFilter === f.k ? styles.chipOn : ''}`}
               onClick={() => startTransition(() => onFilter(f.k))}
             >
               {f.label}
@@ -84,7 +90,7 @@ export function AppreciationWall({ slices, filter, onFilter, onRead, initialSear
           {columns.map((column, i) => (
             <div className={styles.gridColumn} key={i}>
               {column.map((s) => (
-                <WallCard key={s.id} slice={s} onRead={onRead} landed={s.id === landedId} />
+                <WallCard key={s.id} slice={s} onRead={onRead} landed={s.id === landedId} mine={!!ownedIds?.has(s.id)} />
               ))}
             </div>
           ))}
