@@ -3,8 +3,9 @@
 // from Substack's own search response, since that's still untrusted input to us
 const RE_HANDLE = /^[A-Za-z0-9_.-]+$/;
 
-// Matches a person's display name: letters (incl. accented), digits, spaces, and common name punctuation
-const RE_NAME_QUERY = /^[\p{L}\p{N} '.-]{1,100}$/u;
+// Matches a person's display name: letters (accents written as separate marks too), digits,
+// emoji, spaces, and common name punctuation. The query is URL-encoded before it is sent on.
+const RE_NAME_QUERY = /^[\p{L}\p{M}\p{N}\p{Extended_Pictographic} '\u2019.,()&/_-]{1,100}$/u;
 
 // Vercel serverless function — fetches Substack profile data server-side to avoid CORS.
 // No Access-Control-Allow-Origin header: the frontend only ever calls this via a
@@ -67,6 +68,8 @@ async function fetchByName(query, res) {
 
     const exactMatches = validResults.filter((r) => (r.name || '').trim().toLowerCase() === q);
     let picks = exactMatches;
+    // Tell the caller how sure we are: only a name that matches exactly can be trusted on its own
+    const match = exactMatches.length > 0 ? 'exact' : 'partial';
     if (picks.length === 0) {
       const substringMatch = validResults.find((r) => (r.name || '').toLowerCase().includes(q));
       picks = substringMatch ? [substringMatch] : [];
@@ -79,6 +82,7 @@ async function fetchByName(query, res) {
       image: r.photo_url || null,
       description: r.bio || null,
       handle: r.handle,
+      match,
     }));
 
     res.setHeader('Cache-Control', 'public, s-maxage=3600, max-age=3600');

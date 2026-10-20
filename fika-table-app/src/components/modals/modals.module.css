@@ -27,12 +27,12 @@
 /* Close button */
 .closeBtn {
   flex-shrink: 0;
-  width: 32px;
-  height: 32px;
+  width: 44px;
+  height: 44px;
   border-radius: 50%;
   background: rgba(52,48,42,0.08);
   color: var(--ink);
-  font-size: 14px;
+  font-size: var(--t2);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -46,13 +46,19 @@
 }
 
 /* ── Read modal ── */
-.frostBand {
-  height: 80px;
-  border-radius: var(--radius-modal) var(--radius-modal) 0 0;
+/* Read modal header: the icing edge sits above it, so the names and the close button
+   share one row on the panel */
+.readHead {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 12px 24px 12px;
+  gap: 12px;
+  padding: var(--s2) var(--s5) 0;
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  background: var(--panel);
+  padding-bottom: var(--s2);
 }
 
 .bandNames {
@@ -63,16 +69,18 @@
   align-items: center;
   gap: 6px;
   flex-wrap: wrap;
+  min-width: 0;
+  overflow-wrap: anywhere;
 }
 
 .arrow {
   font-style: normal;
   color: var(--sub);
-  font-size: 15px;
+  font-size: var(--t3);
 }
 
 .readBody {
-  padding: 20px 24px 28px;
+  padding: var(--s3) var(--s5) var(--s5);
 }
 
 .readMsg {
@@ -81,15 +89,7 @@
   line-height: 1.6;
   color: var(--ink);
   margin: 0 0 16px;
-}
-
-.readTag {
-  font-size: 11px;
-  font-weight: 600;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: var(--accent);
-  margin-bottom: 16px;
+  overflow-wrap: anywhere;
 }
 
 /* ── Give modal ── */
@@ -106,15 +106,11 @@
   justify-content: space-between;
   gap: 12px;
   margin-bottom: 10px;
-}
-
-.kicker {
-  font-size: 11px;
-  font-weight: 600;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: var(--accent);
-  margin-bottom: 6px;
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  background: var(--panel);
+  padding-bottom: var(--s2);
 }
 
 .giveTitle {
@@ -126,14 +122,14 @@
 }
 
 .giveSub {
-  font-size: 14.5px;
+  font-size: var(--t3);
   color: var(--sub);
   line-height: 1.55;
-  margin: 0;
+  margin: 0 0 var(--s2);
 }
 
 .fieldLabel {
-  font-size: 13px;
+  font-size: var(--t2);
   font-weight: 600;
   color: var(--ink);
   margin-top: 10px;
@@ -160,7 +156,7 @@
   padding: 9px 12px;
   border-radius: 10px;
   border: 1px solid var(--edge);
-  font-size: 13.5px;
+  font-size: var(--t2);
   font-weight: 500;
   color: var(--ink);
   cursor: pointer;
@@ -172,10 +168,10 @@
   background: var(--paper);
 }
 
-.typeBtnOn {
-  background: var(--accent) !important;
-  color: var(--accent-ink) !important;
-  border-color: var(--accent) !important;
+.typeBtn.typeBtnOn {
+  background: var(--accent-fill);
+  color: var(--accent-ink);
+  border-color: var(--accent);
 }
 
 .input {
@@ -186,7 +182,7 @@
   border: 1px solid var(--edge);
   background: var(--paper);
   color: var(--ink);
-  font-size: 14px;
+  font-size: var(--t2);
   outline: none;
   transition: border-color 0.15s;
   box-sizing: border-box;
@@ -204,7 +200,7 @@
 }
 
 .hint {
-  font-size: 12.5px;
+  font-size: var(--t1);
   color: var(--sub);
   margin-top: 4px;
 }
@@ -228,7 +224,7 @@
 }
 
 .charCount {
-  font-size: 12px;
+  font-size: var(--t1);
   color: var(--sub);
   flex-shrink: 0;
 }
@@ -239,33 +235,21 @@
 }
 
 .charError {
-  font-size: 12.5px;
+  font-size: var(--t1);
   color: var(--error);
   margin: 0;
-}
-
-.giveRow {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 16px;
-  margin-top: 4px;
-}
-
-.giveCol {
-  display: flex;
-  flex-direction: column;
 }
 
 .frostPick {
   display: flex;
   flex-wrap: wrap;
-  gap: 7px;
-  margin-top: 8px;
+  gap: 10px;
+  margin-top: 10px;
 }
 
 .frostDot {
-  width: 26px;
-  height: 26px;
+  width: 34px;
+  height: 34px;
   border-radius: 50%;
   border: 2px solid transparent;
   cursor: pointer;
@@ -276,8 +260,8 @@
   transform: scale(1.15);
 }
 
-.frostDotOn {
-  border-color: var(--ink) !important;
+.frostDot.frostDotOn {
+  border-color: var(--ink);
   transform: scale(1.15);
 }
 
@@ -288,16 +272,42 @@
   margin-top: 18px;
 }
 
-.submitError {
-  font-size: 13.5px;
+/* Message at the top of the give card: error (red) when something broke, caution (amber)
+   when the situation is recoverable and not the person's fault */
+.notice {
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+  margin: 0 0 var(--s3);
+  padding: 10px 12px;
+  border-radius: 10px;
+  font-size: var(--t2);
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+  scroll-margin-top: 72px; /* clear the sticky title row */
+}
+
+.noticeIcon {
+  flex: none;
+  margin-top: 2px;
+}
+
+.noticeError {
+  background: var(--error-bg);
+  border: 1px solid var(--error-edge);
   color: var(--error);
-  margin: 8px 0 0;
+}
+
+.noticeCaution {
+  background: var(--caution-bg);
+  color: var(--caution-ink);
 }
 
 /* ── Substack profile preview card ── */
 .profileCard {
   display: flex;
-  align-items: flex-start;
+  flex-direction: column;
+  align-items: stretch;
   gap: 10px;
   margin-top: 8px;
   padding: 10px 12px;
@@ -338,7 +348,7 @@
   justify-content: center;
   background: var(--edge);
   color: var(--sub);
-  font-size: 13px;
+  font-size: var(--t2);
   font-weight: 600;
 }
 
@@ -351,7 +361,7 @@
 }
 
 .profileName {
-  font-size: 13.5px;
+  font-size: var(--t2);
   font-weight: 600;
   color: var(--ink);
   white-space: nowrap;
@@ -360,29 +370,13 @@
 }
 
 .profileDesc {
-  font-size: 12px;
+  font-size: var(--t1);
   color: var(--sub);
   line-height: 1.4;
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
-}
-
-.profileDismiss {
-  background: none;
-  border: none;
-  color: var(--sub);
-  font-size: 11px;
-  cursor: pointer;
-  padding: 0 0 0 4px;
-  flex-shrink: 0;
-  align-self: flex-start;
-  line-height: 1;
-}
-
-.profileDismiss:hover {
-  color: var(--ink);
 }
 
 /* ── Same-name candidate picker ── */
@@ -419,9 +413,9 @@
   background: none;
   border: none;
   color: var(--sub);
-  font-size: 12.5px;
+  font-size: var(--t1);
   cursor: pointer;
-  padding: 0;
+  padding: var(--s3) 0;
 }
 
 .candidateNone:hover {
@@ -434,10 +428,8 @@
 }
 
 .previewLabel {
-  font-size: 11px;
+  font-size: var(--t1);
   font-weight: 600;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
   color: var(--sub);
   display: block;
   margin-bottom: 6px;
@@ -449,11 +441,9 @@
   border: 1px solid var(--edge);
 }
 
-.previewBand {
-  height: 56px;
-  padding: 0 16px 10px;
-  display: flex;
-  align-items: flex-end;
+/* Names row under the icing edge, matching the real card */
+.previewHead {
+  padding: var(--s2) var(--s4) 0;
 }
 
 .previewNames {
@@ -464,6 +454,8 @@
   align-items: center;
   gap: 5px;
   flex-wrap: wrap;
+  overflow-wrap: anywhere;
+  min-width: 0;
 }
 
 .previewBody {
@@ -473,7 +465,7 @@
 
 .previewMsg {
   font-family: var(--f-display);
-  font-size: 15px;
+  font-size: var(--t3);
   line-height: 1.55;
   color: var(--ink);
   margin: 0 0 10px;
@@ -497,14 +489,228 @@
     grid-template-columns: 1fr;
   }
 
-  .giveRow {
-    grid-template-columns: 1fr;
-  }
-
   /* Flex's `gap` sets row-gap too, which is too tight once the two names
      wrap onto separate lines. Fall back to normal inline flow so wrapped
      lines get real line-height spacing and the literal spaces render. */
   .bandNames {
     display: inline;
+  }
+}
+
+/* Recipient and color summaries — collapsed by default so the message comes first */
+.toRow,
+.colorRow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 6px;
+  min-height: 44px;
+}
+
+.toValue {
+  font-weight: 600;
+  color: var(--ink);
+  font-size: var(--t3);
+}
+
+.colorText {
+  color: var(--sub);
+  font-size: var(--t2);
+}
+
+.colorSwatch {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  border: 1px solid var(--edge);
+  flex-shrink: 0;
+}
+
+.linkBtn {
+  margin-left: auto;
+  min-height: 44px;
+  padding: 0 4px;
+  color: var(--accent);
+  font-size: var(--t2);
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.closeBtn:focus-visible,
+.linkBtn:focus-visible,
+.frostDot:focus-visible,
+.typeBtn:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.typeSet {
+  border: 0;
+  margin: 0;
+  padding: 0;
+  min-width: 0;
+}
+
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* ── Recipient lookup states ── */
+.lookupArea {
+  display: flex;
+  flex-direction: column;
+}
+
+.profileStatus {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.profileStatus .linkBtn {
+  min-height: 32px;
+}
+
+.profileOk {
+  font-size: var(--t2);
+  font-weight: 600;
+  color: var(--accent);
+  overflow-wrap: anywhere;
+}
+
+.confirmQ {
+  margin: 0;
+  font-size: var(--t2);
+  font-weight: 600;
+}
+
+.confirmRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.btnSm {
+  padding: 8px 14px;
+  font-size: var(--t2);
+}
+
+.lookupWarn {
+  margin-top: 8px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: var(--caution-bg);
+  color: var(--caution-ink);
+  font-size: var(--t2);
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+
+.lookupWarn .hintLink {
+  color: var(--caution-ink);
+  text-decoration: underline;
+}
+
+/* ── Success screen ("Tell them") ──
+   One left edge for everything. Four groups, one gap between them (--s5);
+   inside a group, items sit close (--s2). Nothing here is indented. */
+.success {
+  padding: var(--s5);
+  display: flex;
+  flex-direction: column;
+  gap: var(--s5);
+}
+
+.success .giveHead {
+  margin-bottom: 0;
+  align-items: center;
+}
+
+.success .giveTitle {
+  margin: 0;
+}
+
+.tellGroup {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s2);
+}
+
+.tellGroup .hint {
+  margin: 0;
+  font-size: var(--t2);
+}
+
+.fullBtn {
+  width: 100%;
+  padding: 14px 20px;
+  font-size: var(--t4);
+}
+
+button.btnDone:disabled {
+  opacity: 1;
+  background: var(--accent-soft);
+  color: var(--accent-strong);
+}
+
+/* The alternatives: a rule that says what the row is, then the row */
+.moreGroup {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s3);
+  padding-top: var(--s4);
+  border-top: 1px solid var(--edge);
+}
+
+.moreCaption {
+  margin: 0;
+  font-size: var(--t2);
+  font-weight: 600;
+  color: var(--sub);
+}
+
+/* Footer: a rule, then the way out, centered */
+.successActions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--s2);
+  padding-top: var(--s5);
+  border-top: 1px solid var(--edge);
+}
+
+.noteBox {
+  background: var(--paper);
+  border: 1px solid var(--edge);
+  border-radius: 10px;
+  padding: 14px;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  font-size: var(--t3);
+  line-height: 1.5;
+  user-select: all;
+}
+
+.previewNames > * {
+  min-width: 0;
+}
+
+/* A title that wraps to two lines must not push the close button down or make the stuck header tall */
+.giveHead .giveTitle {
+  margin: 0;
+}
+
+@media (max-width: 480px) {
+  .giveHead .giveTitle {
+    font-size: 22px;
   }
 }

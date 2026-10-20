@@ -152,15 +152,23 @@ export default function Welcome() {
       </header>
 
       <main className={styles.wrap}>
-        <p className={`${styles.poetic} ${styles.revealCopy}`} data-reveal-copy="2">{CONFIG.welcomePoetic}</p>
         <p className={`${styles.mechanic} ${styles.revealCopy}`} data-reveal-copy="3">
           {CONFIG.welcomeMechanic.map((part, i) =>
             part.bold ? <b key={i}>{part.text}</b> : <span key={i}>{part.text}</span>
           )}
         </p>
 
-        <div
-          className={`${styles.datepill} ${error ? styles.datepillUnknown : ''} ${styles.revealCopy}`}
+        <div className={`${styles.actions} ${styles.revealCopy}`} data-reveal-copy="4">
+          <Link to="/table?give=1" className="btn-solid">
+            {CONFIG.welcomeCTA}
+          </Link>
+          <Link to="/table" className={styles.browse}>
+            {CONFIG.welcomeGhostCTA}
+          </Link>
+        </div>
+
+        <p
+          className={`${styles.status} ${error ? styles.statusUnknown : ''} ${styles.revealCopy}`}
           data-reveal-copy="5"
         >
           <span className={styles.dot} aria-hidden="true" />
@@ -168,22 +176,12 @@ export default function Welcome() {
             <span className={styles.pillSkeleton} aria-hidden="true" />
           ) : error ? (
             <span>{CONFIG.welcomePillError}</span>
+          ) : slicesLeft > 0 ? (
+            <span><b>{slicesLeft} slice{slicesLeft === 1 ? '' : 's'}</b> left on this week&rsquo;s cake</span>
           ) : (
-            <>
-              This week&rsquo;s cake &middot;{' '}
-              <b>{slicesLeft > 0 ? `${slicesLeft} slice${slicesLeft === 1 ? '' : 's'} left` : 'all slices taken'}</b>
-            </>
+            <span>This week&rsquo;s cake is all gone. A new one comes next week.</span>
           )}
-        </div>
-
-        <div className={`${styles.actions} ${styles.revealCopy}`} data-reveal-copy="4">
-          <Link to="/table?give=1" className="btn-solid">
-            {CONFIG.welcomeCTA} <span className={styles.arrow} aria-hidden="true">→</span>
-          </Link>
-          <Link to="/table" className="btn-ghost">
-            {CONFIG.welcomeGhostCTA}
-          </Link>
-        </div>
+        </p>
 
         {loading ? (
           <div className={`${styles.proof} ${styles.revealCopy}`} data-reveal-copy="6">
@@ -196,14 +194,13 @@ export default function Welcome() {
             <div className={styles.words} style={{ '--card-count': proofWords.length }}>
               {proofWords.map((w) => (
                 <button key={w.id} className={styles.word} onClick={() => setReading(w)}>
-                  <span className={styles.wordFrost} style={{ background: PASTELS[w.color % 8] }} />
+                  <span className="frosting" style={{ '--frost': PASTELS[w.color % 8] }} />
                   <div className={styles.wordIn}>
                     <div className={styles.wordTo}>
                       For <NameSpan name={w.toName} fallback={TO_NAME_FALLBACK[w.toType] ?? 'the table'} />
                     </div>
                     <p className={styles.wordMsg}>{clip(w.message, 120)}</p>
                     <div className={styles.wordFrom}>
-                      <span className={styles.wordTag}>{w.toType || 'writer'}</span>
                       from <NameSpan name={w.fromName} fallback="a guest" />
                     </div>
                   </div>
@@ -211,14 +208,11 @@ export default function Welcome() {
               ))}
             </div>
             <p className={styles.micro}>
-              {proofWords.length < takenThisRound ? (
-                <><b>{takenThisRound} kind words</b> shared so far &middot; a few pinned above &middot; fresh cake every week</>
-              ) : (
-                <><b>{takenThisRound} kind word{takenThisRound === 1 ? '' : 's'}</b> shared so far &middot; fresh cake every week</>
-              )}
+              <b>{takenThisRound} kind word{takenThisRound === 1 ? '' : 's'}</b> shared this week
             </p>
           </div>
         )}
+        <p className={`${styles.poetic} ${styles.revealCopy}`} data-reveal-copy="7">{CONFIG.welcomePoetic}</p>
       </main>
 
       <Footer

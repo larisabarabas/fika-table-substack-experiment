@@ -4,8 +4,11 @@ export const CONFIG = {
   hostName:      'Stef',
   hostHandle:    '@stefanialarisa',
   creatorSite:   'https://stefaniabarabas.com',
+  siteHost:      'fika.stefaniabarabas.com', // shown as text on the downloadable card
   newsletterURL: 'https://stefsdevnotes.substack.com',
   supportEmail:  'stefsdevnotes@gmail.com',
+  // After giving: true shows the "Tell them" screen, false brings back the plain read modal
+  tellThemEnabled: true,
   sliceCapacity: 12,
   dateRange:     'Fresh cake every week · oven\'s always on',
 
@@ -31,7 +34,7 @@ export const CONFIG = {
 
   // Shared footer
   footerScript: 'the table\'s always set',
-  footerSub:    'Pull up a chair whenever you like — there\'s always more coffee.',
+  footerSub:    'Pull up a chair whenever you like. There\'s always more coffee.',
 };
 
 // Pastel values as JS strings — needed for SVG fills and confetti
@@ -52,12 +55,4 @@ export const TO_NAME_FALLBACK = {
   reader: 'a fellow reader',
   friend: 'a friend',
   anyone: 'the table',
-};
-
-export const TYPE_LABEL = {
-  writer: 'for a writer',
-  reader: 'for a reader',
-  friend: 'for a friend',
-  host:   'for the host',
-  anyone: 'left on the table',
 };

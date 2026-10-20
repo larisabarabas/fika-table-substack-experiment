@@ -7,7 +7,9 @@
     "dev": "vite",
     "build": "vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "test": "node --test \"src/**/*.test.mjs\" \"scripts/**/*.test.mjs\"",
+    "check:responsive": "node scripts/responsive-check.mjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.108.1",

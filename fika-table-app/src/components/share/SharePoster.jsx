@@ -1,7 +1,6 @@
 import { parseSubstackUrl, RE_MULTI_AT } from '../../lib/substack';
 import { CONFIG } from '../../config';
 import { ShareCard } from './ShareCard';
-import shareStyles from '../../pages/Share.module.css';
 import styles from './SharePoster.module.css';
 
 export function SharePoster({ slice }) {
@@ -10,32 +9,26 @@ export function SharePoster({ slice }) {
 
   return (
     <div className={styles.poster}>
-      <div className={shareStyles.brand}>
-        <span className={shareStyles.brandMark}>Substack FIKA</span>
-        <span className={shareStyles.brandPub}>
-          for <span className={shareStyles.brandPubNm}>{CONFIG.newsletter}</span>
-        </span>
+      <div className={styles.brand}>
+        <img src="/illustrations/Fika_logo_text.svg" alt="" className={styles.logo} />
+        <span className={styles.brandPub}>for {CONFIG.newsletter}</span>
       </div>
 
       <div className={styles.cardWrap}>
-        <ShareCard slice={slice}>
-          <div className={shareStyles.actions}>
-            <span className={shareStyles.cta}>
-              Pass a slice to someone <span className={shareStyles.ctaArr}>&rarr;</span>
-            </span>
-            {subUrl && (
-              <span className={shareStyles.subscribe}>
-                Subscribe to <span className={shareStyles.subscribeNm}>{displayName}</span>
-                <span className={shareStyles.subscribeArr}>&#8599;</span>
-              </span>
-            )}
-          </div>
-        </ShareCard>
+        <ShareCard slice={slice} />
       </div>
 
-      <div className={shareStyles.footer}>
-        <span className={shareStyles.footerScript}>{CONFIG.footerScript}</span>
-        <span className={shareStyles.footerSub}>{CONFIG.footerSub}</span>
+      {/* An image can't be clicked, so these are plain lines, not buttons */}
+      <div className={styles.pitch}>
+        <p className={styles.pitchMain}>
+          Send a kind word at <b>{CONFIG.siteHost}</b>
+        </p>
+        {subUrl && <p className={styles.pitchSub}>Find {displayName} on Substack</p>}
+      </div>
+
+      <div className={styles.footer}>
+        <span className={styles.footerScript}>{CONFIG.footerScript}</span>
+        <span className={styles.footerSub}>{CONFIG.footerSub}</span>
       </div>
     </div>
   );

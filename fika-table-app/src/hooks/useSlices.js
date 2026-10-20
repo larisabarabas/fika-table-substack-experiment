@@ -120,7 +120,26 @@ export function useSlices() {
     if (err) {
       if (err.code === '23505' && data.idx !== null) {
         setSlices(curr => curr.filter(s => s.id !== optimistic.id));
-        return { error: 'conflict', message: 'That slice was just taken. Please pick another.' };
+        // Local state can't be trusted here: the slice that beat us may not have
+        // arrived over realtime yet. Ask the database what is taken this round.
+        const { data: taken, error: takenErr } = await supabase
+          .from('slices')
+          .select('id,idx,round,from_name,to_name,to_type,message,color,created_at')
+          .eq('round', currentRound);
+        const takenIdx = new Set(takenErr ? [data.idx] : (taken ?? []).map(r => r.idx));
+        if (!takenErr && taken?.length) {
+          const seen = new Set();
+          setSlices(curr => {
+            curr.forEach(s => seen.add(s.id));
+            const fresh = taken.filter(r => !seen.has(r.id)).map(rowToSlice);
+            return fresh.length ? [...fresh, ...curr] : curr;
+          });
+        }
+        let freeIdx = null;
+        for (let i = 0; i < roundSize; i++) {
+          if (!takenIdx.has(i) && !currentFilled[i]) { freeIdx = i; break; }
+        }
+        return { error: 'conflict', freeIdx };
       }
       setSlices(curr => curr.filter(s => s.id !== optimistic.id));
       return { error: err.message };
@@ -129,7 +148,7 @@ export function useSlices() {
     const real = rowToSlice(inserted);
     setSlices(curr => curr.map(s => s.id === optimistic.id ? real : s));
     return { data: real };
-  }, [currentRound]);
+  }, [currentRound, roundSize, currentFilled]);
 
   const nextFreeIdx = useCallback(() => {
     for (let i = 0; i < roundSize; i++) {

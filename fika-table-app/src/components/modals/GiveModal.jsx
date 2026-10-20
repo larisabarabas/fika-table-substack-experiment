@@ -1,30 +1,10 @@
-import { useState, useEffect } from 'react';
-import { Overlay } from './Overlay';
-import { PASTELS, TO_NAME_FALLBACK, TYPE_LABEL, CONFIG } from '../../config';
-import { extractHandle, RE_MULTI_AT } from '../../lib/substack';
+import { useState, useEffect, useRef } from 'react';
+import { Overlay, CloseIcon } from './Overlay';
+import { PASTELS, TO_NAME_FALLBACK, CONFIG } from '../../config';
+import { LOOKUP, recipientToSave } from '../../lib/recipient.js';
+import { useProfileLookup } from '../../hooks/useProfileLookup.js';
+import { LookupArea } from './LookupArea';
 import styles from './modals.module.css';
-
-// Collapses an explicit @handle or Substack URL down to @handle before storing.
-// Does NOT guess that a bare word (e.g. a plain first name like "Maria") is a
-// handle — only extractHandle's confirmed patterns count, otherwise a signed
-// name gets mistaken for an unverified Substack profile link downstream.
-const normalizeHandle = (name) => {
-  if (!name) return name;
-  const trimmed = name.trim();
-  const handle = extractHandle(trimmed);
-  if (handle) return '@' + handle;
-  return trimmed.replace(RE_MULTI_AT, '@');
-};
-
-// Falls back to initials when a Substack profile has no photo, so avatar-less
-// results don't leave a blank gap in the profile card / candidate list
-const getInitials = (name) =>
-  (name || '?').trim().split(/\s+/).slice(0, 2).map((w) => w[0]).join('').toUpperCase();
-
-const Avatar = ({ image, name }) =>
-  image
-    ? <img className={styles.profileAvatar} src={image} alt="" />
-    : <div className={styles.profileAvatarFallback} aria-hidden="true">{getInitials(name)}</div>;
 
 const TYPE_OPTS = [
   { value: 'writer', label: 'For a writer',          ph: 'a name or Substack @handle', msgLabel: 'What do you appreciate about their writing?' },
@@ -34,134 +14,68 @@ const TYPE_OPTS = [
   { value: 'anyone', label: 'Leave it on the table', ph: 'you can leave this blank', full: true, msgLabel: "What's something good you want to leave for whoever needs it?" },
 ];
 
-export function GiveModal({ idx, onClose, onGive }) {
+export function GiveModal({ idx, onClose, onGive, initialTo = '' }) {
   const isNote = idx === null;
   const [toType,          setToType]          = useState('writer');
-  const [toName,          setToName]          = useState('');
+  const [toName,          setToName]          = useState(initialTo);
   const [message,         setMessage]         = useState('');
   const [fromName,        setFromName]        = useState('');
   const [color,           setColor]           = useState(isNote ? 0 : idx % 8);
   const [website,         setWebsite]         = useState(''); // honeypot — should stay empty
   const [submitting,      setSubmitting]      = useState(false);
-  const [submitError,     setSubmitError]     = useState(null);
-  const [profile,         setProfile]         = useState(null);  // { name, image, description, handle }
-  const [candidates,      setCandidates]      = useState([]);    // same-name matches awaiting a pick
-  const [candidatesNone,  setCandidatesNone]  = useState(false); // user picked "None of these"
-  const [profileLoading,  setProfileLoading]  = useState(false);
-  const [profileNotFound, setProfileNotFound] = useState(false);
-  const [profileError,    setProfileError]    = useState(false); // network / server error
+  const [notice,          setNotice]          = useState(null); // { tone: 'error' | 'caution', text } shown at the top of the card
+  const noticeRef = useRef(null);
+  const [cakeFull,        setCakeFull]        = useState(false); // the last slice went while this form was open
+  const [showTypes,       setShowTypes]       = useState(false); // recipient-type picker is collapsed until asked for
+  const [showColors,      setShowColors]      = useState(false); // icing color is auto-assigned; picker is opt-in
+  // One Substack lookup per field, and both behave the same way
+  const toLookup   = useProfileLookup(toName, { initial: initialTo });
+  const fromLookup = useProfileLookup(fromName);
 
   const cur    = TYPE_OPTS.find((o) => o.value === toType);
   const msgLen = message.trim().length;
   const valid  = msgLen > 1 && msgLen <= 1000;
 
-  // Clears any resolved profile synchronously, so a submit (or blur) that
-  // lands before the 600ms debounce below has run can't reuse a match from
-  // the previous toName instead of the one currently on screen.
-  const clearProfile = () => {
-    setProfile(null);
-    setCandidates([]);
-    setCandidatesNone(false);
-    setProfileNotFound(false);
-    setProfileError(false);
-  };
-
-  // On blur: collapse a pasted Substack URL/handle, or a name resolved to a
-  // confirmed profile match, down to @handle so it's stored as a real link
-  const handleToNameBlur = () => {
-    const trimmed = toName.trim();
-    if (trimmed.startsWith('@')) return;
-    const handle = extractHandle(trimmed);
-    if (handle) { setToName('@' + handle); return; }
-    if (profile?.handle) setToName('@' + profile.handle);
-  };
-
-  // Debounced Substack profile preview fetch — all setState calls inside the callback (not sync in body)
-  useEffect(() => {
-    const trimmed = toName.trim();
-    const handle = extractHandle(trimmed);
-    // Plain text with no '@' is treated as a display name to search for; anything
-    // containing '@' that isn't a valid handle/URL (e.g. a stray "@") is left alone
-    const nameQuery = !handle && trimmed && !trimmed.includes('@') ? trimmed : null;
-    let cancelled = false;
-    const timer = setTimeout(async () => {
-      if (cancelled) return;
-      if (!handle && !nameQuery) {
-        setProfile(null); setCandidates([]); setCandidatesNone(false); setProfileNotFound(false); setProfileError(false); setProfileLoading(false);
-        return;
-      }
-      setProfileLoading(true);
-      setProfile(null);
-      setCandidates([]);
-      setCandidatesNone(false);
-      setProfileNotFound(false);
-      setProfileError(false);
-      try {
-        const param = handle ? `handle=${encodeURIComponent(handle)}` : `query=${encodeURIComponent(nameQuery)}`;
-        const res = await fetch(`/api/substack-profile?${param}`);
-        if (cancelled) return;
-        if (!res.ok) {
-          const isServerError = res.status === 503 || res.status >= 500;
-          setProfile(null);
-          setProfileNotFound(!isServerError);
-          setProfileError(isServerError);
-          setProfileLoading(false);
-          return;
-        }
-        const data = await res.json();
-        if (cancelled) return;
-        if (handle) {
-          // Handle/URL lookup is an exact fetch — always a single profile
-          setProfile(data.error ? null : data);
-          setProfileNotFound(!!data.error);
-        } else {
-          // Name search may return several same-name matches to disambiguate
-          const found = data.candidates || [];
-          if (data.error || found.length === 0) {
-            setProfile(null);
-            setProfileNotFound(true);
-          } else if (found.length === 1) {
-            setProfile(found[0]);
-            setProfileNotFound(false);
-          } else {
-            setCandidates(found);
-            setProfileNotFound(false);
-          }
-        }
-        setProfileError(false);
-        setProfileLoading(false);
-      } catch {
-        if (!cancelled) { setProfile(null); setProfileNotFound(false); setProfileError(true); setProfileLoading(false); }
-      }
-    }, (handle || nameQuery) ? 600 : 0);
-    return () => { cancelled = true; clearTimeout(timer); };
-  }, [toName]);
+  const recipient = recipientToSave({ typed: toName, lookup: toLookup.lookup });
+  const signer    = recipientToSave({ typed: fromName, lookup: fromLookup.lookup });
+  const lookingUp = toLookup.lookup.status === LOOKUP.SEARCHING || fromLookup.lookup.status === LOOKUP.SEARCHING;
 
   const submit = async () => {
     if (!valid || website || submitting) return;
     setSubmitting(true);
-    setSubmitError(null);
-    // Prefer a confirmed profile match's real handle over the raw typed name,
-    // independent of whether the field was blurred — a dismissed/no match
-    // falls through to the plain text as before.
-    const trimmedToName = toName.trim();
-    const resolvedToName = profile?.handle && !extractHandle(trimmedToName) ? '@' + profile.handle : trimmedToName;
+    setNotice(null);
     const result = await onGive({
       idx,
-      fromName: normalizeHandle(fromName.trim()),
-      toName:   normalizeHandle(resolvedToName || TO_NAME_FALLBACK[toType]),
+      fromName: signer.toName,
+      toName:   recipient.toName || TO_NAME_FALLBACK[toType],
       toType,
       message:  message.trim(),
       color,
-    });
-    if (result?.error && result.error !== 'conflict') {
-      setSubmitError('Something went wrong — please try again.');
+    }, { verified: recipient.verified, profile: recipient.profile });
+    // Every failure hands the button back, so a taken slice never leaves it stuck
+    if (result?.error) {
+      if (result.full) setCakeFull(true);
+      setNotice(
+        result.error !== 'conflict'
+          ? { tone: 'error', text: 'That didn’t go through. Check your connection and try again. Your words are still here.' }
+          : result.full
+            ? { tone: 'caution', text: 'That was the last slice. Your words are still here. Copy them, then come back when next week’s cake is out.' }
+            : { tone: 'caution', text: 'Someone just took that slice, so we moved you to another one. Take it again when you’re ready.' }
+      );
       setSubmitting(false);
     }
   };
 
-  const displayToName   = toName.trim() || TO_NAME_FALLBACK[toType];
-  const displayFromName = fromName.trim() || 'you';
+  // The notice sits at the top of the card; on a phone the button that caused it is far below,
+  // so bring it into view without stealing focus from the field the person is in
+  useEffect(() => {
+    if (!notice) return;
+    const calm = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    noticeRef.current?.scrollIntoView({ block: 'nearest', behavior: calm ? 'auto' : 'smooth' });
+  }, [notice]);
+
+  const displayToName   = recipient.toName || TO_NAME_FALLBACK[toType];
+  const displayFromName = signer.toName || 'you';
   const showPreview     = msgLen > 1;
 
   return (
@@ -182,132 +96,36 @@ export function GiveModal({ idx, onClose, onGive }) {
           </label>
         </div>
 
+        {/* Only the title row sticks while a tall form scrolls, so the close button stays in reach */}
         <div className={styles.giveHead}>
-          <div>
-            <div className={styles.kicker}>
-              {isNote ? 'A kind word' : `This week · slice #${idx + 1}`}
+          <h3 className={styles.giveTitle}>Pour a coffee, take a slice</h3>
+          <button className={styles.closeBtn} onClick={onClose} aria-label="Close"><CloseIcon /></button>
+        </div>
+        {/* Always mounted, so a message that appears is announced */}
+        <div role="status" aria-live={notice?.tone === 'error' ? 'assertive' : 'polite'}>
+          {notice && (
+            <div
+              id="give-notice"
+              ref={noticeRef}
+              className={`${styles.notice} ${notice.tone === 'error' ? styles.noticeError : styles.noticeCaution}`}
+            >
+              <svg className={styles.noticeIcon} width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                <circle cx="8" cy="8" r="7" stroke="currentColor" strokeWidth="1.5" />
+                <path d="M8 4.5v4.2M8 11v.01" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+              </svg>
+              <span>{notice.text}</span>
             </div>
-            <h3 className={styles.giveTitle}>Pour a coffee, take a slice</h3>
-            <p className={styles.giveSub}>{CONFIG.giveModalSub}</p>
-          </div>
-          <button className={styles.closeBtn} onClick={onClose} aria-label="Close">✕</button>
+          )}
         </div>
+        <p className={styles.giveSub}>{CONFIG.giveModalSub}</p>
 
-        <label className={styles.fieldLabel}>Who's this slice for?</label>
-        <div className={styles.typeGrid}>
-          {TYPE_OPTS.map((o) => (
-            <button
-              key={o.value}
-              type="button"
-              aria-pressed={toType === o.value}
-              className={`${styles.typeBtn} ${o.full ? styles.typeFull : ''} ${toType === o.value ? styles.typeBtnOn : ''}`}
-              onClick={() => {
-                setToType(o.value);
-                // "Leave it on the table" is anonymous — clear any recipient name
-                // and any profile already resolved for the old name
-                if (o.value === 'anyone') { setToName(''); clearProfile(); }
-              }}
-            >
-              {o.label}
-            </button>
-          ))}
-        </div>
-
-        <label className={styles.fieldLabel}>
-          Their name or Substack @handle <span className={styles.opt}>optional</span>
-        </label>
-        <input
-          className={styles.input}
-          value={toName}
-          placeholder={cur.ph}
-          maxLength={100}
-          onChange={(e) => { setToName(e.target.value); clearProfile(); }}
-          onBlur={handleToNameBlur}
-        />
-        {!profileLoading && !profile && candidates.length === 0 && !candidatesNone && !profileNotFound && !profileError && (
-          <div className={styles.hint}>
-            A Substack <b>@handle</b> (or profile link) becomes a link to their profile.
-          </div>
-        )}
-        {profileLoading && <div className={styles.hint}>Looking up profile…</div>}
-        {!profileLoading && profileNotFound && (
-          <div className={styles.hint}>
-            No exact match —{' '}
-            <a
-              href={`https://substack.com/search/${encodeURIComponent(toName.trim().replace(/^@/, ''))}?searching=profile`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className={styles.hintLink}
-            >
-              search on Substack ↗
-            </a>
-          </div>
-        )}
-        {!profileLoading && profileError && (
-          <div className={styles.hint}>Couldn't reach Substack — try again.</div>
-        )}
-        {!profileLoading && candidates.length > 0 && (
-          <div className={styles.candidateList}>
-            <div className={styles.hint}>A few people go by this name — who did you mean?</div>
-            {candidates.map((c) => (
-              <button
-                key={c.handle}
-                type="button"
-                className={styles.candidateItem}
-                onClick={() => { setProfile(c); setCandidates([]); }}
-              >
-                <Avatar image={c.image} name={c.name} />
-                <div className={styles.profileInfo}>
-                  <span className={styles.profileName}>{c.name}</span>
-                  {c.description && <span className={styles.profileDesc}>{c.description}</span>}
-                </div>
-              </button>
-            ))}
-            <button
-              type="button"
-              className={styles.candidateNone}
-              onClick={() => { setCandidates([]); setCandidatesNone(true); }}
-            >
-              None of these
-            </button>
-          </div>
-        )}
-        {!profileLoading && candidatesNone && (
-          <div className={styles.hint}>
-            If you know their <b>Substack @handle</b>, try searching with that instead.
-          </div>
-        )}
-        {profile && (
-          <div className={styles.profileCard}>
-            <a
-              className={styles.profileLink}
-              href={`https://substack.com/@${profile.handle}`}
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              <Avatar image={profile.image} name={profile.name} />
-              <div className={styles.profileInfo}>
-                <span className={styles.profileName}>{profile.name}</span>
-                {profile.description && (
-                  <span className={styles.profileDesc}>{profile.description}</span>
-                )}
-              </div>
-            </a>
-            <button
-              type="button"
-              className={styles.profileDismiss}
-              onClick={() => setProfile(null)}
-              aria-label="Dismiss profile"
-            >✕</button>
-          </div>
-        )}
-
-        <label className={styles.fieldLabel}>{cur.msgLabel}</label>
+        <label htmlFor="give-message" className={styles.fieldLabel}>{cur.msgLabel}</label>
         <textarea
+          id="give-message"
           className={`${styles.input} ${styles.textarea}`}
           value={message}
           rows={3}
-          placeholder="Write something kind…"
+          placeholder="Even a short thank-you counts"
           onChange={(e) => setMessage(e.target.value)}
         />
         <div className={styles.charRow}>
@@ -317,63 +135,140 @@ export function GiveModal({ idx, onClose, onGive }) {
           </span>
         </div>
 
-        <div className={styles.giveRow}>
-          <div className={styles.giveCol}>
-            <label className={styles.fieldLabel}>
-              Signed <span className={styles.opt}>optional</span>
-            </label>
-            <input
-              className={styles.input}
-              value={fromName}
-              placeholder="your name or @handle"
-              maxLength={100}
-              onChange={(e) => setFromName(e.target.value)}
-            />
-          </div>
-          <div className={styles.giveCol}>
-            <label className={styles.fieldLabel}>Pick your color</label>
-            <div className={styles.hint}>shows up on your card at the table</div>
-            <div className={styles.frostPick}>
-              {PASTELS.map((c, i) => (
+        <div className={styles.toRow}>
+          <span className={styles.toValue}>{cur.label}</span>
+          <button
+            type="button"
+            className={styles.linkBtn}
+            aria-expanded={showTypes}
+            onClick={() => setShowTypes((v) => !v)}
+          >
+            {showTypes ? 'Done' : 'Change'}
+          </button>
+        </div>
+        {showTypes && (
+          <fieldset className={styles.typeSet}>
+            <legend className={styles.srOnly}>Who's this slice for?</legend>
+            <div className={styles.typeGrid}>
+              {TYPE_OPTS.map((o) => (
                 <button
-                  key={i}
+                  key={o.value}
                   type="button"
-                  aria-label={`Foam colour ${i + 1}`}
-                  className={`${styles.frostDot} ${color === i ? styles.frostDotOn : ''}`}
-                  style={{ background: c }}
-                  onClick={() => setColor(i)}
-                />
+                  aria-pressed={toType === o.value}
+                  className={`${styles.typeBtn} ${o.full ? styles.typeFull : ''} ${toType === o.value ? styles.typeBtnOn : ''}`}
+                  onClick={() => {
+                    setToType(o.value);
+                    setShowTypes(false);
+                    // "Leave it on the table" is anonymous — clear any recipient name
+                    // and any profile already resolved for the old name
+                    if (o.value === 'anyone') { setToName(''); toLookup.reset(); }
+                  }}
+                >
+                  {o.label}
+                </button>
               ))}
             </div>
-          </div>
+          </fieldset>
+        )}
+
+        {/* A word left on the table is for everyone, so there is no one to name */}
+        {toType !== 'anyone' && (
+          <>
+          <label htmlFor="give-to" className={styles.fieldLabel}>
+            Their name or Substack @handle <span className={styles.opt}>optional</span>
+          </label>
+          <input
+            id="give-to"
+            className={styles.input}
+            value={toName}
+            placeholder={cur.ph}
+            maxLength={100}
+            onChange={(e) => { setToName(e.target.value); toLookup.onTyping(e.target.value); }}
+          />
+          <LookupArea
+            lookup={toLookup}
+            typed={toName}
+            who="them"
+            onConfirm={toLookup.confirm}
+            onReject={toLookup.reject}
+            onRetry={toLookup.retry}
+            onKeep={toLookup.keepPlain}
+          />
+          </>
+        )}
+
+        <label htmlFor="give-from" className={styles.fieldLabel}>
+          Signed <span className={styles.opt}>optional</span>
+        </label>
+        <input
+          id="give-from"
+          className={styles.input}
+          value={fromName}
+          placeholder="your name or @handle"
+          maxLength={100}
+          onChange={(e) => { setFromName(e.target.value); fromLookup.onTyping(e.target.value); }}
+        />
+        <LookupArea
+          lookup={fromLookup}
+          typed={fromName}
+          who="you"
+          onConfirm={fromLookup.confirm}
+          onReject={fromLookup.reject}
+          onRetry={fromLookup.retry}
+          onKeep={fromLookup.keepPlain}
+        />
+
+        <div className={styles.colorRow}>
+          <span className={styles.colorSwatch} style={{ background: PASTELS[color % PASTELS.length] }} aria-hidden="true" />
+          <span className={styles.colorText}>Icing color for your card</span>
+          <button
+            type="button"
+            className={styles.linkBtn}
+            aria-expanded={showColors}
+            onClick={() => setShowColors((v) => !v)}
+          >
+            {showColors ? 'Done' : 'Change color'}
+          </button>
         </div>
+        {showColors && (
+          <div className={styles.frostPick} role="group" aria-label="Icing color">
+            {PASTELS.map((c, i) => (
+              <button
+                key={i}
+                type="button"
+                aria-label={`Icing color ${i + 1}`}
+                aria-pressed={color === i}
+                className={`${styles.frostDot} ${color === i ? styles.frostDotOn : ''}`}
+                style={{ background: c }}
+                onClick={() => setColor(i)}
+              />
+            ))}
+          </div>
+        )}
 
         {showPreview && (
           <div className={styles.previewWrap}>
             <span className={styles.previewLabel}>Preview</span>
             <div className={styles.previewCard}>
-              <div className={styles.previewBand} style={{ background: PASTELS[color % PASTELS.length] }}>
+              <span className="frosting" style={{ '--frost': PASTELS[color % PASTELS.length] }} />
+              <div className={styles.previewHead}>
                 <span className={styles.previewNames}>
                   <b>{displayFromName}</b>
-                  {' '}<i className={styles.arrow}>→</i>{' '}
+                  {' '}<span className={styles.arrow}>to</span>{' '}
                   {displayToName}
                 </span>
               </div>
               <div className={styles.previewBody}>
                 <p className={styles.previewMsg}>{message}</p>
-                <div className={styles.readTag}>{TYPE_LABEL[toType]}</div>
               </div>
             </div>
           </div>
         )}
 
-        {submitError && (
-          <p className={styles.submitError}>{submitError}</p>
-        )}
         <div className={styles.giveActions}>
           <button className="btn-ghost" onClick={onClose} disabled={submitting}>Maybe later</button>
-          <button className="btn-solid" disabled={!valid || submitting} onClick={submit}>
-            {submitting ? 'Taking the slice…' : 'Take the slice'}
+          <button className="btn-solid" disabled={!valid || submitting || lookingUp || cakeFull} aria-describedby={cakeFull ? 'give-notice' : undefined} onClick={submit}>
+            {cakeFull ? 'All slices taken' : submitting ? 'Taking the slice…' : 'Take the slice'}
           </button>
         </div>
       </div>

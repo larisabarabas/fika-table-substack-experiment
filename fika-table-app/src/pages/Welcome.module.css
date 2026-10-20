@@ -6,7 +6,7 @@
   overflow-x: hidden;
   background:
     radial-gradient(65% 55% at 50% 0%, rgba(255, 255, 255, 0.35), transparent 70%),
-    color-mix(in srgb, var(--paper) 78%, #F0E2CC 40%);
+    color-mix(in srgb, var(--paper) 82%, #dcebd9 40%);
 }
 
 .wrap {
@@ -18,7 +18,7 @@
   align-items: center;
   justify-content: center;
   text-align: center;
-  padding: 0 var(--px) 40px;
+  padding: 0 var(--px) var(--s7);
   max-width: 760px;
   margin: 0 auto;
   width: 100%;
@@ -36,7 +36,7 @@
   background:
     radial-gradient(58% 70% at 50% 15%, rgba(232, 161, 58, 0.14), transparent 70%),
     var(--paper);
-  padding: 56px var(--px) 40px;
+  padding: 56px var(--px) var(--s5);
 }
 
 .heroInner {
@@ -56,7 +56,7 @@
   display: block;
   height: 54px;
   width: auto;
-  margin: 4px 0 18px;
+  margin: 4px 0 var(--s4);
 }
 
 /* ── Fika table — illustrated treats below the headline ─ */
@@ -130,7 +130,7 @@
 .headlineScript {
   display: block;
   font-family: var(--f-script);
-  font-style: normal;
+  font-style: italic;
   font-size: clamp(28px, 6.6vw, 56px);
   line-height: 1;
   color: var(--accent);
@@ -144,18 +144,18 @@
   color: var(--sub);
   font-size: clamp(16px, 2vw, 19px);
   line-height: 1.55;
-  max-width: 480px;
-  margin: 20px auto 0;
-  text-wrap: pretty;
+  max-width: 720px;
+  margin: var(--s6) auto 0;
+  text-wrap: balance;
 }
 
 /* Mechanic — how it works */
 .mechanic {
-  font-size: 15.5px;
+  font-size: var(--t3);
   line-height: 1.6;
   color: var(--ink);
   max-width: 480px;
-  margin: 14px auto 0;
+  margin: var(--s5) auto 0;
   text-wrap: pretty;
 }
 
@@ -164,28 +164,29 @@
   color: var(--accent);
 }
 
-/* Live status pill */
-.datepill {
-  display: inline-flex;
+/* Live count — one quiet line instead of a pill */
+.status {
+  display: flex;
   align-items: center;
-  gap: 9px;
-  margin-top: 22px;
-  padding: 9px 18px;
-  border-radius: var(--radius-pill);
-  border: 1px solid var(--edge);
-  background: var(--panel);
-  font-family: var(--f-display);
-  font-style: italic;
-  font-size: 15px;
-  white-space: nowrap;
+  justify-content: center;
+  gap: var(--s2);
+  margin: var(--s4) 0 0;
+  font-size: var(--t2);
+  color: var(--sub);
 }
 
 .dot {
   width: 8px;
   height: 8px;
   border-radius: 50%;
-  background: #4f9d69;
-  box-shadow: 0 0 0 4px rgba(79, 157, 105, 0.18);
+  background: var(--accent-fill);
+  box-shadow: 0 0 0 4px rgba(143, 217, 168, 0.3);
+  margin-inline: 4px;
+}
+
+.statusUnknown .dot {
+  background: var(--sub);
+  box-shadow: 0 0 0 4px rgba(101, 87, 76, 0.16);
 }
 
 .pillSkeleton {
@@ -202,11 +203,6 @@
   50%      { opacity: 1; }
 }
 
-.datepillUnknown .dot {
-  background: var(--sub);
-  box-shadow: 0 0 0 4px rgba(102, 92, 78, 0.16);
-}
-
 /* Actions */
 .actions {
   display: flex;
@@ -214,11 +210,10 @@
   gap: 12px;
   justify-content: center;
   align-items: center;
-  margin-top: 36px;
+  margin-top: var(--s5);
 }
 
-.actions :global(.btn-solid),
-.actions :global(.btn-ghost) {
+.actions :global(.btn-solid) {
   padding: 13px 26px;
   gap: 8px;
 }
@@ -227,10 +222,22 @@
   font-size: 1.05em;
 }
 
-.actions :global(.btn-ghost):hover {
-  border-color: var(--accent);
-  color: var(--accent-strong);
-  background: transparent;
+/* Secondary action is a plain link, so there is one button to choose */
+.browse {
+  color: var(--ink);
+  font-weight: 600;
+  font-size: var(--t3);
+  text-underline-offset: 4px;
+  padding: var(--s2) var(--s3);
+}
+
+.browse:hover {
+  color: var(--accent);
+}
+
+.browse:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
 }
 
 /* Override global tagline-pill margin to match design spacing */
@@ -242,7 +249,7 @@
 .proof {
   position: relative;
   z-index: 1;
-  margin-top: 40px;
+  margin-top: var(--s7);
   width: 100%;
 }
 
@@ -254,8 +261,6 @@
   color: var(--sub);
   font-size: var(--t1);
   font-weight: 600;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
 }
 
 .proofHead::before,
@@ -271,7 +276,7 @@
   grid-template-columns: repeat(var(--card-count, 3), minmax(140px, 240px));
   justify-content: center;
   gap: 14px;
-  margin-top: 20px;
+  margin-top: var(--s4);
 }
 
 .word {
@@ -282,13 +287,11 @@
   overflow: hidden;
   display: flex;
   flex-direction: column;
-  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  transition: border-color 0.15s ease;
 }
 
-.word:hover,
-.word:focus-visible {
-  transform: translateY(-3px);
-  box-shadow: 0 10px 26px rgba(0, 0, 0, 0.08);
+.word:hover {
+  border-color: var(--accent);
 }
 
 .word:focus-visible {
@@ -310,10 +313,6 @@
   to { transform: rotate(360deg); }
 }
 
-.wordFrost {
-  height: 8px;
-}
-
 .wordIn {
   padding: var(--s4) 18px;
   display: flex;
@@ -326,6 +325,7 @@
   font-size: var(--t4);
   font-weight: 500;
   letter-spacing: -0.01em;
+  overflow-wrap: anywhere;
 }
 
 .wordMsg {
@@ -335,6 +335,7 @@
   margin: 8px 0 12px;
   flex: 1;
   text-wrap: pretty;
+  overflow-wrap: anywhere;
 }
 
 .wordFrom {
@@ -343,24 +344,15 @@
   display: flex;
   align-items: center;
   gap: 6px;
-}
-
-.wordTag {
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  color: var(--accent);
-  border: 1px solid var(--accent-soft);
-  border-radius: var(--radius-pill);
-  padding: 2px 8px;
+  overflow-wrap: anywhere;
+  min-width: 0;
 }
 
 .micro {
   color: var(--sub);
   font-size: var(--t2);
   line-height: 1.5;
-  margin-top: 16px;
+  margin: var(--s4) 0 0;
   text-align: center;
 }
 
@@ -400,7 +392,7 @@
 .footerLink {
   display: inline-flex;
   align-items: center;
-  min-height: 22px;
+  min-height: 32px;
   padding: 0 var(--s2);
   color: var(--sub);
   text-decoration: none;
@@ -429,4 +421,10 @@
 :global(html[data-reveal]) .fikaTableItemWrap,
 :global(html[data-reveal]) .revealCopy {
   opacity: 0;
+}
+
+@media (max-width: 680px) {
+  .footerLink {
+    min-height: 44px;
+  }
 }

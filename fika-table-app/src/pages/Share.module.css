@@ -15,7 +15,7 @@
   inset: 0;
   pointer-events: none;
   z-index: 0;
-  background: radial-gradient(52% 48% at 50% 52%, rgba(232,161,58,0.14), transparent 70%);
+  background: radial-gradient(52% 48% at 50% 52%, rgba(143,217,168,0.30), transparent 70%);
 }
 
 /* ── Brand lockup ── */
@@ -76,9 +76,9 @@
 .skeleton {
   width: 100%;
   aspect-ratio: 5 / 4;
-  border-radius: 22px;
+  border-radius: var(--radius-card);
   background: var(--panel);
-  box-shadow: 0 24px 60px -26px rgba(201,117,110,0.3);
+  border: 1px solid var(--edge);
   position: relative;
   overflow: hidden;
   padding: 34px 30px;
@@ -128,6 +128,7 @@
 
 .loadingNote {
   font-family: var(--f-script);
+  font-style: italic;
   font-size: 24px;
   color: var(--accent);
 }
@@ -182,41 +183,24 @@
   justify-content: center;
   gap: 8px;
   width: 100%;
-  background: var(--accent);
+  background: var(--accent-fill);
   color: var(--accent-ink);
   border: none;
   border-radius: 999px;
   padding: 15px 22px;
-  font-size: 15.5px;
+  font-size: var(--t3);
   font-weight: 600;
   letter-spacing: 0.005em;
   text-decoration: none;
-  box-shadow: 0 10px 22px -12px rgba(201,117,110,0.9);
   transition: transform 0.12s ease, filter 0.15s ease;
 }
 
 .cta:hover {
   filter: brightness(1.04);
-  transform: translateY(-1px);
 }
 
 .cta:active {
   transform: translateY(0);
-}
-
-.ctaArr {
-  transition: transform 0.18s ease;
-}
-
-.cta:hover .ctaArr {
-  transform: translateX(3px);
-}
-
-.ctaHint {
-  margin: 8px 0 0;
-  font-size: 12.5px;
-  color: var(--sub);
-  text-align: center;
 }
 
 .subscribe {
@@ -231,7 +215,7 @@
   border: 1px solid var(--edge);
   border-radius: 999px;
   padding: 13px 22px;
-  font-size: 14.5px;
+  font-size: var(--t3);
   font-weight: 600;
   text-decoration: none;
   transition: border-color 0.15s ease, color 0.15s ease;
@@ -254,10 +238,6 @@
 
 .subscribe:hover .subscribeArr {
   color: inherit;
-}
-
-.subscribe:hover .ctaArr {
-  transform: translateX(3px);
 }
 
 /* ── Stagger reveals ── */
@@ -323,7 +303,7 @@
 
 .errorBody {
   color: var(--sub);
-  font-size: 15px;
+  font-size: var(--t3);
   margin: 4px 0 20px;
   max-width: 30ch;
   line-height: 1.55;
@@ -335,22 +315,20 @@
   justify-content: center;
   gap: 8px;
   max-width: 280px;
-  background: var(--accent);
+  background: var(--accent-fill);
   color: var(--accent-ink);
   border: none;
   border-radius: 999px;
   padding: 15px 22px;
-  font-size: 15.5px;
+  font-size: var(--t3);
   font-weight: 600;
   letter-spacing: 0.005em;
   text-decoration: none;
-  box-shadow: 0 10px 22px -12px rgba(201,117,110,0.9);
   transition: transform 0.12s ease, filter 0.15s ease;
 }
 
 .errorCta:hover {
   filter: brightness(1.04);
-  transform: translateY(-1px);
 }
 
 /* ── Footer ── */

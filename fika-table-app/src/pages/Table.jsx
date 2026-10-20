@@ -8,13 +8,19 @@ import { Footer } from '../components/Footer';
 import { AppreciationWall } from '../components/wall/AppreciationWall';
 import { ReadModal } from '../components/modals/ReadModal';
 import { GiveModal } from '../components/modals/GiveModal';
+import { SuccessModal } from '../components/modals/SuccessModal';
 import styles from './Table.module.css';
 
 export default function Table() {
   const { slices, filled, sharedCount, isFull, loading, error, insertSlice, nextFreeIdx, roundSize } = useSlices();
   const [filter,      setFilter]      = useState('all');
   const [reading,     setReading]     = useState(null);
+  const [success,     setSuccess]     = useState(null); // { slice, recipient } right after giving
   const [giving,      setGiving]      = useState(null);
+  // The slice just given: held back from the cake and wall until its read
+  // modal closes, then celebrated once so the motion isn't hidden behind it.
+  const [pending,     setPending]     = useState(null);
+  const [celebrate,   setCelebrate]   = useState(null);
   const [, startTransition]   = useTransition();
   const giveHandled           = useRef(false);
   const [searchParams, setSearchParams] = useSearchParams();
@@ -33,10 +39,11 @@ export default function Table() {
     if (loading || error || giveHandled.current) return;
     giveHandled.current = true;
     if (!searchParams.has('give')) return;
+    const to = (searchParams.get('to') ?? '').slice(0, 100);
     setSearchParams({}, { replace: true });
     if (!isFull) {
       const free = nextFreeIdx();
-      if (free !== null) startTransition(() => setGiving({ idx: free }));
+      if (free !== null) startTransition(() => setGiving({ idx: free, to }));
     }
   }, [loading, error, isFull, nextFreeIdx, searchParams, setSearchParams]);
 
@@ -46,20 +53,41 @@ export default function Table() {
     if (free !== null) setGiving({ idx: free });
   }, [isFull, nextFreeIdx]);
 
-  const handleGive = useCallback(async (data) => {
+  const handleGive = useCallback(async (data, recipient) => {
     const result = await insertSlice(data);
     if (result?.error === 'conflict') {
-      const free = nextFreeIdx();
-      if (free !== null) setGiving({ idx: free });
-      return result;
+      // insertSlice asked the database, so this is fresh where nextFreeIdx() would be stale
+      if (result.freeIdx !== null) setGiving({ idx: result.freeIdx });
+      return { ...result, full: result.freeIdx === null };
     }
     if (!result?.error && result?.data) {
       setGiving(null);
-      setReading(result.data);
+      if (CONFIG.tellThemEnabled) setSuccess({ slice: result.data, recipient });
+      else setReading(result.data);
+      setPending({ id: result.data.id, idx: result.data.idx });
       setTimeout(fireConfetti, 60);
     }
     return result;
-  }, [insertSlice, nextFreeIdx]);
+  }, [insertSlice]);
+
+  // Once the screen for your own new slice closes, the cake and wall celebrate it
+  const celebrateIfPending = useCallback((id) => {
+    if (pending && id === pending.id) {
+      setCelebrate(pending);
+      setPending(null);
+      setTimeout(() => setCelebrate(null), 1600);
+    }
+  }, [pending]);
+
+  const closeReading = useCallback(() => {
+    celebrateIfPending(reading?.id);
+    setReading(null);
+  }, [celebrateIfPending, reading]);
+
+  const closeSuccess = useCallback(() => {
+    celebrateIfPending(success?.slice.id);
+    setSuccess(null);
+  }, [celebrateIfPending, success]);
 
   const slicesLeft = Math.max(roundSize - sharedCount, 0);
 
@@ -97,7 +125,13 @@ export default function Table() {
                 {loading ? (
                   <div className={styles.loadingPlate} role="status" aria-label="Loading" />
                 ) : (
-                  <CakeRound count={roundSize} filled={filled} sharedCount={sharedCount} />
+                  <CakeRound
+                    count={roundSize}
+                    filled={filled}
+                    sharedCount={sharedCount}
+                    holdIdx={pending?.idx}
+                    liftIdx={celebrate?.idx}
+                  />
                 )}
               </div>
               <button className={`btn-solid ${styles.railCta}`} onClick={openGive} disabled={isFull}>
@@ -123,6 +157,7 @@ export default function Table() {
               filter={filter}
               onFilter={setFilter}
               onRead={setReading}
+              landedId={celebrate?.id}
               initialSearch={mentions}
             />
           </div>
@@ -133,11 +168,15 @@ export default function Table() {
 
       {/* Modals */}
       {reading ? (
-        <ReadModal slice={reading} onClose={() => setReading(null)} />
+        <ReadModal slice={reading} onClose={closeReading} />
+      ) : null}
+      {success ? (
+        <SuccessModal slice={success.slice} recipient={success.recipient} onClose={closeSuccess} />
       ) : null}
       {giving !== null ? (
         <GiveModal
           idx={giving.idx}
+          initialTo={giving.to}
           onClose={() => setGiving(null)}
           onGive={handleGive}
         />
