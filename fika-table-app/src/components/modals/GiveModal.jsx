@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Overlay, CloseIcon } from './Overlay';
 import { PASTELS, TO_NAME_FALLBACK, CONFIG } from '../../config';
 import { LOOKUP, recipientToSave } from '../../lib/recipient.js';
@@ -23,7 +23,8 @@ export function GiveModal({ idx, onClose, onGive, initialTo = '' }) {
   const [color,           setColor]           = useState(isNote ? 0 : idx % 8);
   const [website,         setWebsite]         = useState(''); // honeypot — should stay empty
   const [submitting,      setSubmitting]      = useState(false);
-  const [submitError,     setSubmitError]     = useState(null);
+  const [notice,          setNotice]          = useState(null); // { tone: 'error' | 'caution', text } shown at the top of the card
+  const noticeRef = useRef(null);
   const [cakeFull,        setCakeFull]        = useState(false); // the last slice went while this form was open
   const [showTypes,       setShowTypes]       = useState(false); // recipient-type picker is collapsed until asked for
   const [showColors,      setShowColors]      = useState(false); // icing color is auto-assigned; picker is opt-in
@@ -42,7 +43,7 @@ export function GiveModal({ idx, onClose, onGive, initialTo = '' }) {
   const submit = async () => {
     if (!valid || website || submitting) return;
     setSubmitting(true);
-    setSubmitError(null);
+    setNotice(null);
     const result = await onGive({
       idx,
       fromName: signer.toName,
@@ -54,16 +55,24 @@ export function GiveModal({ idx, onClose, onGive, initialTo = '' }) {
     // Every failure hands the button back, so a taken slice never leaves it stuck
     if (result?.error) {
       if (result.full) setCakeFull(true);
-      setSubmitError(
+      setNotice(
         result.error !== 'conflict'
-          ? 'Something went wrong — please try again.'
+          ? { tone: 'error', text: 'That didn’t go through. Check your connection and try again. Your words are still here.' }
           : result.full
-            ? 'The last slice was just taken. Your words are still here, so copy them and come back when next week’s cake is out.'
-            : 'That slice was just taken, so we moved you to another one. Take it again when you’re ready.'
+            ? { tone: 'caution', text: 'That was the last slice. Your words are still here. Copy them, then come back when next week’s cake is out.' }
+            : { tone: 'caution', text: 'Someone just took that slice, so we moved you to another one. Take it again when you’re ready.' }
       );
       setSubmitting(false);
     }
   };
+
+  // The notice sits at the top of the card; on a phone the button that caused it is far below,
+  // so bring it into view without stealing focus from the field the person is in
+  useEffect(() => {
+    if (!notice) return;
+    const calm = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    noticeRef.current?.scrollIntoView({ block: 'nearest', behavior: calm ? 'auto' : 'smooth' });
+  }, [notice]);
 
   const displayToName   = recipient.toName || TO_NAME_FALLBACK[toType];
   const displayFromName = signer.toName || 'you';
@@ -91,6 +100,22 @@ export function GiveModal({ idx, onClose, onGive, initialTo = '' }) {
         <div className={styles.giveHead}>
           <h3 className={styles.giveTitle}>Pour a coffee, take a slice</h3>
           <button className={styles.closeBtn} onClick={onClose} aria-label="Close"><CloseIcon /></button>
+        </div>
+        {/* Always mounted, so a message that appears is announced */}
+        <div role="status" aria-live={notice?.tone === 'error' ? 'assertive' : 'polite'}>
+          {notice && (
+            <div
+              id="give-notice"
+              ref={noticeRef}
+              className={`${styles.notice} ${notice.tone === 'error' ? styles.noticeError : styles.noticeCaution}`}
+            >
+              <svg className={styles.noticeIcon} width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                <circle cx="8" cy="8" r="7" stroke="currentColor" strokeWidth="1.5" />
+                <path d="M8 4.5v4.2M8 11v.01" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+              </svg>
+              <span>{notice.text}</span>
+            </div>
+          )}
         </div>
         <p className={styles.giveSub}>{CONFIG.giveModalSub}</p>
 
@@ -240,12 +265,9 @@ export function GiveModal({ idx, onClose, onGive, initialTo = '' }) {
           </div>
         )}
 
-        {submitError && (
-          <p className={styles.submitError}>{submitError}</p>
-        )}
         <div className={styles.giveActions}>
           <button className="btn-ghost" onClick={onClose} disabled={submitting}>Maybe later</button>
-          <button className="btn-solid" disabled={!valid || submitting || lookingUp || cakeFull} onClick={submit}>
+          <button className="btn-solid" disabled={!valid || submitting || lookingUp || cakeFull} aria-describedby={cakeFull ? 'give-notice' : undefined} onClick={submit}>
             {cakeFull ? 'All slices taken' : submitting ? 'Taking the slice…' : 'Take the slice'}
           </button>
         </div>

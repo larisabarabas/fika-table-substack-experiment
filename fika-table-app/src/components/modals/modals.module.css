@@ -272,10 +272,35 @@
   margin-top: 18px;
 }
 
-.submitError {
+/* Message at the top of the give card: error (red) when something broke, caution (amber)
+   when the situation is recoverable and not the person's fault */
+.notice {
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+  margin: 0 0 var(--s3);
+  padding: 10px 12px;
+  border-radius: 10px;
   font-size: var(--t2);
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+  scroll-margin-top: 72px; /* clear the sticky title row */
+}
+
+.noticeIcon {
+  flex: none;
+  margin-top: 2px;
+}
+
+.noticeError {
+  background: var(--error-bg);
+  border: 1px solid var(--error-edge);
   color: var(--error);
-  margin: 8px 0 0;
+}
+
+.noticeCaution {
+  background: var(--caution-bg);
+  color: var(--caution-ink);
 }
 
 /* ── Substack profile preview card ── */
