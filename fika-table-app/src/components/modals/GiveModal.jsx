@@ -50,8 +50,15 @@ export function GiveModal({ idx, onClose, onGive, initialTo = '' }) {
       message:  message.trim(),
       color,
     }, { verified: recipient.verified, profile: recipient.profile });
-    if (result?.error && result.error !== 'conflict') {
-      setSubmitError('Something went wrong — please try again.');
+    // Every failure hands the button back, so a taken slice never leaves it stuck
+    if (result?.error) {
+      setSubmitError(
+        result.error !== 'conflict'
+          ? 'Something went wrong — please try again.'
+          : result.full
+            ? 'The last slice was just taken. Your words are still here, so copy them and come back when next week’s cake is out.'
+            : 'That slice was just taken, so we moved you to another one. Take it again when you’re ready.'
+      );
       setSubmitting(false);
     }
   };

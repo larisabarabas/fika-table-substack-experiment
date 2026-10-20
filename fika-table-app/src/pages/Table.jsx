@@ -58,7 +58,7 @@ export default function Table() {
     if (result?.error === 'conflict') {
       const free = nextFreeIdx();
       if (free !== null) setGiving({ idx: free });
-      return result;
+      return { ...result, full: free === null };
     }
     if (!result?.error && result?.data) {
       setGiving(null);
