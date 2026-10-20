@@ -1,8 +1,8 @@
 import { useState, useEffect, useRef, useTransition, useCallback, useMemo } from 'react';
-import { Link, useLocation, useSearchParams } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import { useSlices } from '../hooks/useSlices';
 import { CONFIG } from '../config';
-import { ownedIds, editTokenFor, rememberSlice } from '../lib/ownedSlices';
+import { ownedIds, editTokenFor } from '../lib/ownedSlices';
 import { fireConfetti } from '../lib/confetti';
 import CakeRound from '../components/cake/CakeRound';
 import { Footer } from '../components/Footer';
@@ -19,23 +19,23 @@ export default function Table() {
   const [success,     setSuccess]     = useState(null); // { slice, recipient } right after giving
   const [giving,      setGiving]      = useState(null);
   const [editing,     setEditing]     = useState(null); // { slice, token }: the give form, filled in with a slice this browser gave
-  const [banner,      setBanner]      = useState(null); // { tone: 'ok' | 'caution', text }: what just happened to a slice you edited, or why an edit link opened nothing
+  const [banner,      setBanner]      = useState(null); // what just happened to a slice you edited or deleted
   // The slice just given: held back from the cake and wall until its read
   // modal closes, then celebrated once so the motion isn't hidden behind it.
   const [pending,     setPending]     = useState(null);
   const [celebrate,   setCelebrate]   = useState(null);
   const [, startTransition]   = useTransition();
   const giveHandled           = useRef(false);
-  const editHandled           = useRef(false);
   const [searchParams, setSearchParams] = useSearchParams();
-  const { hash } = useLocation();
   const [mentions] = useState(() => searchParams.get('mentions') ?? '');
 
   const wallRef = useRef(null);
 
   // Slices this browser can edit (the list changes whenever one is given or deleted)
+  // A refused edit forgets that slice's secret without touching the list, so it bumps a counter too
+  const [ownedTick, setOwnedTick] = useState(0);
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  const owned = useMemo(() => ownedIds(), [slices]);
+  const owned = useMemo(() => ownedIds(), [slices, ownedTick]);
 
   // Handle ?mentions=@handle — scroll to wall once loaded
   useEffect(() => {
@@ -56,28 +56,6 @@ export default function Table() {
     }
   }, [loading, error, isFull, nextFreeIdx, searchParams, setSearchParams]);
 
-  // A private edit link (?edit=<id>#<token>) opens the give form filled in, once the table has loaded
-  useEffect(() => {
-    if (loading || error || editHandled.current) return;
-    editHandled.current = true;
-    const id = searchParams.get('edit');
-    if (!id) return;
-    const linkToken = hash.slice(1);
-    setSearchParams({}, { replace: true });
-    if (linkToken) rememberSlice(id, linkToken);
-    const token = linkToken || editTokenFor(id);
-    const slice = slices.find((s) => s.id === id);
-    startTransition(() => {
-      if (slice && token) setEditing({ slice, token });
-      else setBanner({
-        tone: 'caution',
-        text: slice
-          ? 'This browser doesn’t have the private link for that kind word. Open the link you copied when you gave it.'
-          : 'That kind word isn’t on the table any more.',
-      });
-    });
-  }, [loading, error, slices, searchParams, setSearchParams, hash]);
-
   const openEdit = useCallback((slice) => {
     const token = editTokenFor(slice.id);
     if (token) setEditing({ slice, token });
@@ -87,7 +65,9 @@ export default function Table() {
     const result = await editSlice(editing.slice.id, editing.token, fields);
     if (!result.error) {
       setEditing(null);
-      setBanner({ tone: 'ok', text: 'Saved. A Note you already posted on Substack keeps the old words.' });
+      setBanner('Saved. A Note you already posted on Substack keeps the old words.');
+    } else if (result.error === 'forbidden') {
+      setOwnedTick((n) => n + 1);
     }
     return result;
   }, [editSlice, editing]);
@@ -96,7 +76,9 @@ export default function Table() {
     const result = await removeSlice(editing.slice.id, editing.token);
     if (!result.error) {
       setEditing(null);
-      setBanner({ tone: 'ok', text: editing.slice.idx != null ? 'Deleted. Its slice is back on the cake.' : 'Deleted.' });
+      setBanner(editing.slice.idx != null ? 'Deleted. Its slice is back on the cake.' : 'Deleted.');
+    } else if (result.error === 'forbidden') {
+      setOwnedTick((n) => n + 1);
     }
     return result;
   }, [removeSlice, editing]);
@@ -143,6 +125,13 @@ export default function Table() {
     setSuccess(null);
   }, [celebrateIfPending, success]);
 
+  // "Edit or delete" on the success screen: the secret is still in hand, even if this browser could not store it
+  const editFromSuccess = useCallback(() => {
+    const { slice, editToken } = success;
+    closeSuccess();
+    setEditing({ slice, token: editToken });
+  }, [success, closeSuccess]);
+
   const slicesLeft = Math.max(roundSize - sharedCount, 0);
 
   return (
@@ -169,8 +158,8 @@ export default function Table() {
         </div>
       )}
       {banner && (
-        <div className={`${styles.noticeBanner} ${banner.tone === 'ok' ? styles.noticeOk : ''}`} role="status">
-          {banner.text}
+        <div className={styles.noticeBanner} role="status">
+          {banner}
           <button type="button" className={styles.noticeClose} onClick={() => setBanner(null)}>Dismiss</button>
         </div>
       )}
@@ -236,7 +225,12 @@ export default function Table() {
         />
       ) : null}
       {success ? (
-        <SuccessModal slice={success.slice} recipient={success.recipient} editToken={success.editToken} onClose={closeSuccess} />
+        <SuccessModal
+          slice={success.slice}
+          recipient={success.recipient}
+          onEdit={success.editToken ? editFromSuccess : undefined}
+          onClose={closeSuccess}
+        />
       ) : null}
       {editing ? (
         <GiveModal

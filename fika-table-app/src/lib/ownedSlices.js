@@ -1,7 +1,7 @@
 // The slices this browser gave, with the secret that lets it edit or delete them.
-// Only per-browser: clear the site data and the token is gone, which is why the
-// success screen also offers it as a private link. Storage can be missing or throw
-// (private windows, blocked data), so every call degrades to "nothing remembered".
+// Only per-browser: clear the site data and the token is gone, and with it the way to
+// edit or delete that slice. Storage can be missing or throw (private windows, blocked
+// data), so every call degrades to "nothing remembered".
 
 const KEY = 'fika.ownedSlices';
 const KEEP = 100;

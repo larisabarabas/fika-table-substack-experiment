@@ -83,7 +83,7 @@ export function GiveModal({ idx, onClose, onGive, initialTo = '', edit = null, o
 
   const editNotice = (error) => (
     error === 'forbidden'
-      ? { tone: 'error', text: 'This link doesn’t match this kind word, so nothing was changed. Use the private link you copied when you gave it.' }
+      ? { tone: 'error', text: 'Nothing was saved: this browser can’t change this kind word.' }
       : error === 'window_closed'
         ? { tone: 'caution', text: 'Your changes weren’t saved: the 24 hours to edit are up.' }
         : { tone: 'error', text: 'That didn’t go through. Check your connection and try again. Your words are still here.' }

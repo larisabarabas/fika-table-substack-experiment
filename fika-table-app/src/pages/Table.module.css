@@ -13,23 +13,18 @@
   text-align: center;
 }
 
-/* What just happened to a slice you edited (green), or why an edit link opened nothing (amber,
-   because nothing is broken). Sticks to the top so it is seen after editing from far down the wall. */
+/* What just happened to a slice you edited or deleted. Sticks to the top so it is seen
+   after editing from far down the wall. */
 .noticeBanner {
   position: sticky;
   top: 0;
   z-index: 5;
-  background: var(--caution-bg);
+  background: var(--accent-soft);
   border-bottom: 1px solid var(--edge);
-  color: var(--caution-ink);
+  color: var(--accent-strong);
   font-size: var(--t2);
   padding: var(--s3) var(--px);
   text-align: center;
-}
-
-.noticeOk {
-  background: var(--accent-soft);
-  color: var(--accent-strong);
 }
 
 .noticeClose {

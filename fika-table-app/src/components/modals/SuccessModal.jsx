@@ -4,8 +4,7 @@ import { ShareCard } from '../share/ShareCard';
 import { ShareSheet } from '../share/ShareSheet';
 import { TO_NAME_FALLBACK } from '../../config';
 import { shortName } from '../../lib/recipient.js';
-import { getShareUrl, getNoteUrl, getEditUrl, buildTellNote } from '../../lib/shareText.js';
-import { EDIT_WINDOW_HOURS } from '../../lib/editRules.js';
+import { getShareUrl, getNoteUrl, buildTellNote } from '../../lib/shareText.js';
 import styles from './modals.module.css';
 
 const NOTES_URL = 'https://substack.com/notes';
@@ -25,11 +24,11 @@ const HINTS = {
 };
 
 // Shown right after someone gives a kind word. One clear next step: tell the person.
-export function SuccessModal({ slice, recipient, editToken, onClose }) {
+// onEdit opens the give form filled in, so a typo noticed right away is one tap to fix
+export function SuccessModal({ slice, recipient, onEdit, onClose }) {
   const [view, setView] = useState('done');   // 'done' | 'note'
   const [copied, setCopied] = useState(null); // null | 'yes' | 'failed'
   const [linkCopied, setLinkCopied] = useState(false);
-  const [editCopied, setEditCopied] = useState(null); // null | 'yes' | 'failed'
 
   const kind = kindOf(slice, recipient);
   const first = kind === 'person' ? shortName(recipient.profile) : '';
@@ -58,14 +57,6 @@ export function SuccessModal({ slice, recipient, editToken, onClose }) {
     Promise.resolve(copy)
       .then(() => setLinkCopied(copy ? 'yes' : 'failed'))
       .catch(() => setLinkCopied('failed'));
-  };
-
-  const editUrl = editToken ? getEditUrl(slice.id, editToken) : '';
-  const copyEditLink = () => {
-    const copy = navigator.clipboard?.writeText(editUrl);
-    Promise.resolve(copy)
-      .then(() => setEditCopied(copy ? 'yes' : 'failed'))
-      .catch(() => setEditCopied('failed'));
   };
 
   const close = (
@@ -157,21 +148,8 @@ export function SuccessModal({ slice, recipient, editToken, onClose }) {
           />
         </div>
 
-        {editToken && (
-          <div className={styles.moreGroup}>
-            <p className={styles.moreCaption}>Change your mind later?</p>
-            <button type="button" className="btn-ghost" onClick={copyEditLink}>
-              {editCopied === 'yes' ? '\u2713 Link copied' : 'Copy your private edit link'}
-            </button>
-            <p className={styles.hint} aria-live="polite">
-              {editCopied === 'failed'
-                ? <>We couldn&rsquo;t copy it automatically. Select it here: <input className={styles.input} readOnly value={editUrl} onFocus={(e) => e.target.select()} aria-label="Your private edit link" /></>
-                : <>Keep this link private: anyone with it can change or delete your kind word. Editing closes after {EDIT_WINDOW_HOURS} hours; deleting works any time.</>}
-            </p>
-          </div>
-        )}
-
         <div className={styles.successActions}>
+          {onEdit && <button type="button" className="btn-ghost" onClick={onEdit}>Edit or delete</button>}
           <button type="button" className="btn-ghost" onClick={onClose}>Back to the table</button>
         </div>
       </div>
