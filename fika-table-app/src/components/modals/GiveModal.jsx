@@ -31,6 +31,7 @@ export function GiveModal({ idx, onClose, onGive, initialTo = '', edit = null, o
   const [submitting,      setSubmitting]      = useState(false);
   const [notice,          setNotice]          = useState(null); // { tone: 'error' | 'caution', text } shown at the top of the card
   const noticeRef = useRef(null);
+  const confirmRef = useRef(null);
   const [cakeFull,        setCakeFull]        = useState(false); // the last slice went while this form was open
   const [showTypes,       setShowTypes]       = useState(false); // recipient-type picker is collapsed until asked for
   const [showColors,      setShowColors]      = useState(false); // icing color is auto-assigned; picker is opt-in
@@ -84,7 +85,7 @@ export function GiveModal({ idx, onClose, onGive, initialTo = '', edit = null, o
     error === 'forbidden'
       ? { tone: 'error', text: 'This link doesn’t match this kind word, so nothing was changed. Use the private link you copied when you gave it.' }
       : error === 'window_closed'
-        ? { tone: 'caution', text: 'The editing window has closed, so this kind word can’t be changed any more. You can still delete it.' }
+        ? { tone: 'caution', text: 'Your changes weren’t saved: the 24 hours to edit are up.' }
         : { tone: 'error', text: 'That didn’t go through. Check your connection and try again. Your words are still here.' }
   );
 
@@ -112,6 +113,13 @@ export function GiveModal({ idx, onClose, onGive, initialTo = '', edit = null, o
     const calm = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     noticeRef.current?.scrollIntoView({ block: 'nearest', behavior: calm ? 'auto' : 'smooth' });
   }, [notice]);
+
+  // Asking "delete?" swaps the buttons for a taller box; keep it in view on a phone
+  useEffect(() => {
+    if (!confirming) return;
+    const calm = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    confirmRef.current?.scrollIntoView({ block: 'nearest', behavior: calm ? 'auto' : 'smooth' });
+  }, [confirming]);
 
   const displayToName   = editing ? (editing.toName || TO_NAME_FALLBACK[toType]) : (recipient.toName || TO_NAME_FALLBACK[toType]);
   const displayFromName = signedAs || 'you';
@@ -322,36 +330,35 @@ export function GiveModal({ idx, onClose, onGive, initialTo = '', edit = null, o
         )}
 
         {editing ? (
-          <>
-            <div className={styles.giveActions}>
-              <button className="btn-ghost" onClick={onClose} disabled={submitting}>Cancel</button>
-              {!closed && (
-                <button className="btn-solid" disabled={!valid || !changed || submitting || lookingUp} onClick={saveEdit}>
-                  {submitting && !confirming ? 'Saving…' : 'Save changes'}
+          confirming ? (
+            <div ref={confirmRef} className={styles.confirmBox} role="group" aria-label="Confirm delete">
+              <p className={styles.confirmText}>
+                Delete this kind word? It leaves the table for good{editing.idx != null && ' and its slice goes back on the cake'}.
+                A Note you posted on Substack will lead to a page that can&rsquo;t find it. This can&rsquo;t be undone.
+              </p>
+              <div className={styles.giveActions}>
+                <button type="button" className="btn-ghost" disabled={submitting} onClick={() => setConfirming(false)}>Keep it</button>
+                <button type="button" className={styles.deleteSolid} disabled={submitting} onClick={deleteIt}>
+                  {submitting ? 'Deleting…' : 'Delete it'}
                 </button>
-              )}
+              </div>
             </div>
-            <div className={styles.deleteZone}>
-              {!confirming ? (
-                <button type="button" className={styles.deleteBtn} disabled={submitting} onClick={() => setConfirming(true)}>
-                  Delete this kind word
-                </button>
-              ) : (
-                <div className={styles.confirmBox} role="group" aria-label="Confirm delete">
-                  <p className={styles.confirmText}>
-                    Delete this kind word? It leaves the table for good{editing.idx != null && ' and its slice goes back on the cake'}.
-                    A Note you posted on Substack will lead to a page that can&rsquo;t find it. This can&rsquo;t be undone.
-                  </p>
-                  <div className={styles.giveActions}>
-                    <button type="button" className="btn-ghost" disabled={submitting} onClick={() => setConfirming(false)}>Keep it</button>
-                    <button type="button" className={styles.deleteSolid} disabled={submitting} onClick={deleteIt}>
-                      {submitting ? 'Deleting…' : 'Delete it'}
-                    </button>
-                  </div>
-                </div>
-              )}
+          ) : (
+            // One row: delete on the left, away from the safe buttons; cancel and save on the right
+            <div className={`${styles.giveActions} ${styles.editActions}`}>
+              <button type="button" className={styles.deleteBtn} disabled={submitting} onClick={() => setConfirming(true)}>
+                Delete this kind word
+              </button>
+              <div className={styles.actionsRight}>
+                <button className="btn-ghost" onClick={onClose} disabled={submitting}>Cancel</button>
+                {!closed && (
+                  <button className="btn-solid" disabled={!valid || !changed || submitting || lookingUp} onClick={saveEdit}>
+                    {submitting ? 'Saving…' : 'Save changes'}
+                  </button>
+                )}
+              </div>
             </div>
-          </>
+          )
         ) : (
           <div className={styles.giveActions}>
             <button className="btn-ghost" onClick={onClose} disabled={submitting}>Maybe later</button>
