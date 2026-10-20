@@ -3,7 +3,7 @@ import { NameSpan } from '../NameLink';
 import { PASTELS } from '../../config';
 import styles from './wall.module.css';
 
-function WallCard({ slice, onRead, landed }) {
+function WallCard({ slice, onRead, landed, mine }) {
   const handleClick = useCallback(() => onRead(slice), [onRead, slice]);
   return (
     <button className={`${styles.card} ${landed ? styles.landed : ''}`} onClick={handleClick}>
@@ -14,6 +14,7 @@ function WallCard({ slice, onRead, landed }) {
         <NameSpan name={slice.toName} fallback="" />
       </span>
       <span className={styles.message}>{slice.message}</span>
+      {mine && <span className={styles.mine}>Yours</span>}
     </button>
   );
 }

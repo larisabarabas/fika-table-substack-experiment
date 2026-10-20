@@ -1,20 +1,8 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { supabase } from '../lib/supabase';
 import { CONFIG } from '../config';
-
-function rowToSlice(row) {
-  return {
-    id:        row.id,
-    idx:       row.idx,
-    round:     row.round ?? 0,
-    fromName:  row.from_name,
-    toName:    row.to_name,
-    toType:    row.to_type,
-    message:   row.message,
-    color:     row.color,
-    createdAt: row.created_at,
-  };
-}
+import { rememberSlice, forgetSlice } from '../lib/ownedSlices';
+import { updateSlice, deleteSlice, rowToSlice, SLICE_COLUMNS } from '../lib/api';
 
 export function useSlices() {
   const [slices,       setSlices]       = useState([]);
@@ -45,7 +33,7 @@ export function useSlices() {
     Promise.all([
       supabase
         .from('slices')
-        .select('id,idx,round,from_name,to_name,to_type,message,color,created_at')
+        .select(SLICE_COLUMNS)
         .order('created_at', { ascending: false }),
       supabase
         .from('cake_config')
@@ -73,6 +61,14 @@ export function useSlices() {
             return exists ? curr : [incoming, ...curr];
           });
         })
+        .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'slices' }, (payload) => {
+          const next = rowToSlice(payload.new);
+          setSlices(curr => curr.map(s => (s.id === next.id ? next : s)));
+        })
+        .on('postgres_changes', { event: 'DELETE', schema: 'public', table: 'slices' }, (payload) => {
+          const id = payload.old?.id;
+          if (id) setSlices(curr => curr.filter(s => s.id !== id));
+        })
         .subscribe();
 
       configChannel = supabase
@@ -97,25 +93,18 @@ export function useSlices() {
   }, []);
 
   const insertSlice = useCallback(async (data) => {
-    const row = {
-      round:     currentRound,
-      idx:       data.idx ?? null,
-      from_name: data.fromName?.trim() || null,
-      to_name:   data.toName,
-      to_type:   data.toType,
-      message:   data.message.trim(),
-      color:     data.color,
-      host:      false,
-    };
-
     const optimistic = { ...data, round: currentRound, id: 'opt-' + Date.now(), createdAt: new Date().toISOString() };
     setSlices(curr => [optimistic, ...curr]);
 
-    const { data: inserted, error: err } = await supabase
-      .from('slices')
-      .insert(row)
-      .select()
-      .single();
+    // give_slice also creates the slice's secret and hands back its edit token, once
+    const { data: inserted, error: err } = await supabase.rpc('give_slice', {
+      p_idx:       data.idx ?? null,
+      p_from_name: data.fromName?.trim() || null,
+      p_to_name:   data.toName,
+      p_to_type:   data.toType,
+      p_message:   data.message.trim(),
+      p_color:     data.color,
+    });
 
     if (err) {
       if (err.code === '23505' && data.idx !== null) {
@@ -124,7 +113,7 @@ export function useSlices() {
         // arrived over realtime yet. Ask the database what is taken this round.
         const { data: taken, error: takenErr } = await supabase
           .from('slices')
-          .select('id,idx,round,from_name,to_name,to_type,message,color,created_at')
+          .select(SLICE_COLUMNS)
           .eq('round', currentRound);
         const takenIdx = new Set(takenErr ? [data.idx] : (taken ?? []).map(r => r.idx));
         if (!takenErr && taken?.length) {
@@ -146,9 +135,39 @@ export function useSlices() {
     }
 
     const real = rowToSlice(inserted);
-    setSlices(curr => curr.map(s => s.id === optimistic.id ? real : s));
-    return { data: real };
+    const editToken = inserted.edit_token;
+    rememberSlice(real.id, editToken);
+    // Realtime may already have delivered this slice; never list it twice
+    setSlices(curr => curr.some(s => s.id === real.id)
+      ? curr.filter(s => s.id !== optimistic.id)
+      : curr.map(s => s.id === optimistic.id ? real : s));
+    return { data: real, editToken };
   }, [currentRound, roundSize, currentFilled]);
+
+  // Edit or delete a slice this browser owns. Both resolve to { data } or { error }, where
+  // error is 'forbidden', 'window_closed' or 'other'; the list follows without waiting for realtime.
+  const editSlice = useCallback(async (id, token, fields) => {
+    try {
+      const updated = await updateSlice({ id, token, ...fields });
+      setSlices(curr => curr.map(s => (s.id === id ? updated : s)));
+      return { data: updated };
+    } catch (err) {
+      if (err.reason === 'forbidden') forgetSlice(id);
+      return { error: err.reason ?? 'other' };
+    }
+  }, []);
+
+  const removeSlice = useCallback(async (id, token) => {
+    try {
+      await deleteSlice({ id, token });
+      forgetSlice(id);
+      setSlices(curr => curr.filter(s => s.id !== id));
+      return {};
+    } catch (err) {
+      if (err.reason === 'forbidden') forgetSlice(id);
+      return { error: err.reason ?? 'other' };
+    }
+  }, []);
 
   const nextFreeIdx = useCallback(() => {
     for (let i = 0; i < roundSize; i++) {
@@ -168,6 +187,8 @@ export function useSlices() {
     loading,
     error,
     insertSlice,
+    editSlice,
+    removeSlice,
     nextFreeIdx,
   };
 }

@@ -13,6 +13,35 @@
   text-align: center;
 }
 
+/* What just happened to a slice you edited or deleted. Sticks to the top so it is seen
+   after editing from far down the wall. */
+.noticeBanner {
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  background: var(--accent-soft);
+  border-bottom: 1px solid var(--edge);
+  color: var(--accent-strong);
+  font-size: var(--t2);
+  padding: var(--s3) var(--px);
+  text-align: center;
+}
+
+.noticeClose {
+  margin-left: var(--s3);
+  color: inherit;
+  font-size: inherit;
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  min-height: 24px;
+}
+
+.noticeClose:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
 /* Header */
 .header {
   display: flex;

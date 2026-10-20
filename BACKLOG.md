@@ -80,7 +80,7 @@ Done on the branch (9 commits before this note, not pushed or merged): marzipan/
 
 **Release checklist:** https://claude.ai/artifact/VCaySuTuffFpnHqjWsR59d (test database, preview deployment, Substack tests, release, rollback).
 
-**Release rule:** nothing merges to main until the redesign and the tell-them flow are both ready. Everything lands on `design/konditori-foundation`, then one release PR. Needs a preview deployment for the Substack tests (and a separate database, or manual cleanup, so test slices don't reach the live wall).
+**Release rule:** nothing merges to main until the redesign and the tell-them flow are both ready. Everything lands on `design/konditori-foundation`, then one release PR. Edit-your-own-slice (below) is built on top of that branch and ships in the same release: see `docs/build/release-edit-own-slices.md` (gitignored, so it exists only on this machine) for the order (migration 2 before the preview test, migration 3 only after the new app is live). Needs a preview deployment for the Substack tests (and a separate database, or manual cleanup, so test slices don't reach the live wall).
 
 **Build plan:** https://claude.ai/artifact/5VoEPsTChzQZ8uddJUTz65 (steps: typing-time verification, success screen, recipient page `/note/:id`, then measure; the site-address step was dropped).
 
@@ -103,11 +103,28 @@ Done on the branch (9 commits before this note, not pushed or merged): marzipan/
 - [ ] Someone asks to have a card removed, or
 - [ ] The "tell them" step is used for a message that isn't kind.
 
+Partly covered already: on `feature/edit-own-slices` a giver can delete their own slice (see below). This trigger is about someone *else* wanting a card gone.
+
 If triggered: add an "Ask us to take this down" action on the recipient page, and a way for the host to hide a slice without editing the database by hand (a `hidden` flag the wall ignores).
 
 **Constraint:** keep the no-rankings rule. Nothing here should surface "most appreciated" writers.
 
 **Effort:** unscoped (brainstorm)
+
+---
+
+### Edit and delete your own slice (branch `feature/edit-own-slices`, built on the redesign branch)
+**Built:** a giver can change the message, signature and icing color for 24 hours, and delete the slice any time (which frees its place on the cake). No accounts: whoever holds the slice's secret owns it. `give_slice` returns a random token once and stores only its SHA-256 hash in `slice_secrets` (kept out of `slices`, which is published over Realtime). Editing reuses the give form, filled in (who it's for is fixed text; delete asks once). Editing belongs to the browser that gave the slice: it keeps the token in local storage, marks the slice "Yours" on the wall, adds a "Yours" filter chip, and offers "Edit or delete" on the success screen and the read modal. There is deliberately no private link, so clearing site data or switching device means that slice can no longer be edited. Cards show "edited".
+- Migrations 2 and 3 in `fika-table-app/supabase/migrations/`. **Release order matters because the preview shares the production database:** `docs/build/release-edit-own-slices.md`.
+- Checked locally: 21 database checks as the `anon` role, 20 browser checks against the real local stack (the flow without a link), plus the give flow and the success screen's Edit or delete button. Not checked: live realtime events for edits and deletes (the local realtime service never delivered events), so test them on the preview with two windows.
+
+**Open**
+- [ ] Apply migration 2 to the hosted database, test on the preview, merge, then apply migration 3 (see the release doc).
+- [ ] Add the give form in edit mode and the "Yours" mark to `npm run check:responsive` (checked by hand at 1100px and 390px only).
+- [ ] Decide whether 24 hours is the right edit window once real readers use it (`update_slice` and `EDIT_WINDOW_HOURS` in `src/lib/editRules.js` must change together).
+- [ ] Slices given before migration 2 have no secret: their givers can't edit or delete them. Remove by hand if asked.
+- [ ] Editing is tied to one browser (no private link). Revisit if readers report losing the ability to edit, or want to edit from their phone after giving on a laptop.
+- [ ] Decided against for now: a "Copy my words" button when the last slice is taken during giving (the message tells people to copy them).
 
 ---
 

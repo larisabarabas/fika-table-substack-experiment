@@ -24,7 +24,8 @@ const HINTS = {
 };
 
 // Shown right after someone gives a kind word. One clear next step: tell the person.
-export function SuccessModal({ slice, recipient, onClose }) {
+// onEdit opens the give form filled in, so a typo noticed right away is one tap to fix
+export function SuccessModal({ slice, recipient, onEdit, onClose }) {
   const [view, setView] = useState('done');   // 'done' | 'note'
   const [copied, setCopied] = useState(null); // null | 'yes' | 'failed'
   const [linkCopied, setLinkCopied] = useState(false);
@@ -147,8 +148,10 @@ export function SuccessModal({ slice, recipient, onClose }) {
           />
         </div>
 
-        <div className={styles.successActions}>
+        {/* The way out on the left edge like everything above it; editing is a quiet link on the right */}
+        <div className={styles.successFooter}>
           <button type="button" className="btn-ghost" onClick={onClose}>Back to the table</button>
+          {onEdit && <button type="button" className={styles.linkBtn} onClick={onEdit}>Edit or delete</button>}
         </div>
       </div>
     </Overlay>

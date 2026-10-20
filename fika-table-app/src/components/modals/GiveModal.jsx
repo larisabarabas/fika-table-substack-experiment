@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { Overlay, CloseIcon } from './Overlay';
 import { PASTELS, TO_NAME_FALLBACK, CONFIG } from '../../config';
 import { LOOKUP, recipientToSave } from '../../lib/recipient.js';
+import { editTimeLeft } from '../../lib/editRules.js';
 import { useProfileLookup } from '../../hooks/useProfileLookup.js';
 import { LookupArea } from './LookupArea';
 import styles from './modals.module.css';
@@ -14,23 +15,38 @@ const TYPE_OPTS = [
   { value: 'anyone', label: 'Leave it on the table', ph: 'you can leave this blank', full: true, msgLabel: "What's something good you want to leave for whoever needs it?" },
 ];
 
-export function GiveModal({ idx, onClose, onGive, initialTo = '' }) {
+// Scroll an element into view, without animation for anyone who asked for less motion
+function bringIntoView(ref) {
+  const calm = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  ref.current?.scrollIntoView({ block: 'nearest', behavior: calm ? 'auto' : 'smooth' });
+}
+
+// The same form gives a kind word and, with `edit`, changes one you already gave: it opens
+// filled in, who it is for is fixed, and saving or deleting goes through onSave / onDelete.
+// Both return { error } on failure ('forbidden', 'window_closed' or anything else); on success the
+// parent closes the modal.
+export function GiveModal({ idx, onClose, onGive, initialTo = '', edit = null, onSave, onDelete }) {
+  const editing = edit?.slice ?? null;
   const isNote = idx === null;
-  const [toType,          setToType]          = useState('writer');
+  const [toType,          setToType]          = useState(editing?.toType ?? 'writer');
   const [toName,          setToName]          = useState(initialTo);
-  const [message,         setMessage]         = useState('');
-  const [fromName,        setFromName]        = useState('');
-  const [color,           setColor]           = useState(isNote ? 0 : idx % 8);
+  const [message,         setMessage]         = useState(editing?.message ?? '');
+  const [fromName,        setFromName]        = useState(editing?.fromName ?? '');
+  const [color,           setColor]           = useState(editing ? editing.color : isNote ? 0 : idx % 8);
   const [website,         setWebsite]         = useState(''); // honeypot — should stay empty
   const [submitting,      setSubmitting]      = useState(false);
   const [notice,          setNotice]          = useState(null); // { tone: 'error' | 'caution', text } shown at the top of the card
   const noticeRef = useRef(null);
+  const confirmRef = useRef(null);
   const [cakeFull,        setCakeFull]        = useState(false); // the last slice went while this form was open
   const [showTypes,       setShowTypes]       = useState(false); // recipient-type picker is collapsed until asked for
   const [showColors,      setShowColors]      = useState(false); // icing color is auto-assigned; picker is opt-in
+  const [fromTouched,     setFromTouched]     = useState(false); // when editing, the signature is only looked up once it is changed
+  const [confirming,      setConfirming]      = useState(false); // asking "delete this kind word?"
+  const [closed,          setClosed]          = useState(() => (editing ? !editTimeLeft(editing.createdAt).open : false));
   // One Substack lookup per field, and both behave the same way
   const toLookup   = useProfileLookup(toName, { initial: initialTo });
-  const fromLookup = useProfileLookup(fromName);
+  const fromLookup = useProfileLookup(editing && !fromTouched ? '' : fromName);
 
   const cur    = TYPE_OPTS.find((o) => o.value === toType);
   const msgLen = message.trim().length;
@@ -39,6 +55,11 @@ export function GiveModal({ idx, onClose, onGive, initialTo = '' }) {
   const recipient = recipientToSave({ typed: toName, lookup: toLookup.lookup });
   const signer    = recipientToSave({ typed: fromName, lookup: fromLookup.lookup });
   const lookingUp = toLookup.lookup.status === LOOKUP.SEARCHING || fromLookup.lookup.status === LOOKUP.SEARCHING;
+  // What gets saved as the signature: an untouched one stays exactly as it was
+  const signedAs  = editing && !fromTouched ? (editing.fromName ?? '') : signer.toName;
+  const changed   = !!editing && (
+    message.trim() !== editing.message || signedAs !== (editing.fromName ?? '') || color !== editing.color
+  );
 
   const submit = async () => {
     if (!valid || website || submitting) return;
@@ -46,7 +67,7 @@ export function GiveModal({ idx, onClose, onGive, initialTo = '' }) {
     setNotice(null);
     const result = await onGive({
       idx,
-      fromName: signer.toName,
+      fromName: signedAs,
       toName:   recipient.toName || TO_NAME_FALLBACK[toType],
       toType,
       message:  message.trim(),
@@ -66,20 +87,47 @@ export function GiveModal({ idx, onClose, onGive, initialTo = '' }) {
     }
   };
 
+  const editNotice = (error) => {
+    if (error === 'forbidden') return { tone: 'error', text: 'Nothing was saved: this browser can’t change this kind word.' };
+    if (error === 'window_closed') return { tone: 'caution', text: 'Your changes weren’t saved: the 24 hours to edit are up.' };
+    return { tone: 'error', text: 'That didn’t go through. Check your connection and try again. Your words are still here.' };
+  };
+
+  const run = async (action) => {
+    setSubmitting(true);
+    setNotice(null);
+    const result = await action();
+    if (result?.error) {
+      if (result.error === 'window_closed') setClosed(true);
+      setConfirming(false);
+      setNotice(editNotice(result.error));
+      setSubmitting(false);
+    }
+  };
+  const saveEdit = () => {
+    if (!valid || !changed || closed || submitting || lookingUp) return;
+    run(() => onSave({ message: message.trim(), fromName: signedAs, color }));
+  };
+  const deleteIt = () => { if (!submitting) run(() => onDelete()); };
+
   // The notice sits at the top of the card; on a phone the button that caused it is far below,
   // so bring it into view without stealing focus from the field the person is in
   useEffect(() => {
-    if (!notice) return;
-    const calm = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    noticeRef.current?.scrollIntoView({ block: 'nearest', behavior: calm ? 'auto' : 'smooth' });
+    if (notice) bringIntoView(noticeRef);
   }, [notice]);
 
-  const displayToName   = recipient.toName || TO_NAME_FALLBACK[toType];
-  const displayFromName = signer.toName || 'you';
+  // Asking "delete?" swaps the buttons for a taller box; keep it in view on a phone
+  useEffect(() => {
+    if (confirming) bringIntoView(confirmRef);
+  }, [confirming]);
+
+  const displayToName   = (editing ? editing.toName : recipient.toName) || TO_NAME_FALLBACK[toType];
+  const displayFromName = signedAs || 'you';
+  const timeLeft        = editing ? editTimeLeft(editing.createdAt) : null;
   const showPreview     = msgLen > 1;
 
   return (
-    <Overlay onClose={onClose} wide label="Pour a coffee, take a slice">
+    <Overlay onClose={onClose} wide label={editing ? 'Edit your kind word' : 'Pour a coffee, take a slice'}>
       <div className={styles.give}>
         {/* Spam honeypot — hidden from real users, attractive to bots */}
         <div className={styles.honeypot} aria-hidden="true">
@@ -98,7 +146,7 @@ export function GiveModal({ idx, onClose, onGive, initialTo = '' }) {
 
         {/* Only the title row sticks while a tall form scrolls, so the close button stays in reach */}
         <div className={styles.giveHead}>
-          <h3 className={styles.giveTitle}>Pour a coffee, take a slice</h3>
+          <h3 className={styles.giveTitle}>{editing ? 'Edit your kind word' : 'Pour a coffee, take a slice'}</h3>
           <button className={styles.closeBtn} onClick={onClose} aria-label="Close"><CloseIcon /></button>
         </div>
         {/* Always mounted, so a message that appears is announced */}
@@ -117,15 +165,18 @@ export function GiveModal({ idx, onClose, onGive, initialTo = '' }) {
             </div>
           )}
         </div>
-        <p className={styles.giveSub}>{CONFIG.giveModalSub}</p>
+        <p className={styles.giveSub}>
+          {!editing ? CONFIG.giveModalSub : closed ? 'The editing window has closed. You can still delete it.' : `${timeLeft.label}. You can delete it any time.`}
+        </p>
 
-        <label htmlFor="give-message" className={styles.fieldLabel}>{cur.msgLabel}</label>
+        <label htmlFor="give-message" className={styles.fieldLabel}>{editing ? 'Your kind word' : cur.msgLabel}</label>
         <textarea
           id="give-message"
           className={`${styles.input} ${styles.textarea}`}
           value={message}
           rows={3}
           placeholder="Even a short thank-you counts"
+          readOnly={closed}
           onChange={(e) => setMessage(e.target.value)}
         />
         <div className={styles.charRow}>
@@ -135,18 +186,27 @@ export function GiveModal({ idx, onClose, onGive, initialTo = '' }) {
           </span>
         </div>
 
-        <div className={styles.toRow}>
-          <span className={styles.toValue}>{cur.label}</span>
-          <button
-            type="button"
-            className={styles.linkBtn}
-            aria-expanded={showTypes}
-            onClick={() => setShowTypes((v) => !v)}
-          >
-            {showTypes ? 'Done' : 'Change'}
-          </button>
-        </div>
-        {showTypes && (
+        {editing ? (
+          <>
+            <div className={styles.toRow}>
+              <span className={styles.toValue}>For {displayToName}</span>
+            </div>
+            <p className={styles.hint}>Who it&rsquo;s for can&rsquo;t change. To change that, delete this one and write a new one.</p>
+          </>
+        ) : (
+          <div className={styles.toRow}>
+            <span className={styles.toValue}>{cur.label}</span>
+            <button
+              type="button"
+              className={styles.linkBtn}
+              aria-expanded={showTypes}
+              onClick={() => setShowTypes((v) => !v)}
+            >
+              {showTypes ? 'Done' : 'Change'}
+            </button>
+          </div>
+        )}
+        {!editing && showTypes && (
           <fieldset className={styles.typeSet}>
             <legend className={styles.srOnly}>Who's this slice for?</legend>
             <div className={styles.typeGrid}>
@@ -172,7 +232,7 @@ export function GiveModal({ idx, onClose, onGive, initialTo = '' }) {
         )}
 
         {/* A word left on the table is for everyone, so there is no one to name */}
-        {toType !== 'anyone' && (
+        {!editing && toType !== 'anyone' && (
           <>
           <label htmlFor="give-to" className={styles.fieldLabel}>
             Their name or Substack @handle <span className={styles.opt}>optional</span>
@@ -206,17 +266,20 @@ export function GiveModal({ idx, onClose, onGive, initialTo = '' }) {
           value={fromName}
           placeholder="your name or @handle"
           maxLength={100}
-          onChange={(e) => { setFromName(e.target.value); fromLookup.onTyping(e.target.value); }}
+          readOnly={closed}
+          onChange={(e) => { setFromName(e.target.value); setFromTouched(true); fromLookup.onTyping(e.target.value); }}
         />
-        <LookupArea
-          lookup={fromLookup}
-          typed={fromName}
-          who="you"
-          onConfirm={fromLookup.confirm}
-          onReject={fromLookup.reject}
-          onRetry={fromLookup.retry}
-          onKeep={fromLookup.keepPlain}
-        />
+        {(!editing || fromTouched) && (
+          <LookupArea
+            lookup={fromLookup}
+            typed={fromName}
+            who="you"
+            onConfirm={fromLookup.confirm}
+            onReject={fromLookup.reject}
+            onRetry={fromLookup.retry}
+            onKeep={fromLookup.keepPlain}
+          />
+        )}
 
         <div className={styles.colorRow}>
           <span className={styles.colorSwatch} style={{ background: PASTELS[color % PASTELS.length] }} aria-hidden="true" />
@@ -225,6 +288,7 @@ export function GiveModal({ idx, onClose, onGive, initialTo = '' }) {
             type="button"
             className={styles.linkBtn}
             aria-expanded={showColors}
+            disabled={closed}
             onClick={() => setShowColors((v) => !v)}
           >
             {showColors ? 'Done' : 'Change color'}
@@ -265,12 +329,44 @@ export function GiveModal({ idx, onClose, onGive, initialTo = '' }) {
           </div>
         )}
 
-        <div className={styles.giveActions}>
-          <button className="btn-ghost" onClick={onClose} disabled={submitting}>Maybe later</button>
-          <button className="btn-solid" disabled={!valid || submitting || lookingUp || cakeFull} aria-describedby={cakeFull ? 'give-notice' : undefined} onClick={submit}>
-            {cakeFull ? 'All slices taken' : submitting ? 'Taking the slice…' : 'Take the slice'}
-          </button>
-        </div>
+        {editing ? (
+          confirming ? (
+            <div ref={confirmRef} className={styles.confirmBox} role="group" aria-label="Confirm delete">
+              <p className={styles.confirmText}>
+                Delete this kind word? It leaves the table for good{editing.idx != null && ' and its slice goes back on the cake'}.
+                A Note you posted on Substack will lead to a page that can&rsquo;t find it. This can&rsquo;t be undone.
+              </p>
+              <div className={styles.giveActions}>
+                <button type="button" className="btn-ghost" disabled={submitting} onClick={() => setConfirming(false)}>Keep it</button>
+                <button type="button" className={styles.deleteSolid} disabled={submitting} onClick={deleteIt}>
+                  {submitting ? 'Deleting…' : 'Delete it'}
+                </button>
+              </div>
+            </div>
+          ) : (
+            // One row: cancel on the left; delete and save on the right, save last
+            <div className={`${styles.giveActions} ${styles.editActions}`}>
+              <button className="btn-ghost" onClick={onClose} disabled={submitting}>Cancel</button>
+              <div className={styles.actionsRight}>
+                <button type="button" className={styles.deleteBtn} disabled={submitting} onClick={() => setConfirming(true)}>
+                  Delete word
+                </button>
+                {!closed && (
+                  <button className="btn-solid" disabled={!valid || !changed || submitting || lookingUp} onClick={saveEdit}>
+                    {submitting ? 'Saving…' : 'Save changes'}
+                  </button>
+                )}
+              </div>
+            </div>
+          )
+        ) : (
+          <div className={styles.giveActions}>
+            <button className="btn-ghost" onClick={onClose} disabled={submitting}>Maybe later</button>
+            <button className="btn-solid" disabled={!valid || submitting || lookingUp || cakeFull} aria-describedby={cakeFull ? 'give-notice' : undefined} onClick={submit}>
+              {cakeFull ? 'All slices taken' : submitting ? 'Taking the slice…' : 'Take the slice'}
+            </button>
+          </div>
+        )}
       </div>
     </Overlay>
   );
