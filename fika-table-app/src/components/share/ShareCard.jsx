@@ -24,7 +24,7 @@ export function ShareCard({
           {slice.message}
         </p>
         <p className={`${styles.fromLine} ${fromLineClassName}`}>
-          from <span className={styles.fromLineNm}>{slice.fromName || 'a guest'}</span>{day && `, ${day}`}
+          from <span className={styles.fromLineNm}>{slice.fromName || 'a guest'}</span>{day && `, ${day}`}{slice.editedAt && ' · edited'}
         </p>
         {children}
       </div>

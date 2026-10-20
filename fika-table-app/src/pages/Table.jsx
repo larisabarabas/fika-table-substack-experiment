@@ -62,7 +62,7 @@ export default function Table() {
     }
     if (!result?.error && result?.data) {
       setGiving(null);
-      if (CONFIG.tellThemEnabled) setSuccess({ slice: result.data, recipient });
+      if (CONFIG.tellThemEnabled) setSuccess({ slice: result.data, recipient, editToken: result.editToken });
       else setReading(result.data);
       setPending({ id: result.data.id, idx: result.data.idx });
       setTimeout(fireConfetti, 60);
@@ -171,7 +171,7 @@ export default function Table() {
         <ReadModal slice={reading} onClose={closeReading} />
       ) : null}
       {success ? (
-        <SuccessModal slice={success.slice} recipient={success.recipient} onClose={closeSuccess} />
+        <SuccessModal slice={success.slice} recipient={success.recipient} editToken={success.editToken} onClose={closeSuccess} />
       ) : null}
       {giving !== null ? (
         <GiveModal
