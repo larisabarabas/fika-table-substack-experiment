@@ -344,13 +344,13 @@ export function GiveModal({ idx, onClose, onGive, initialTo = '', edit = null, o
               </div>
             </div>
           ) : (
-            // One row: delete on the left, away from the safe buttons; cancel and save on the right
+            // One row: cancel on the left; delete and save on the right, save last
             <div className={`${styles.giveActions} ${styles.editActions}`}>
-              <button type="button" className={styles.deleteBtn} disabled={submitting} onClick={() => setConfirming(true)}>
-                Delete this kind word
-              </button>
+              <button className="btn-ghost" onClick={onClose} disabled={submitting}>Cancel</button>
               <div className={styles.actionsRight}>
-                <button className="btn-ghost" onClick={onClose} disabled={submitting}>Cancel</button>
+                <button type="button" className={styles.deleteBtn} disabled={submitting} onClick={() => setConfirming(true)}>
+                  Delete note
+                </button>
                 {!closed && (
                   <button className="btn-solid" disabled={!valid || !changed || submitting || lookingUp} onClick={saveEdit}>
                     {submitting ? 'Saving…' : 'Save changes'}

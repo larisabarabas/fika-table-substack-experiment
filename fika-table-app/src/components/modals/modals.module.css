@@ -271,7 +271,7 @@
   margin-top: 18px;
 }
 
-/* Edit mode: one row of actions, delete on the left and cancel / save on the right.
+/* Edit mode: one row of actions, cancel on the left and delete / save on the right.
    Delete asks once before it does anything. */
 .editActions {
   justify-content: space-between;
@@ -285,7 +285,7 @@
   margin-left: auto;
 }
 
-/* On a phone the safe actions come first and delete sits below them */
+/* On a phone delete and save come first and cancel sits below them */
 @media (max-width: 480px) {
   .editActions {
     flex-direction: column-reverse;
@@ -297,7 +297,7 @@
     justify-content: flex-end;
   }
 
-  .editActions .deleteBtn {
+  .editActions > :first-child {
     align-self: flex-start;
   }
 }
