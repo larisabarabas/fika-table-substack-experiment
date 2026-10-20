@@ -1,0 +1,293 @@
+.page {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: var(--s5) var(--px) 0;
+  background: radial-gradient(52% 48% at 50% 40%, rgba(143, 217, 168, 0.28), transparent 70%), var(--paper);
+}
+
+.logoLink {
+  display: block;
+  line-height: 0;
+}
+
+.logo {
+  display: block;
+  height: 48px;
+  width: auto;
+}
+
+.stage {
+  flex: 1;
+  width: 100%;
+  max-width: 600px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--s4);
+  padding-block: var(--s6);
+}
+
+.column {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--s4);
+}
+
+.heading {
+  margin: 0;
+  font-family: var(--f-display);
+  font-weight: 700;
+  font-size: clamp(28px, 6vw, 38px);
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  text-wrap: balance;
+  overflow-wrap: anywhere;
+}
+
+.sub {
+  margin: 0;
+  font-size: var(--t3);
+  color: var(--sub);
+  line-height: 1.55;
+  max-width: 52ch;
+}
+
+/* Message above the card: ok (green) saved, caution (amber) recoverable, error (red) broke */
+.notice {
+  padding: 10px 12px;
+  border-radius: 10px;
+  font-size: var(--t2);
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+
+.notice_ok {
+  background: var(--accent-soft);
+  color: var(--accent-strong);
+}
+
+.notice_caution {
+  background: var(--caution-bg);
+  color: var(--caution-ink);
+}
+
+.notice_error {
+  background: var(--error-bg);
+  border: 1px solid var(--error-edge);
+  color: var(--error);
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s1);
+  margin-top: var(--s2);
+}
+
+.label {
+  margin-top: var(--s3);
+  font-size: var(--t2);
+  font-weight: 600;
+}
+
+.opt {
+  font-weight: 400;
+  color: var(--sub);
+}
+
+.field {
+  width: 100%;
+  margin-top: 6px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid var(--edge);
+  background: var(--panel);
+  color: var(--ink);
+  font-size: var(--t3);
+}
+
+.field:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  border-color: var(--accent);
+}
+
+.textarea {
+  resize: vertical;
+  min-height: 96px;
+  line-height: 1.5;
+}
+
+.charRow {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--s3);
+  font-size: var(--t1);
+  color: var(--sub);
+}
+
+.over {
+  color: var(--error);
+}
+
+.dots {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 6px;
+}
+
+.dot {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 2px solid transparent;
+  transition: transform 0.12s, border-color 0.12s;
+}
+
+.dot:hover {
+  transform: scale(1.1);
+}
+
+.dotOn {
+  border-color: var(--ink);
+  transform: scale(1.1);
+}
+
+.dot:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.fixed {
+  margin: var(--s3) 0 0;
+  font-size: var(--t2);
+  color: var(--sub);
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--s3) var(--s5);
+  margin-top: var(--s4);
+}
+
+.back {
+  color: var(--ink);
+  font-weight: 600;
+  font-size: var(--t3);
+  text-underline-offset: 4px;
+  padding: var(--s2) 0;
+}
+
+.back:hover {
+  color: var(--accent);
+}
+
+.back:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 4px;
+}
+
+/* Delete sits apart from saving, and asks once before it does anything */
+.danger {
+  margin-top: var(--s5);
+  padding-top: var(--s4);
+  border-top: 1px solid var(--edge);
+}
+
+.deleteBtn,
+.deleteSolid {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  padding: 0 20px;
+  border-radius: var(--radius-pill);
+  font-weight: 600;
+  font-size: var(--t3);
+}
+
+.deleteBtn {
+  border: 1px solid var(--error-edge);
+  color: var(--error);
+  background: transparent;
+}
+
+.deleteBtn:hover {
+  background: var(--error-bg);
+}
+
+.deleteSolid {
+  background: var(--error);
+  color: #fff;
+}
+
+.deleteSolid:hover {
+  background: #991b1b;
+}
+
+.deleteBtn:disabled,
+.deleteSolid:disabled {
+  opacity: 0.45;
+  pointer-events: none;
+}
+
+.deleteBtn:focus-visible,
+.deleteSolid:focus-visible {
+  outline: 2px solid var(--error);
+  outline-offset: 2px;
+}
+
+.confirm {
+  padding: var(--s4);
+  border-radius: var(--radius-card);
+  background: var(--error-bg);
+  border: 1px solid var(--error-edge);
+}
+
+.confirmText {
+  margin: 0;
+  font-size: var(--t3);
+  line-height: 1.5;
+}
+
+.confirm .actions {
+  margin-top: var(--s3);
+}
+
+.skeleton {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s5);
+}
+
+.skLine,
+.skCard {
+  border-radius: var(--radius-card);
+  background: var(--edge);
+}
+
+.skHead {
+  height: 40px;
+  width: 70%;
+}
+
+.skCard {
+  height: 220px;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .skLine,
+  .skCard {
+    animation: pulse 1.3s ease-in-out infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 0.5; }
+    50% { opacity: 1; }
+  }
+}
