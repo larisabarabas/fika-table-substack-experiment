@@ -1,3 +1,5 @@
+import { safeAvatarUrl } from './_avatar.js';
+
 // Matches a Substack handle: what fetchByHandle accepts as input, and what we
 // re-check any handle against before trusting it — including ones that come back
 // from Substack's own search response, since that's still untrusted input to us
@@ -79,7 +81,7 @@ async function fetchByName(query, res) {
 
     const candidates = picks.slice(0, MAX_CANDIDATES).map((r) => ({
       name: r.name || null,
-      image: r.photo_url || null,
+      image: safeAvatarUrl(r.photo_url),
       description: r.bio || null,
       handle: r.handle,
       match,
@@ -154,6 +156,8 @@ async function fetchByHandle(handle, res) {
       if (image) break;
     }
     if (!image) image = getMeta('property', 'og:image') || getMeta('name', 'twitter:image');
+
+    image = safeAvatarUrl(image);
 
     // Strip " | Substack" suffix from the og:title
     const rawName = getMeta('property', 'og:title') || getMeta('name', 'twitter:title');
