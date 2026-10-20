@@ -114,13 +114,13 @@ If triggered: add an "Ask us to take this down" action on the recipient page, an
 ---
 
 ### Edit and delete your own slice (branch `feature/edit-own-slices`, built on the redesign branch)
-**Built:** a giver can change the message, signature and icing color for 24 hours, and delete the slice any time (which frees its place on the cake). No accounts: whoever holds the slice's secret owns it. `give_slice` returns a random token once and stores only its SHA-256 hash in `slice_secrets` (kept out of `slices`, which is published over Realtime). The success screen offers a private link (`/edit/:id#token`, token in the fragment so no server sees it); the browser that gave the slice also remembers the token and shows "Edit or delete your slice" on the read modal. Cards show "edited". Who the slice is for can't change.
+**Built:** a giver can change the message, signature and icing color for 24 hours, and delete the slice any time (which frees its place on the cake). No accounts: whoever holds the slice's secret owns it. `give_slice` returns a random token once and stores only its SHA-256 hash in `slice_secrets` (kept out of `slices`, which is published over Realtime). Editing reuses the give form, filled in (who it's for is fixed text; delete asks once). The success screen offers a private link (`/table?edit=<id>#<token>`, token in the fragment so no server sees it); the browser that gave the slice also remembers the token, marks the slice "Yours · edit" on the wall, adds a "Yours" filter chip, and shows "Edit or delete your slice" on the read modal. Cards show "edited".
 - Migrations 2 and 3 in `fika-table-app/supabase/migrations/`. **Release order matters because the preview shares the production database:** `docs/build/release-edit-own-slices.md`.
-- Checked locally: 21 database checks as the `anon` role, 23 browser checks against the real local stack, plus the give flow and success-screen link. Not checked: live realtime events for edits and deletes (the local realtime service never delivered events), so test them on the preview with two windows.
+- Checked locally: 21 database checks as the `anon` role, 26 browser checks against the real local stack, plus the give flow and success-screen link. Not checked: live realtime events for edits and deletes (the local realtime service never delivered events), so test them on the preview with two windows.
 
 **Open**
 - [ ] Apply migration 2 to the hosted database, test on the preview, merge, then apply migration 3 (see the release doc).
-- [ ] Add `/edit/:id` to `npm run check:responsive` (checked by hand at 1100px and 390px only).
+- [ ] Add the give form in edit mode and the "Yours" mark to `npm run check:responsive` (checked by hand at 1100px and 390px only).
 - [ ] Decide whether 24 hours is the right edit window once real readers use it (`update_slice` and `EDIT_WINDOW_HOURS` in `src/lib/editRules.js` must change together).
 - [ ] Slices given before migration 2 have no secret: their givers can't edit or delete them. Remove by hand if asked.
 - [ ] Decided against for now: a "Copy my words" button when the last slice is taken during giving (the message tells people to copy them).
