@@ -11,13 +11,14 @@ function rowToSlice(row) {
     message:   row.message,
     color:     row.color,
     createdAt: row.created_at,
+    editedAt:  row.edited_at ?? null,
   };
 }
 
 export async function fetchSlice(id) {
   const { data, error } = await supabase
     .from('slices')
-    .select('id,idx,round,from_name,to_name,to_type,message,color,created_at')
+    .select('id,idx,round,from_name,to_name,to_type,message,color,created_at,edited_at')
     .eq('id', id)
     .single();
   if (error) throw error;
