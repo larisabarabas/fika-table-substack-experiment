@@ -14,7 +14,7 @@ function WallCard({ slice, onRead, landed, mine }) {
         <NameSpan name={slice.toName} fallback="" />
       </span>
       <span className={styles.message}>{slice.message}</span>
-      {mine && <span className={styles.mine}>Yours · edit</span>}
+      {mine && <span className={styles.mine}>Yours</span>}
     </button>
   );
 }

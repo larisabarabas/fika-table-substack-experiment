@@ -339,12 +339,13 @@ export function GiveModal({ idx, onClose, onGive, initialTo = '', edit = null, o
               ) : (
                 <div className={styles.confirmBox} role="group" aria-label="Confirm delete">
                   <p className={styles.confirmText}>
-                    Delete this kind word? It leaves the table for good and its slice is freed. This can&rsquo;t be undone.
+                    Delete this kind word? It leaves the table for good{editing.idx != null && ' and its slice goes back on the cake'}.
+                    A Note you posted on Substack will lead to a page that can&rsquo;t find it. This can&rsquo;t be undone.
                   </p>
                   <div className={styles.giveActions}>
                     <button type="button" className="btn-ghost" disabled={submitting} onClick={() => setConfirming(false)}>Keep it</button>
                     <button type="button" className={styles.deleteSolid} disabled={submitting} onClick={deleteIt}>
-                      {submitting ? 'Deleting…' : 'Yes, delete it'}
+                      {submitting ? 'Deleting…' : 'Delete it'}
                     </button>
                   </div>
                 </div>

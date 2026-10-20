@@ -23,7 +23,7 @@ export function ReadModal({ slice, onClose, onEdit }) {
         {slice.editedAt && <p className={styles.hint}>Edited {formatDay(slice.editedAt)}</p>}
         {onEdit && (
           <p className={styles.hint}>
-            <button type="button" className={styles.linkBtn} onClick={() => onEdit(slice)}>Edit or delete your slice</button>
+            <button type="button" className={styles.linkBtn} onClick={() => onEdit(slice)}>Edit or delete your kind word</button>
           </p>
         )}
       </div>

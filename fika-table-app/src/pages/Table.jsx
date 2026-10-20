@@ -19,7 +19,7 @@ export default function Table() {
   const [success,     setSuccess]     = useState(null); // { slice, recipient } right after giving
   const [giving,      setGiving]      = useState(null);
   const [editing,     setEditing]     = useState(null); // { slice, token }: the give form, filled in with a slice this browser gave
-  const [editNotice,  setEditNotice]  = useState(null); // why a private edit link did not open anything
+  const [banner,      setBanner]      = useState(null); // { tone: 'ok' | 'caution', text }: what just happened to a slice you edited, or why an edit link opened nothing
   // The slice just given: held back from the cake and wall until its read
   // modal closes, then celebrated once so the motion isn't hidden behind it.
   const [pending,     setPending]     = useState(null);
@@ -69,7 +69,12 @@ export default function Table() {
     const slice = slices.find((s) => s.id === id);
     startTransition(() => {
       if (slice && token) setEditing({ slice, token });
-      else setEditNotice(slice ? 'nolink' : 'missing');
+      else setBanner({
+        tone: 'caution',
+        text: slice
+          ? 'This browser doesn’t have the private link for that kind word. Open the link you copied when you gave it.'
+          : 'That kind word isn’t on the table any more.',
+      });
     });
   }, [loading, error, slices, searchParams, setSearchParams, hash]);
 
@@ -80,13 +85,19 @@ export default function Table() {
 
   const handleSave = useCallback(async (fields) => {
     const result = await editSlice(editing.slice.id, editing.token, fields);
-    if (!result.error) setEditing(null);
+    if (!result.error) {
+      setEditing(null);
+      setBanner({ tone: 'ok', text: 'Saved. A Note you already posted on Substack keeps the old words.' });
+    }
     return result;
   }, [editSlice, editing]);
 
   const handleDelete = useCallback(async () => {
     const result = await removeSlice(editing.slice.id, editing.token);
-    if (!result.error) setEditing(null);
+    if (!result.error) {
+      setEditing(null);
+      setBanner({ tone: 'ok', text: editing.slice.idx != null ? 'Deleted. Its slice is back on the cake.' : 'Deleted.' });
+    }
     return result;
   }, [removeSlice, editing]);
 
@@ -157,12 +168,10 @@ export default function Table() {
           Could not load the table — please refresh and try again.
         </div>
       )}
-      {editNotice && (
-        <div className={styles.noticeBanner} role="status">
-          {editNotice === 'missing'
-            ? 'That kind word isn’t on the table any more, so there is nothing to edit.'
-            : 'This browser doesn’t have the private link for that kind word. Open the link you copied when you gave it.'}
-          <button type="button" className={styles.noticeClose} onClick={() => setEditNotice(null)}>Dismiss</button>
+      {banner && (
+        <div className={`${styles.noticeBanner} ${banner.tone === 'ok' ? styles.noticeOk : ''}`} role="status">
+          {banner.text}
+          <button type="button" className={styles.noticeClose} onClick={() => setBanner(null)}>Dismiss</button>
         </div>
       )}
 

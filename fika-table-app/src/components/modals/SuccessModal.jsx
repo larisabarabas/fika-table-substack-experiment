@@ -166,7 +166,7 @@ export function SuccessModal({ slice, recipient, editToken, onClose }) {
             <p className={styles.hint} aria-live="polite">
               {editCopied === 'failed'
                 ? <>We couldn&rsquo;t copy it automatically. Select it here: <input className={styles.input} readOnly value={editUrl} onFocus={(e) => e.target.select()} aria-label="Your private edit link" /></>
-                : <>Keep it to yourself: anyone with this link can change or delete your kind word. You can edit it for {EDIT_WINDOW_HOURS} hours and delete it any time. This browser remembers it too.</>}
+                : <>Keep this link private: anyone with it can change or delete your kind word. Editing closes after {EDIT_WINDOW_HOURS} hours; deleting works any time.</>}
             </p>
           </div>
         )}
