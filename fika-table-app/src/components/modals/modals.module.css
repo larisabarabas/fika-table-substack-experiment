@@ -512,6 +512,7 @@
   text-underline-offset: 3px;
 }
 
+.closeBtn:focus-visible,
 .linkBtn:focus-visible,
 .frostDot:focus-visible,
 .typeBtn:focus-visible {
