@@ -285,20 +285,30 @@
   margin-left: auto;
 }
 
-/* On a phone delete and save come first and cancel sits below them */
-@media (max-width: 480px) {
+/* On a phone delete and save share the first row edge to edge, and cancel is a full-width row below.
+   The three buttons need about 360px of card, so this switches before 560px, not at the phone-only 480px */
+@media (max-width: 560px) {
   .editActions {
     flex-direction: column-reverse;
     align-items: stretch;
-    gap: var(--s4);
+    gap: var(--s3);
   }
 
+  /* margin-left: auto would stop the row stretching to the card's width */
   .actionsRight {
-    justify-content: flex-end;
+    margin-left: 0;
+    flex-wrap: wrap;
   }
 
+  /* Cancel now spans the card, so its label sits in the middle (btn-ghost itself is shared, so it is left alone) */
   .editActions > :first-child {
-    align-self: flex-start;
+    justify-content: center;
+  }
+
+  /* Labels stay on one line; on the narrowest cards the two buttons stack instead of squeezing */
+  .actionsRight > * {
+    flex: 1 1 auto;
+    white-space: nowrap;
   }
 }
 
