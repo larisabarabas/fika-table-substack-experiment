@@ -1,4 +1,5 @@
 import { supabase } from './supabase';
+import { editErrorFrom } from './editRules';
 
 function rowToSlice(row) {
   return {
@@ -23,4 +24,26 @@ export async function fetchSlice(id) {
     .single();
   if (error) throw error;
   return rowToSlice(data);
+}
+
+// A failed edit or delete throws an Error whose `reason` is 'forbidden', 'window_closed' or 'other'
+function editFailure(error) {
+  return Object.assign(new Error(error.message), { reason: editErrorFrom(error) });
+}
+
+export async function updateSlice({ id, token, message, fromName, color }) {
+  const { data, error } = await supabase.rpc('update_slice', {
+    p_id:        id,
+    p_token:     token,
+    p_message:   message.trim(),
+    p_from_name: fromName?.trim() || null,
+    p_color:     color,
+  });
+  if (error) throw editFailure(error);
+  return rowToSlice(data);
+}
+
+export async function deleteSlice({ id, token }) {
+  const { error } = await supabase.rpc('delete_slice', { p_id: id, p_token: token });
+  if (error) throw editFailure(error);
 }
