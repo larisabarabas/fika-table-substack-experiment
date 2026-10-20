@@ -7,10 +7,11 @@ export function getNoteUrl(id) {
   return `${window.location.origin}/note/${id}`;
 }
 
-// The giver's private link to change or delete their own slice. The token sits in the
-// #fragment, which browsers never send to a server, so it stays out of logs and analytics.
+// The giver's private link to change or delete their own slice: it opens the table with the
+// give form filled in. The token sits in the #fragment, which browsers never send to a
+// server, so it stays out of logs and analytics.
 export function getEditUrl(id, token) {
-  return `${window.location.origin}/edit/${id}#${token}`;
+  return `${window.location.origin}/table?edit=${id}#${token}`;
 }
 
 // The Note the giver posts on Substack. The profile link comes first so Substack can

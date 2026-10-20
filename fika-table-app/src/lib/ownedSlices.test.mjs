@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { rememberSlice, editTokenFor, forgetSlice } from './ownedSlices.js';
+import { rememberSlice, editTokenFor, forgetSlice, ownedIds } from './ownedSlices.js';
 
 const fakeStorage = (initial = {}) => {
   const data = { ...initial };
@@ -61,4 +61,14 @@ test('damaged stored data reads as empty and is replaced on the next save', () =
   assert.equal(editTokenFor('a', s), 'tok-a');
   const arr = fakeStorage({ 'fika.ownedSlices': '[1,2]' });
   assert.equal(editTokenFor('a', arr), null);
+});
+
+test('ownedIds lists every remembered slice and nothing else', () => {
+  const s = fakeStorage();
+  assert.deepEqual([...ownedIds(s)], []);
+  rememberSlice('a', 'tok-a', s);
+  rememberSlice('b', 'tok-b', s);
+  forgetSlice('a', s);
+  assert.deepEqual([...ownedIds(s)], ['b']);
+  assert.deepEqual([...ownedIds(undefined)], []);
 });

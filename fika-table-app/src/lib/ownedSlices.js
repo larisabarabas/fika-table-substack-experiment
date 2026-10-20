@@ -33,6 +33,11 @@ export function editTokenFor(id, storage = globalThis.localStorage) {
   return typeof entry?.token === 'string' ? entry.token : null;
 }
 
+// Ids of every slice this browser can still edit or delete
+export function ownedIds(storage = globalThis.localStorage) {
+  return new Set(Object.keys(readAll(storage)));
+}
+
 export function forgetSlice(id, storage = globalThis.localStorage) {
   try {
     const all = readAll(storage);

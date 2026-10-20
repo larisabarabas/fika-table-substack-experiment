@@ -1,7 +1,8 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { supabase } from '../lib/supabase';
 import { CONFIG } from '../config';
-import { rememberSlice } from '../lib/ownedSlices';
+import { rememberSlice, forgetSlice } from '../lib/ownedSlices';
+import { updateSlice, deleteSlice } from '../lib/api';
 
 function rowToSlice(row) {
   return {
@@ -158,6 +159,31 @@ export function useSlices() {
     return { data: real, editToken };
   }, [currentRound, roundSize, currentFilled]);
 
+  // Edit or delete a slice this browser owns. Both resolve to { data } or { error }, where
+  // error is 'forbidden', 'window_closed' or 'other'; the list follows without waiting for realtime.
+  const editSlice = useCallback(async (id, token, fields) => {
+    try {
+      const updated = await updateSlice({ id, token, ...fields });
+      setSlices(curr => curr.map(s => (s.id === id ? updated : s)));
+      return { data: updated };
+    } catch (err) {
+      if (err.reason === 'forbidden') forgetSlice(id);
+      return { error: err.reason ?? 'other' };
+    }
+  }, []);
+
+  const removeSlice = useCallback(async (id, token) => {
+    try {
+      await deleteSlice({ id, token });
+      forgetSlice(id);
+      setSlices(curr => curr.filter(s => s.id !== id));
+      return {};
+    } catch (err) {
+      if (err.reason === 'forbidden') forgetSlice(id);
+      return { error: err.reason ?? 'other' };
+    }
+  }, []);
+
   const nextFreeIdx = useCallback(() => {
     for (let i = 0; i < roundSize; i++) {
       if (!currentFilled[i]) return i;
@@ -176,6 +202,8 @@ export function useSlices() {
     loading,
     error,
     insertSlice,
+    editSlice,
+    removeSlice,
     nextFreeIdx,
   };
 }
