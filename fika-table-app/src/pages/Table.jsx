@@ -56,9 +56,9 @@ export default function Table() {
   const handleGive = useCallback(async (data, recipient) => {
     const result = await insertSlice(data);
     if (result?.error === 'conflict') {
-      const free = nextFreeIdx();
-      if (free !== null) setGiving({ idx: free });
-      return { ...result, full: free === null };
+      // insertSlice asked the database, so this is fresh where nextFreeIdx() would be stale
+      if (result.freeIdx !== null) setGiving({ idx: result.freeIdx });
+      return { ...result, full: result.freeIdx === null };
     }
     if (!result?.error && result?.data) {
       setGiving(null);
@@ -68,7 +68,7 @@ export default function Table() {
       setTimeout(fireConfetti, 60);
     }
     return result;
-  }, [insertSlice, nextFreeIdx]);
+  }, [insertSlice]);
 
   // Once the screen for your own new slice closes, the cake and wall celebrate it
   const celebrateIfPending = useCallback((id) => {

@@ -24,6 +24,7 @@ export function GiveModal({ idx, onClose, onGive, initialTo = '' }) {
   const [website,         setWebsite]         = useState(''); // honeypot — should stay empty
   const [submitting,      setSubmitting]      = useState(false);
   const [submitError,     setSubmitError]     = useState(null);
+  const [cakeFull,        setCakeFull]        = useState(false); // the last slice went while this form was open
   const [showTypes,       setShowTypes]       = useState(false); // recipient-type picker is collapsed until asked for
   const [showColors,      setShowColors]      = useState(false); // icing color is auto-assigned; picker is opt-in
   // One Substack lookup per field, and both behave the same way
@@ -52,6 +53,7 @@ export function GiveModal({ idx, onClose, onGive, initialTo = '' }) {
     }, { verified: recipient.verified, profile: recipient.profile });
     // Every failure hands the button back, so a taken slice never leaves it stuck
     if (result?.error) {
+      if (result.full) setCakeFull(true);
       setSubmitError(
         result.error !== 'conflict'
           ? 'Something went wrong — please try again.'
@@ -243,8 +245,8 @@ export function GiveModal({ idx, onClose, onGive, initialTo = '' }) {
         )}
         <div className={styles.giveActions}>
           <button className="btn-ghost" onClick={onClose} disabled={submitting}>Maybe later</button>
-          <button className="btn-solid" disabled={!valid || submitting || lookingUp} onClick={submit}>
-            {submitting ? 'Taking the slice…' : 'Take the slice'}
+          <button className="btn-solid" disabled={!valid || submitting || lookingUp || cakeFull} onClick={submit}>
+            {cakeFull ? 'All slices taken' : submitting ? 'Taking the slice…' : 'Take the slice'}
           </button>
         </div>
       </div>
