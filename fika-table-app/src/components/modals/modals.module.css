@@ -763,6 +763,17 @@ button.btnDone:disabled {
   color: var(--sub);
 }
 
+/* Footer of the "slice is on the table" screen: a rule, then the way out on the left and a quiet
+   action on the right, in line with the left edge of everything above */
+.successFooter {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--s3);
+  padding-top: var(--s5);
+  border-top: 1px solid var(--edge);
+}
+
 /* Footer: a rule, then the way out, centered */
 .successActions {
   display: flex;

@@ -148,9 +148,10 @@ export function SuccessModal({ slice, recipient, onEdit, onClose }) {
           />
         </div>
 
-        <div className={styles.successActions}>
-          {onEdit && <button type="button" className="btn-ghost" onClick={onEdit}>Edit or delete</button>}
+        {/* The way out on the left edge like everything above it; editing is a quiet link on the right */}
+        <div className={styles.successFooter}>
           <button type="button" className="btn-ghost" onClick={onClose}>Back to the table</button>
+          {onEdit && <button type="button" className={styles.linkBtn} onClick={onEdit}>Edit or delete</button>}
         </div>
       </div>
     </Overlay>
