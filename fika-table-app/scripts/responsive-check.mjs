@@ -69,11 +69,6 @@ function installMocks(page, state) {
   page.route('**/rest/v1/slices*', async (r) => {
     const q = r.request();
     if (state.fail) return r.abort();
-    if (q.method() === 'POST') {
-      const body = JSON.parse(q.postData());
-      posted += 1;
-      return r.fulfill({ status: 201, json: { ...body, id: `new-${posted}`, created_at: new Date().toISOString() }, headers: cors });
-    }
     const single = (q.headers().accept || '').includes('vnd.pgrst.object');
     if (single) {
       const key = (new URL(q.url()).searchParams.get('id') || '').replace('eq.', '');
@@ -83,6 +78,21 @@ function installMocks(page, state) {
         : r.fulfill({ status: 406, json: { code: 'PGRST116', message: 'no rows' }, headers: cors });
     }
     return r.fulfill({ json: state.empty ? [] : ROWS, headers: cors });
+  });
+  // Giving goes through the give_slice function, which answers with the new row and its edit token
+  page.route('**/rest/v1/rpc/give_slice', async (r) => {
+    if (state.fail) return r.abort();
+    const b = JSON.parse(r.request().postData());
+    posted += 1;
+    return r.fulfill({
+      status: 200,
+      headers: cors,
+      json: {
+        id: `new-${posted}`, idx: b.p_idx, round: 1, from_name: b.p_from_name, to_name: b.p_to_name,
+        to_type: b.p_to_type, message: b.p_message, color: b.p_color,
+        created_at: new Date().toISOString(), edited_at: null, edit_token: 'test-token',
+      },
+    });
   });
   page.route('**/rest/v1/cake_config*', (r) => (state.fail ? r.abort() : r.fulfill({ json: { round: 1, round_size: 12 }, headers: cors })));
   page.route('**/api/substack-profile*', async (r) => {
