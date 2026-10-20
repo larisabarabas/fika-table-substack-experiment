@@ -349,7 +349,7 @@ export function GiveModal({ idx, onClose, onGive, initialTo = '', edit = null, o
               <button className="btn-ghost" onClick={onClose} disabled={submitting}>Cancel</button>
               <div className={styles.actionsRight}>
                 <button type="button" className={styles.deleteBtn} disabled={submitting} onClick={() => setConfirming(true)}>
-                  Delete note
+                  Delete word
                 </button>
                 {!closed && (
                   <button className="btn-solid" disabled={!valid || !changed || submitting || lookingUp} onClick={saveEdit}>
