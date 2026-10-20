@@ -64,6 +64,39 @@ export default function Privacy() {
         </section>
 
         <section>
+          <h2>Changing or deleting your kind word</h2>
+          <p>
+            There are no accounts, so we can&rsquo;t tell who gave a kind word.
+            Instead, when you give one, your browser saves a private edit key in
+            its local storage (this is not a cookie). That key is what lets
+            you change or delete it.
+          </p>
+          <ul>
+            <li>
+              <strong>Delete</strong> it any time. Find your slice on the wall (it
+              says &ldquo;Yours&rdquo;), open it and choose &ldquo;Edit or delete
+              your kind word&rdquo;. Deleting also puts its slice back on the cake.
+            </li>
+            <li>
+              <strong>Change</strong> the message, your signature and the icing
+              color for 24 hours after you give it. Who it&rsquo;s for can&rsquo;t
+              be changed. Delete it and write a new one instead.
+            </li>
+          </ul>
+          <p>
+            The key works only in the browser that gave the kind word. If you
+            clear this site&rsquo;s data or switch browser or device, you can no
+            longer change or delete it yourself. Email us and we&rsquo;ll remove it.
+          </p>
+          <p>
+            We never store the key itself, only a one-way hash of it. A hash can
+            check a key but can&rsquo;t be turned back into one, so we can&rsquo;t
+            read it or give it back to you. A Note you already posted on Substack keeps the
+            old words, because Substack holds that copy.
+          </p>
+        </section>
+
+        <section>
           <h2>Data we collect automatically</h2>
           <p>
             We use <strong>Vercel Analytics</strong> to see basic page-view
@@ -82,7 +115,7 @@ export default function Privacy() {
           <ul>
             <li>No accounts, logins, or passwords</li>
             <li>No email addresses</li>
-            <li>No cookies from the app itself</li>
+            <li>No cookies from the app itself. The edit key above is the only thing it saves in your browser.</li>
             <li>No IP logging or fingerprinting</li>
             <li>No tracking across other websites</li>
           </ul>
@@ -103,8 +136,10 @@ export default function Privacy() {
           <p>
             Messages stay visible on the cake during the current round, and
             remain accessible in the appreciation wall even after the round
-            ends. If you want a specific message removed, please reach out{' '}
-            <a href={`mailto:${CONFIG.supportEmail}`}>here</a>.
+            ends, until you or we delete them. You can delete your own any time,
+            as described above. If you can&rsquo;t (you cleared your browser data,
+            or you gave it before deleting was possible), please{' '}
+            <a href={`mailto:${CONFIG.supportEmail}`}>email us</a> and we&rsquo;ll remove it.
           </p>
         </section>
 
@@ -112,10 +147,12 @@ export default function Privacy() {
           <h2>Your rights (GDPR)</h2>
           <p>
             If you are in the EU, you have the right to access, correct, or
-            delete any personal data associated with your messages. Since the
-            app has no user accounts, most data is effectively anonymous. If
-            you included identifying information in a message and want it
-            removed, contact us with the details and we&rsquo;ll handle it.
+            delete any personal data associated with your messages. You can
+            correct or delete a kind word yourself in the browser that gave it.
+            Since the app has no user accounts, most data is effectively
+            anonymous. If you included identifying information in a message and
+            want it removed or changed, contact us with the details and
+            we&rsquo;ll handle it.
           </p>
         </section>
 
