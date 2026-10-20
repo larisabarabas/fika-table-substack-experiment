@@ -1,15 +1,12 @@
-import { Link } from 'react-router-dom';
 import { Overlay, CloseIcon } from './Overlay';
 import { NameLink } from '../NameLink';
 import { PASTELS } from '../../config';
 import { ShareSheet } from '../share/ShareSheet';
-import { editTokenFor } from '../../lib/ownedSlices';
 import { formatDay } from '../../lib/dates.js';
 import styles from './modals.module.css';
 
-export function ReadModal({ slice, onClose }) {
-  // This browser gave the slice, so it can edit or delete it
-  const mine = !String(slice.id).startsWith('opt-') && !!editTokenFor(slice.id);
+// onEdit is passed only for a slice this browser gave: it opens the give form filled in
+export function ReadModal({ slice, onClose, onEdit }) {
   return (
     <Overlay onClose={onClose} label="Read slice message">
       <span className="frosting" style={{ '--frost': PASTELS[slice.color % 8] }} />
@@ -24,9 +21,9 @@ export function ReadModal({ slice, onClose }) {
       <div className={styles.readBody}>
         <p className={styles.readMsg}>{slice.message}</p>
         {slice.editedAt && <p className={styles.hint}>Edited {formatDay(slice.editedAt)}</p>}
-        {mine && (
+        {onEdit && (
           <p className={styles.hint}>
-            <Link to={`/edit/${slice.id}`} className={styles.linkBtn}>Edit or delete your slice</Link>
+            <button type="button" className={styles.linkBtn} onClick={() => onEdit(slice)}>Edit or delete your slice</button>
           </p>
         )}
       </div>

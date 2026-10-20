@@ -272,6 +272,68 @@
   margin-top: 18px;
 }
 
+/* Edit mode: delete sits apart from saving and asks once before it does anything */
+.deleteZone {
+  margin-top: var(--s4);
+  padding-top: var(--s4);
+  border-top: 1px solid var(--edge);
+}
+
+.deleteBtn,
+.deleteSolid {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  padding: 0 20px;
+  border-radius: var(--radius-pill);
+  font-weight: 600;
+  font-size: var(--t3);
+}
+
+.deleteBtn {
+  border: 1px solid var(--error-edge);
+  color: var(--error);
+}
+
+.deleteBtn:hover {
+  background: var(--error-bg);
+}
+
+.deleteSolid {
+  background: var(--error);
+  color: #fff;
+}
+
+.deleteSolid:hover {
+  background: #991b1b;
+}
+
+.deleteBtn:disabled,
+.deleteSolid:disabled {
+  opacity: 0.45;
+  pointer-events: none;
+}
+
+.deleteBtn:focus-visible,
+.deleteSolid:focus-visible {
+  outline: 2px solid var(--error);
+  outline-offset: 2px;
+}
+
+.confirmBox {
+  padding: var(--s4);
+  border-radius: var(--radius-card);
+  background: var(--error-bg);
+  border: 1px solid var(--error-edge);
+}
+
+.confirmText {
+  margin: 0;
+  font-size: var(--t3);
+  line-height: 1.5;
+}
+
 /* Message at the top of the give card: error (red) when something broke, caution (amber)
    when the situation is recoverable and not the person's fault */
 .notice {

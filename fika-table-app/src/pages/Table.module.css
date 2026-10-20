@@ -13,6 +13,31 @@
   text-align: center;
 }
 
+/* A private edit link that opened nothing: amber, because nothing is broken */
+.noticeBanner {
+  background: var(--caution-bg);
+  border-bottom: 1px solid var(--edge);
+  color: var(--caution-ink);
+  font-size: var(--t2);
+  padding: var(--s3) var(--px);
+  text-align: center;
+}
+
+.noticeClose {
+  margin-left: var(--s3);
+  color: inherit;
+  font-size: inherit;
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  min-height: 24px;
+}
+
+.noticeClose:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
 /* Header */
 .header {
   display: flex;

@@ -6,7 +6,6 @@ const Welcome = lazy(() => import('./pages/Welcome'));
 const Table   = lazy(() => import('./pages/Table'));
 const Share   = lazy(() => import('./pages/Share'));
 const Note    = lazy(() => import('./pages/Note'));
-const Edit    = lazy(() => import('./pages/Edit'));
 const Privacy = lazy(() => import('./pages/Privacy'));
 
 // Analytics/SpeedInsights don't gate interactivity — lazy-load them into their
@@ -41,7 +40,6 @@ export default function App() {
           <Route path="/cake"    element={<CakeRedirect />} />
           <Route path="/share/:id" element={<Share />} />
           <Route path="/note/:id"  element={<Note />} />
-          <Route path="/edit/:id"  element={<Edit />} />
           <Route path="/privacy" element={<Privacy />} />
           <Route path="*"        element={<Navigate to="/" replace />} />
         </Routes>
