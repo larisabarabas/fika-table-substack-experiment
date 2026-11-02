@@ -87,7 +87,7 @@ function NoteContent({ id }) {
         )}
       </main>
 
-      <Footer />
+      <Footer support={false} />
     </div>
   );
 }
