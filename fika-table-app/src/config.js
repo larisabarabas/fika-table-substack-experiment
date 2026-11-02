@@ -7,6 +7,8 @@ export const CONFIG = {
   siteHost:      'fika.stefaniabarabas.com', // shown as text on the downloadable card
   newsletterURL: 'https://stefsdevnotes.substack.com',
   supportEmail:  'stefsdevnotes@gmail.com',
+  supportURL:    'https://buymeacoffee.com/stefsdevnotes',
+  supportText:   'Buy Stef a coffee',
   // After giving: true shows the "Tell them" screen, false brings back the plain read modal
   tellThemEnabled: true,
   sliceCapacity: 12,

@@ -24,14 +24,34 @@
 .footerPriv {
   margin: var(--s2) 0 0;
   font-size: var(--t1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: var(--s3);
 }
 
 .footerPriv a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 32px;
+  padding: 0 var(--s2);
   color: var(--sub);
   text-decoration: none;
   border-bottom: 1.5px dotted var(--accent);
 }
 
 .footerPriv a:hover {
-  color: var(--accent);
+  color: var(--accent-strong);
+}
+
+.footerPriv a:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+@media (max-width: 680px) {
+  .footerPriv a {
+    min-height: 44px;
+  }
 }

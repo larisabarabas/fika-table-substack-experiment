@@ -5,6 +5,7 @@ import { useSlices } from '../hooks/useSlices';
 import { NameSpan } from '../components/NameLink';
 import { ReadModal } from '../components/modals/ReadModal';
 import { Footer } from '../components/Footer';
+import { SupportLink } from '../components/SupportLink';
 import styles from './Welcome.module.css';
 
 const PROOF_COUNT = 3;
@@ -225,8 +226,8 @@ export default function Welcome() {
           <a href={CONFIG.creatorSite} target="_blank" rel="noopener noreferrer" className={styles.footerLink}>
             {CONFIG.creator}
           </a>
-          <span className={styles.footerSep}>&middot;</span>
           <Link to="/privacy" className={styles.footerLink}>Privacy</Link>
+          <SupportLink className={styles.footerLink} />
         </p>
       </Footer>
 

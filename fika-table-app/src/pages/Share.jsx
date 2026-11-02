@@ -141,7 +141,7 @@ function ShareContent({ id }) {
         </div>
       </div>
 
-      <Footer className={styles.footerLayer} />
+      <Footer className={styles.footerLayer} support={false} />
 
       <div className={styles.confetti} id="share-confetti" aria-hidden="true" />
     </div>

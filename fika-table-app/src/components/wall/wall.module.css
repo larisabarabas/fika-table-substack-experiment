@@ -177,6 +177,7 @@
   padding: 4px 14px 0;
   flex-wrap: wrap;
   overflow-wrap: anywhere;
+  max-width: 100%;
 }
 
 .arrow {
@@ -190,6 +191,8 @@
   color: var(--sub);
   padding: 0 14px;
   line-height: 1.55;
+  max-width: 100%;
+  overflow-wrap: anywhere;
 }
 
 /* Marks a slice this browser gave and can still edit or delete */
